@@ -2,12 +2,22 @@ package com.dsankovsky.kmpclientplanner
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.dsankovsky.kmpclientplanner.di.platformModule
+import com.dsankovsky.kmpclientplanner.di.repositoryModule
+import com.dsankovsky.kmpclientplanner.di.uiModule
+import com.dsankovsky.kmpclientplanner.di.useCasesModule
+import org.koin.core.context.startKoin
 
-fun main() = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "KMPClientPlanner",
-    ) {
-        App()
+fun main() {
+    startKoin {
+        modules(platformModule, useCasesModule, repositoryModule, uiModule)
+    }
+    application {
+        Window(
+            onCloseRequest = ::exitApplication,
+            title = "KMPClientPlanner",
+        ) {
+            App()
+        }
     }
 }
