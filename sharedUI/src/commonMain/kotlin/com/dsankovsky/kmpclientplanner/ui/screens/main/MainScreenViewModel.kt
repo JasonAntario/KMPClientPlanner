@@ -35,7 +35,7 @@ class MainScreenViewModel(
                 else -> Screen.HomeScreen
             }
 
-            event.tryEmit(MainScreenEvent.Navigate(startDestination))
+            event.emit(MainScreenEvent.Navigate(startDestination))
         }
     }
 
