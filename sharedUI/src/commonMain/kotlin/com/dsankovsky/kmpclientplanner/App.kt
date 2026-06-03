@@ -1,12 +1,12 @@
 package com.dsankovsky.kmpclientplanner
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import com.dsankovsky.kmpclientplanner.navigation.AppNavigation
+import com.dsankovsky.kmpclientplanner.ui.screens.main.MainScreen
+import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 
 @Composable
 fun App() {
-    MaterialTheme {
-        AppNavigation()
+    ClientPlannerTheme {
+        MainScreen()
     }
 }

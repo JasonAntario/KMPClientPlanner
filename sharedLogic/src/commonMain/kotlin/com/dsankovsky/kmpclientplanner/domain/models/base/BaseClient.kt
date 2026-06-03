@@ -22,4 +22,8 @@ data class BaseClient(
     fun getFullName() = surname?.let { "$name $it" } ?: name
 
     fun getShortName() = surname?.let { (name.take(1) + it.take(1)).uppercase() } ?: name.take(2)
+
+    fun getServiceName() = "Service with ${getFullName()}"
+
+    fun getFormattedPrice() = "$price ${currency.code}"
 }

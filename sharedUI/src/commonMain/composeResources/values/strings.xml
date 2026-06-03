@@ -1,0 +1,225 @@
+<resources>
+    <string name="app_name">Куфар Блокнот</string>
+
+    <!--BASE STRINGS-->
+    <string name="confirm">Подтвердить</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
+    <string name="day_of_week">День недели</string>
+
+    <!--DATETIME-->
+    <string name="datetime_monday">Понедельник</string>
+    <string name="datetime_monday_short">Пн</string>
+    <string name="datetime_tuesday">Вторник</string>
+    <string name="datetime_tuesday_short">Вт</string>
+    <string name="datetime_wednesday">Среда</string>
+    <string name="datetime_wednesday_short">Ср</string>
+    <string name="datetime_thursday">Четверг</string>
+    <string name="datetime_thursday_short">Чт</string>
+    <string name="datetime_friday">Пятница</string>
+    <string name="datetime_friday_short">Пт</string>
+    <string name="datetime_saturday">Суббота</string>
+    <string name="datetime_saturday_short">Сб</string>
+    <string name="datetime_sunday">Воскресенье</string>
+    <string name="datetime_sunday_short">Вс</string>
+    <string name="datetime_duration">Длительность, ч</string>
+    <string name="datetime_error">Ошибка</string>
+
+    <!--MONTHS-->
+    <string name="months_january">Январь</string>
+    <string name="months_january_relative">января</string>
+    <string name="months_february">Февраль</string>
+    <string name="months_february_relative">февраля</string>
+    <string name="months_march">Март</string>
+    <string name="months_march_relative">марта</string>
+    <string name="months_april">Апрель</string>
+    <string name="months_april_relative">апреля</string>
+    <string name="months_may">Май</string>
+    <string name="months_may_relative">мая</string>
+    <string name="months_june">Июнь</string>
+    <string name="months_june_relative">июня</string>
+    <string name="months_july">Июль</string>
+    <string name="months_july_relative">июля</string>
+    <string name="months_august">Август</string>
+    <string name="months_august_relative">Августа</string>
+    <string name="months_september">Сентябрь</string>
+    <string name="months_september_relative">Сентября</string>
+    <string name="months_october">Октябрь</string>
+    <string name="months_october_relative">октября</string>
+    <string name="months_november">Ноябрь</string>
+    <string name="months_november_relative">Ноября</string>
+    <string name="months_december">Декабрь</string>
+    <string name="months_december_relative">Декабря</string>
+
+    <!--CURRENCIES-->
+    <string name="currency_byn">Белорусский рубль</string>
+    <string name="currency_rub">Российский рубль</string>
+    <string name="currency_eur">Евро</string>
+    <string name="currency_usd">Доллар США</string>
+
+    <!--NAVIGATION BAR-->
+    <string name="nav_bar_main">Главная</string>
+    <string name="nav_bar_clients">Клиенты</string>
+    <string name="nav_bar_statistycs">Статистика</string>
+    <string name="nav_bar_settings">Настройки</string>
+    <string name="nav_bar_add">Добавить</string>
+
+    <!--ADD EDIT CLIENT-->
+    <string name="client_new_client">Новый клиент</string>
+    <string name="client_edit_client">Изменение клиента</string>
+    <string name="client_name">Имя</string>
+    <string name="client_surname">Фамилия</string>
+    <string name="client_price">Цена</string>
+    <string name="client_currency">Валюта</string>
+    <string name="client_price_will_fill_automatically">Заполните как можно больше параметров, чтобы они автоматически подставлялись при создании услуги</string>
+    <string name="client_comment">Комментарий</string>
+    <string name="client_level">Уровень знаний</string>
+    <string name="client_weight">Вес, кг</string>
+    <string name="client_weight_kg">кг</string>
+    <string name="client_choose_format_education">Формат занятий</string>
+    <string name="client_choose_format_sport">Формат тренировок</string>
+    <string name="client_online">Онлайн</string>
+    <string name="client_offline">Оффлайн</string>
+    <string name="client_timezone">Разница во времени</string>
+    <string name="client_update_data">Обновить данные</string>
+    <string name="client_add_lesson">Добавить занятие</string>
+    <string name="client_add_training">Добавить тренировку</string>
+    <string name="client_add_client">Добавить клиента</string>
+    <string name="client_close">Закрыть</string>
+    <string name="client_current_project">Текущий проект</string>
+    <string name="client_finished_projects">Завершенные проекты</string>
+    <string name="client_finish_project">Завершить проект</string>
+    <string name="client_address">Адрес проведения</string>
+    <string name="client_phone">Телефон</string>
+    <string name="service_subtype">Вид услуги</string>
+    <string name="service_subtype_sport">Фитнес, танцы, йога</string>
+    <string name="service_subtype_education">Английский, математика</string>
+    <string name="service_subtype_beauty">Маникюр, брови, ресницы</string>
+
+    <!--CLIENTS LIST-->
+    <string name="clients_list_no_clients">Список клиентов пуст</string>
+    <string name="clients_list_no_clients_description">Здесь пока никого нет.\nЧтобы начать, добавьте своего первого клиента</string>
+
+    <!--SERVICES LIST-->
+    <string name="services_list_no_services">Список услуг пуст</string>
+    <string name="services_list_no_services_description">Здесь пока ничего нет\nДобавьте свою первую услугу или измените фильтр</string>
+
+    <!--ADD EDIT SERVICE-->
+    <string name="service_choose_format_lession">Формат занятия</string>
+    <string name="service_choose_format_training">Формат тренировки</string>
+    <string name="service_new_service">Новая услуга</string>
+    <string name="service_edit_service">Изменение услуги</string>
+    <string name="service_title">Название</string>
+    <string name="service_choose_client">Выберете клиента</string>
+    <string name="service_start_time">Начало</string>
+    <string name="service_end_time">Конец</string>
+    <string name="service_start_date_greater_end_date">Дата и время окончания не может быть раньше даты и времени начала</string>
+    <string name="service_price">Цена</string>
+    <string name="service_currenct">Валюта</string>
+    <string name="service_status">Статус</string>
+    <string name="service_comment">Комментарий</string>
+    <string name="service_homework">Домашнее задание</string>
+    <string name="service_update_data">Обновить данные</string>
+    <string name="service_add_service">Добавить услугу</string>
+    <string name="service_close">Закрыть</string>
+    <string name="service_reference_or_result">Референсы/Результат</string>
+    <string name="service_training">Тренировка</string>
+    <string name="service_repeats">Повторы</string>
+    <string name="service_weight">Вес, кг</string>
+    <string name="service_training_add_exercise">Добавить упражнение</string>
+    <string name="service_training_add_set">Добавить круг</string>
+    <string name="service_training_delete_exercise">Удалить упражнение</string>
+    <string name="service_training_delete_lesson">Удалить занятие</string>
+    <string name="service_training_delete_training">Удалить тренеровку</string>
+    <string name="service_amount">Количество услуг</string>
+    <string name="service_status_title">Статус</string>
+    <string name="service_paid">Оплачено</string>
+    <string name="service_not_paid">Не оплачено</string>
+    <string name="service_finished">Проведено</string>
+    <string name="service_not_finished">Не проведено</string>
+
+    <!--CLIENTS LIST-->
+    <string name="clients_title">Клиенты</string>
+    <string name="clients_no_client">Добавьте своего первого клиента</string>
+
+    <!--MAIN SCREEN-->
+    <string name="main_title">Записи</string>
+
+    <!--SERVICE TYPE SELECTION SCREEN-->
+    <string name="service_type_selection_title">Выберите тип услуг</string>
+    <string name="service_type_selection_description">Это позволит нам правильно настроить приложение и упростить Вам работу с ним</string>
+
+    <!--SERVICE TYPE-->
+    <string name="service_type_base">Другое</string>
+    <string name="service_type_education">Образование</string>
+    <string name="service_type_beauty">Красота и уход</string>
+    <string name="service_type_tattoo">Тату</string>
+    <string name="service_type_sport">Спорт</string>
+    <string name="service_type_change">Сменить тип услуг</string>
+
+    <!--SETTINGS SCREEN-->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_service_type">Тип услуг</string>
+    <string name="settings_clear_date">Удалить все данные</string>
+    <string name="settings_version">Версия приложения</string>
+    <string name="settings_notification">Уведомления</string>
+    <string name="settings_feedback">Поделитесь мнением</string>
+
+    <!--STATISTICS SCREEN-->
+    <string name="statistics_title">Моя статистика</string>
+    <string name="statistics_client">Клиент</string>
+    <string name="statistics_paid">Оплачено</string>
+    <string name="statistics_expected">Ожидается</string>
+
+    <string name="tabs_day">день</string>
+    <string name="tabs_week">неделя</string>
+    <string name="tabs_month">месяц</string>
+    <string name="tabs_year">год</string>
+    <string name="tabs_today">сегодня</string>
+    <string name="tabs_tomorrow">завтра</string>
+    <string name="tabs_all_time">все время</string>
+
+    <string name="service_education_title_autofill">Занятие с %1$s</string>
+    <string name="service_sport_title_autofill">Тренировка с %1$s</string>
+    <string name="service_autofill">Заполнить</string>
+    <string name="autofill_description">Заполнить услуги на ближайшие 4 недели?</string>
+    <string name="autofill_prolong_description">Продлить услуги еще на 4 недели? Заполнение начнется с даты последней созданной услуги клиента</string>
+    <string name="service_crossing">В указанное время есть пересечение с другими услугами:</string>
+    <string name="client_confirm_deleting">Вы уверены, что хотите удалить клиента и все данные, связанные с ним?</string>
+    <string name="service_confirm_deleting">Вы уверены, что хотите удалить услугу и все данные, связанные с ней?</string>
+    <string name="client_shoud_continue_autofill">Все равно заполнить услуги?</string>
+
+    <string name="payment_title">Выберите клиента и количество услуг, которые хотите оплатить</string>
+    <string name="payment_available_services">Доступно услуг для оплаты: %1$s</string>
+    <string name="welcome_message">Добро пожаловать в Куфар Блокнот!</string>
+    <string name="welcome_desctription">Приложение позволяет вести учет клиентов, услуг и оплат за оказываемые услуги</string>
+    <string name="start">Начать</string>
+    <string name="client_address_placeholder">Улица, Дом</string>
+    <string name="pay_services_title">Предоплата</string>
+    <string name="service_details">Детали</string>
+    <string name="service_date">Дата</string>
+    <string name="service_time">Время</string>
+    <string name="required_field">Обязательное поле</string>
+    <string name="services_paid">Услуги оплачены</string>
+    <string name="client_details_lessons">Занятия</string>
+    <string name="client_details_fill_lessons">Заполнить занятия</string>
+    <string name="client_details_training">Тренировки</string>
+    <string name="client_details_fill_trainings">Заполнить тренировки</string>
+    <string name="client_details_services">Услуги клиента</string>
+
+    <!--SNACKBAR-MESSAGES-->
+    <string name="client_details_data_updated">Данные успешно обновлены</string>
+    <string name="client_details_autofill_completed">Услуги успешно заполнены</string>
+    <string name="client_details_status_updated">Статус успешно обновлен</string>
+    <string name="add_edit_client_deleted">Клиент успешно удален</string>
+    <string name="add_edit_client_created">Клиент успешно создан</string>
+    <string name="add_edit_client_updated">Данные клиента успешно обновлены</string>
+    <string name="add_edit_service_deleted">Услуга успешно удалена</string>
+    <string name="add_edit_service_created">Услуга успешно создана</string>
+    <string name="add_edit_service_updated">Данные услуги успешно обновлены</string>
+
+    <string name="feedback_url">https://forms.gle/sh8ateS5wgdT4x4W6</string>
+    <string name="statistics_income_in_period">Заработано за период</string>
+    <string name="statistics_expected_in_period">Ожидается за период</string>
+
+</resources>

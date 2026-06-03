@@ -46,6 +46,9 @@ kotlin {
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.koin.composeViewModel)
             implementation(compose.materialIconsExtended)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.coil3.compose)
+            implementation(libs.coil3.network.okhttp)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

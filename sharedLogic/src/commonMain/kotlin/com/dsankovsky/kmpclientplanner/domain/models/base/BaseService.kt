@@ -5,6 +5,7 @@ import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.extensions.getCurrentDateTime
 import com.dsankovsky.kmpclientplanner.extensions.toTime
+import com.dsankovsky.kmpclientplanner.extensions.toUIDate
 import kotlinx.datetime.LocalDateTime
 
 data class BaseService(
@@ -25,5 +26,9 @@ data class BaseService(
 
     fun getServiceTime(): String {
         return "${startDate.toTime()} - ${endDate.toTime()}"
+    }
+
+    fun getServiceDate(): String {
+        return startDate.date.toUIDate()
     }
 }
