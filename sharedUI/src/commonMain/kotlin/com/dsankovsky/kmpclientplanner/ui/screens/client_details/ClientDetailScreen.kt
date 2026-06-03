@@ -17,11 +17,16 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -145,14 +150,31 @@ fun ClientDetailsScreen(
 //        }
 //    }
 
-    when {
-        state.isLoading -> LoadingScreen()
-        else -> {
-            ClientDetailsScreenContent(
-                state = state,
-                onAction = viewModel::handleActions,
-                modifier = modifier
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(state.clientName) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            viewModel.handleActions(ClientDetailsActions.OnCloseScreenClicked)
+                        }
+                    ) {
+                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+                    }
+                }
             )
+        }
+    ) { paddingValues ->
+        when {
+            state.isLoading -> LoadingScreen()
+            else -> {
+                ClientDetailsScreenContent(
+                    state = state,
+                    onAction = viewModel::handleActions,
+                    modifier = modifier.padding(paddingValues)
+                )
+            }
         }
     }
 }
@@ -169,7 +191,7 @@ fun ClientDetailsScreenContent(
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.secondaryContainer),
+                .background(MaterialTheme.colorScheme.background),
             contentPadding = PaddingValues(16.dp).withNavBarPadding(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -204,6 +226,7 @@ fun ClientDetailsScreenContent(
                     ) {
                         Text(
                             text = state.clientShortName,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .align(Alignment.Center)
                         )
@@ -219,10 +242,12 @@ fun ClientDetailsScreenContent(
                 item {
                     Text(
                         stringResource(Res.string.service_comment),
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                     Text(
                         comment,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
@@ -235,6 +260,7 @@ fun ClientDetailsScreenContent(
                 is ClientSpecificFields.EducationClientSpecificFields -> {
                     item {
                         Text(
+                            color = MaterialTheme.colorScheme.primary,
                             text = stringResource(Res.string.client_details_lessons),
                             modifier = Modifier.padding(top = 16.dp)
                         )
@@ -243,7 +269,10 @@ fun ClientDetailsScreenContent(
                     items(fields.lessonDateTimeList) { training ->
                         val day = training.dayOfWeek.name
                         val startTime = training.time.toUITime()
-                        Text("$day, $startTime")
+                        Text(
+                            "$day, $startTime",
+                            color = MaterialTheme.colorScheme.primary,
+                        )
                     }
 
                     if (fields.lessonDateTimeList.isNotEmpty()) {
@@ -254,7 +283,10 @@ fun ClientDetailsScreenContent(
                                 },
                                 modifier = Modifier.padding(top = 16.dp)
                             ) {
-                                Text(stringResource(Res.string.client_details_fill_lessons))
+                                Text(
+                                    stringResource(Res.string.client_details_fill_lessons),
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
                             }
                         }
                     }
@@ -366,6 +398,7 @@ private fun ClientDetailsList(
     ) {
         Text(
             stringResource(Res.string.service_details),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 

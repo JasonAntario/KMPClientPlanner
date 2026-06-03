@@ -129,10 +129,12 @@ private fun ServiceDetailsScreenContent(
                 item {
                     Text(
                         stringResource(Res.string.service_comment),
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                     Text(
                         comment,
+                        color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
@@ -197,7 +199,10 @@ private fun ServiceDetailsScreenContent(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(stringResource(Res.string.service_update_data))
+                    Text(
+                        stringResource(Res.string.service_update_data),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
         }
@@ -217,6 +222,7 @@ private fun ServiceDetailsList(
     ) {
         Text(
             stringResource(Res.string.service_details),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -262,7 +268,10 @@ fun DetailItem(
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(title)
+            Text(
+                title,
+                color = MaterialTheme.colorScheme.primary,
+            )
             val pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 10f), 0f)
             val dottedLineColor = MaterialTheme.colorScheme.primary
             Canvas(
@@ -280,6 +289,7 @@ fun DetailItem(
         }
         Text(
             description,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.weight(1f)
         )
     }

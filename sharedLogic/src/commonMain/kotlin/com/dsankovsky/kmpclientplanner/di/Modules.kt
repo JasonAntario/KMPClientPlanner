@@ -19,30 +19,30 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.service.CheckServiceCross
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServiceSpecificFieldsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCase
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.factoryOf
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.factory
+import org.koin.plugin.module.dsl.single
 
 expect val platformModule: Module
 
 val useCasesModule = module {
-    factoryOf(::AddEditClientSpecificFieldsUseCase)
-    factoryOf(::AddEditDeleteClientUseCase)
-    factoryOf(::GetClientSpecificFieldsUseCase)
-    factoryOf(::GetClientsUseCase)
-    factoryOf(::AddEditDeleteServiceUseCase)
-    factoryOf(::AddEditServiceSpecificFieldsUseCase)
-    factoryOf(::AutofillServiceUseCase)
-    factoryOf(::CheckServiceCrossingUseCase)
-    factoryOf(::GetServiceSpecificFieldsUseCase)
-    factoryOf(::GetServicesUseCase)
-    factoryOf(::ClearDatabaseUseCase)
+    factory<AddEditClientSpecificFieldsUseCase>()
+    factory<AddEditDeleteClientUseCase>()
+    factory<GetClientSpecificFieldsUseCase>()
+    factory<GetClientsUseCase>()
+    factory<AddEditDeleteServiceUseCase>()
+    factory<AddEditServiceSpecificFieldsUseCase>()
+    factory<AutofillServiceUseCase>()
+    factory<CheckServiceCrossingUseCase>()
+    factory<GetServiceSpecificFieldsUseCase>()
+    factory<GetServicesUseCase>()
+    factory<ClearDatabaseUseCase>()
 }
 
 val repositoryModule = module {
-    singleOf(::AppRepositoryImpl).bind<AppRepository>()
-    singleOf(::ClientsListRepositoryImpl).bind<ClientsListRepository>()
-    singleOf(::ServicesListRepositoryImpl).bind<ServicesListRepository>()
-    single { AppSettings(get()) }
+    single<AppRepositoryImpl>() bind AppRepository::class
+    single<ClientsListRepositoryImpl>() bind ClientsListRepository::class
+    single<ServicesListRepositoryImpl>() bind ServicesListRepository::class
+    single<AppSettings>()
 }

@@ -10,8 +10,11 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,12 +74,26 @@ fun MainScreen() {
         Screen.SettingsScreen
     )
 
-    val showNavigationBar = backStack.lastOrNull() in screensWithNavBar
+    val showNavigationBar by remember {
+        derivedStateOf { backStack.lastOrNull() in screensWithNavBar }
+    }
+
+    val navSuiteState = rememberNavigationSuiteScaffoldState()
+
+    LaunchedEffect(showNavigationBar) {
+        if (showNavigationBar) {
+            navSuiteState.show()
+        } else {
+            navSuiteState.hide()
+        }
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+
     NavigationSuiteScaffold(
+        state = navSuiteState,
         navigationSuiteItems = {
             NavigationItem.items.forEach {
                 item(
@@ -117,6 +134,10 @@ fun MainScreen() {
                 modifier = Modifier,
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
+                    entry<Screen.LoadingScreen> {
+                        LoadingScreen()
+                    }
+
                     entry<Screen.WelcomeScreen> {
                         WelcomeScreen(
                             modifier = Modifier,
@@ -124,10 +145,6 @@ fun MainScreen() {
                                 backStack.add(Screen.ServiceTypeSelectionScreen)
                             }
                         )
-                    }
-
-                    entry<Screen.LoadingScreen> {
-                        LoadingScreen()
                     }
 
                     entry<Screen.ServiceTypeSelectionScreen>(

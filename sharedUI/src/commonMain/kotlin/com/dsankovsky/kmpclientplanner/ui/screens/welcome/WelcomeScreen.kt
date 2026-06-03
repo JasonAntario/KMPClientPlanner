@@ -1,13 +1,15 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.welcome
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -28,6 +30,7 @@ fun WelcomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
             .edgeToEdgeBottomPadding(0.dp)
     ) {
@@ -35,14 +38,18 @@ fun WelcomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.headlineLarge,
             text = stringResource(Res.string.welcome_message),
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            stringResource(Res.string.welcome_desctription),
+            text = stringResource(Res.string.welcome_desctription),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyLarge,
         )
         Spacer(Modifier.weight(1f))
-        TextButton(
+        Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onStartClick
         ) {

@@ -11,19 +11,19 @@ import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.StatisticsScreenViewModel
-import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.viewModel
 
 val uiModule = module {
-    viewModel { MainScreenViewModel(get(), get()) }
-    viewModel { AddEditClientViewModel(get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { AddEditServiceViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { ClientDetailsViewModel(get(), get(), get(), get(), get()) }
-    viewModel { ClientsScreenViewModel(get(), get()) }
-    viewModel { HomeScreenViewModel(get(), get(), get()) }
-    viewModel { PayServicesScreenViewModel(get(), get(), get()) }
-    viewModel { ServiceDetailsScreenViewModel(get(), get(), get(), get(), get()) }
-    viewModel { ServicesHistoryScreenViewModel(get(), get()) }
-    viewModel { SettingsViewModel(get(), get()) }
-    viewModel { StatisticsScreenViewModel(get(), get()) }
+    viewModel<MainScreenViewModel>()
+    viewModel<AddEditClientViewModel>()
+    viewModel<AddEditServiceViewModel>()
+    viewModel<ClientDetailsViewModel>()
+    viewModel<ClientsScreenViewModel>()
+    viewModel<HomeScreenViewModel>()
+    viewModel<PayServicesScreenViewModel>()
+    viewModel<ServiceDetailsScreenViewModel>()
+    viewModel<ServicesHistoryScreenViewModel>()
+    viewModel<SettingsViewModel>()
+    viewModel<StatisticsScreenViewModel>()
 }

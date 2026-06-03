@@ -54,7 +54,7 @@ fun AddEditServiceScreen(
     modifier: Modifier = Modifier,
     serviceId: Long? = null,
 ) {
-    val viewModel: AddEditServiceViewModel = koinViewModel()
+    val viewModel = koinViewModel<AddEditServiceViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
