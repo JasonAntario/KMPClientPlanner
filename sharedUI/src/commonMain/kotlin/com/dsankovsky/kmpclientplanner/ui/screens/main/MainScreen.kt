@@ -4,25 +4,21 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.dsankovsky.kmpclientplanner.navigation.NavigationItem
 import com.dsankovsky.kmpclientplanner.navigation.Screen
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientEvent
@@ -35,19 +31,19 @@ import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.main.empty.NoClientsScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServiceScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServicesScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.service_type_selection.ServiceTypeSelectionScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.StatisticsScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.welcome.WelcomeScreen
-import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServiceScreenEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreenEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsScreenEvent
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.add_edit_client_created
 import kmpclientplanner.sharedui.generated.resources.add_edit_client_deleted
@@ -61,6 +57,7 @@ import kmpclientplanner.sharedui.generated.resources.client_details_status_updat
 import kmpclientplanner.sharedui.generated.resources.services_paid
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -79,20 +76,25 @@ fun MainScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        contentWindowInsets = WindowInsets.statusBars,
-        snackbarHost = {
-            SnackbarHost(snackbarHostState) { data ->
-                Snackbar(
-                    data,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = if (backStack.lastOrNull() in screensWithNavBar) 100.dp else 0.dp)
+    NavigationSuiteScaffold(
+        navigationSuiteItems = {
+            NavigationItem.items.forEach {
+                item(
+                    icon = {
+                        Icon(it.icon, contentDescription = null)
+                    },
+                    label = {
+                        Text(stringResource(it.title))
+                    },
+                    selected = it.screen == backStack.lastOrNull(),
+                    onClick = {
+                        backStack.add(it.screen)
+                    }
                 )
             }
-        }
-    ) { innerPadding ->
+        },
+        modifier = Modifier.fillMaxSize(),
+    ) {
         LaunchedEffect(Unit) {
             viewModel.handleActions(MainScreenActions.GetStartDestination)
         }
@@ -112,12 +114,12 @@ fun MainScreen() {
 
             NavDisplay(
                 backStack = backStack,
-                modifier = Modifier.padding(innerPadding),
+                modifier = Modifier,
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
                     entry<Screen.WelcomeScreen> {
                         WelcomeScreen(
-                            modifier = Modifier.padding(innerPadding),
+                            modifier = Modifier,
                             onStartClick = {
                                 backStack.add(Screen.ServiceTypeSelectionScreen)
                             }

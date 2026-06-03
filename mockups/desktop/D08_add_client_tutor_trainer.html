@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><title>Desktop — Новый клиент репетитор/тренер</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared_styles.css">
+</head><body>
+<div class="page-title">Desktop · D08 · Новый клиент — Репетитор / Тренер</div>
+
+<div class="win">
+<div class="wintbar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="ttxt">Kufar Блокнот — Новый клиент</span></div>
+<div class="wbody" style="height:440px;">
+<div class="rail"><div class="ri "><div class="rpill "><svg width="20" height="20" viewBox="0 0 24 24" fill="#49454F"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div><span class="rlbl" style="">Главная</span></div><div class="ri on"><div class="rpill on"><svg width="20" height="20" viewBox="0 0 24 24" fill="#21005D"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><span class="rlbl" style="color:#21005D;font-weight:500;">Клиенты</span></div><div class="ri "><div class="rpill "><svg width="20" height="20" viewBox="0 0 24 24" fill="#49454F"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><span class="rlbl" style="">Статистика</span></div><div class="ri "><div class="rpill "><svg width="20" height="20" viewBox="0 0 24 24" fill="#49454F"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div><span class="rlbl" style="">Настройки</span></div><div style="flex:1;"></div><div class="rfab"><svg width="22" height="22" viewBox="0 0 24 24" fill="#21005D"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div></div>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+  <div class="dtopbar"><span class="dtbtitle">Новый клиент</span><button class="bcnl">Отмена</button><button class="bfill">Сохранить</button></div>
+  <div style="padding:24px;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-content:start;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="ff"><span class="flbl">Имя *</span><input class="finp" value="Иван" /></div>
+      <div class="ff"><span class="flbl">Фамилия (опционально)</span><input class="finp" value="Козлов" /></div>
+      <div class="ff"><span class="flbl">Номер телефона (опционально)</span><input class="finp idle" placeholder="Не указан" /></div>
+      <div class="ff"><span class="flbl">Адрес (опционально)</span><input class="finp idle" placeholder="Не указан" /></div>
+      <div class="ff"><span class="flbl">Уровень знаний (опционально)</span><div class="dslct"><span>Начинающий</span><span style="color:#49454F;">▾</span></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="ff">
+        <span class="flbl">Формат занятий</span>
+        <div style="display:flex;gap:8px;margin-top:4px;"><div class="dchip on">Онлайн</div><div class="dchip">Оффлайн</div><div class="dchip">Оба</div></div>
+      </div>
+      <div class="ff">
+        <span class="flbl">Расписание занятий (опционально)</span>
+        <div style="background:#F3EDF7;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:13px;color:#1C1B1F;">Среда · 10:00–11:30</span><button style="background:none;border:none;color:#B3261E;font-size:12px;">Удалить</button></div>
+          <div style="height:1px;background:#E6E0E9;"></div>
+          <button style="background:#E8DEF8;border:none;border-radius:100px;height:30px;padding:0 14px;font-size:12px;color:#21005D;font-weight:500;width:fit-content;">+ Добавить слот</button>
+        </div>
+      </div>
+      <div class="ff"><span class="flbl">Комментарий (опционально)</span><textarea class="finp out" rows="3" placeholder="Готовится к ЕГЭ..."></textarea></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</body></html>

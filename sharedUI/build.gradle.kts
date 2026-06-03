@@ -49,6 +49,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.coil3.compose)
             implementation(libs.coil3.network.okhttp)
+            implementation(libs.compose.navsuitscaffold)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

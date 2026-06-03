@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><title>Android — Редактирование клиента</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared_styles.css">
+</head><body>
+<div class="page-title">Android · 10 · Редактирование клиента</div>
+<div class="phone">
+  <div class="sbar"><span class="stime">9:41</span><span class="sicons">●●●</span></div>
+  <div class="tbar"><button class="ibtn">←</button><h1>Редактировать</h1><button class="btn-text">Сохранить</button></div>
+  <div class="content">
+    <div class="scroll">
+      <div class="tf-wrap"><div class="tf-lbl">Имя *</div><input class="tf" value="Анна" readonly /></div>
+      <div class="tf-wrap"><div class="tf-lbl">Фамилия (опционально)</div><input class="tf" value="Петрова" readonly /></div>
+      <div class="tf-wrap"><div class="tf-lbl">Номер телефона (опционально)</div><input class="tf" value="+375 29 123-45-67" readonly /></div>
+      <div class="tf-wrap"><div class="tf-lbl">Адрес (опционально)</div><input class="tf" value="ул. Ленина, 5, кв. 12" readonly /></div>
+      <div class="sec-lbl">Уровень знаний (опционально)</div>
+      <div class="slct" style="margin-bottom:14px;"><span style="font-size:15px;color:#1C1B1F;">Продвинутый</span><span style="font-size:18px;color:#49454F;">▾</span></div>
+      <div class="sec-lbl">Формат занятий</div>
+      <div class="chip-row" style="padding:0;margin-bottom:14px;">
+        <div class="chip on">Онлайн</div><div class="chip">Оффлайн</div><div class="chip">Оба</div>
+      </div>
+      <div style="font-size:12px;color:#49454F;margin-bottom:4px;">Комментарий (опционально)</div>
+      <textarea class="tf-outline" rows="2" style="resize:none;">Готовится к ЕГЭ, слабые места — тригонометрия</textarea>
+      <div style="height:1px;background:#CAC4D0;margin:12px 0;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <button class="btn-danger">🗑 Удалить клиента</button>
+        <button class="btn-filled">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>
