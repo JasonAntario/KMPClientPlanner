@@ -77,7 +77,8 @@ class AutofillServiceUseCase(
         serviceType: ServiceType,
         ignoreCrossing: Boolean = false,
         startDateTime: LocalDateTime = getCurrentDateTime(),
-        weeks: Int = 4
+        weeks: Int = 4,
+        titlePrefix: String = ""
     ): Result<ServicesAutofillResult> {
         val client = getClientsUseCase.getClientById(clientId)
             .firstOrNull() ?: return Result.failure(ServicesAutofillResultError.NoClient())
@@ -114,7 +115,7 @@ class AutofillServiceUseCase(
 
                 dates.forEach { dateTimePair ->
                     val service = BaseService(
-                        title = "",
+                        title = "$titlePrefix ${client.name}",
                         clientId = clientId,
                         startDate = dateTimePair.first,
                         endDate = dateTimePair.second,

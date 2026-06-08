@@ -1,38 +1,34 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.dsankovsky.kmpclientplanner.ui.screens.services_history
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material3.Card
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dsankovsky.kmpclientplanner.ui.components.ToolbarView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
-import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
+import com.dsankovsky.kmpclientplanner.ui.screens.services.ServiceItemView
+import com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenItem
 import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.services_list_history
 import kmpclientplanner.sharedui.generated.resources.services_list_no_services_description
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -43,7 +39,6 @@ fun ServicesHistoryScreen(
     onEvent: (ServicesHistoryScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val viewModel: ServicesHistoryScreenViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -55,13 +50,22 @@ fun ServicesHistoryScreen(
         onEvent(it)
     }
 
-    when {
-        state.isLoading -> LoadingScreen()
-        else -> {
-            ServicesHistoryScreenContent(
+    Scaffold(
+        topBar = {
+            ToolbarView(
+                title = stringResource(Res.string.services_list_history),
+                onBackClicked = {
+                    viewModel.handleAction(ServicesHistoryScreenAction.OnCloseScreenClicked)
+                }
+            )
+        }
+    ) { paddingValues ->
+        when {
+            state.isLoading -> LoadingScreen()
+            else -> ServicesHistoryScreenContent(
                 state = state,
                 onAction = viewModel::handleAction,
-                modifier = modifier
+                modifier = modifier.padding(paddingValues)
             )
         }
     }
@@ -74,8 +78,7 @@ fun ServicesHistoryScreenContent(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(
             top = 24.dp,
             start = 16.dp,
@@ -84,215 +87,52 @@ fun ServicesHistoryScreenContent(
         ).withNavBarPadding(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
-//        item {
-//            KufarDetailsScreenHeader(
-//                title = "История услуг",
-//                onBackClicked = {
-//                    onAction(ServicesHistoryScreenAction.OnCloseScreenClicked)
-//                }
-//            )
-//        }
-
         if (state.items.isEmpty()) {
             item {
                 Text(
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     text = stringResource(Res.string.services_list_no_services_description),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
 
-        state.items.forEachIndexed { index, item ->
+        items(state.items, key = { it }) { item ->
             when (item) {
-                is ServicesHistoryScreenItem.DateDivider -> {
-//                    stickyHeader {
-//                        Row(
-//                            verticalAlignment = Alignment.CenterVertically,
-//                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-//                            modifier = Modifier
-//                                .background(MaterialTheme.colorScheme.background)
-//                                .padding(vertical = 4.dp)
-//                        ) {
-//                            Text(
-//                                text = "${stringResource(item.dayOfWeek)}, ${item.day} ${
-//                                    stringResource(
-//                                        item.month
-//                                    )
-//                                }",
-//                                textStyle = KufarTheme.typography.H3
-//                            )
-//                            HorizontalDivider(thickness = 2.dp)
-//                        }
-//                    }
-                }
-
-                is ServicesHistoryScreenItem.ServiceItem -> {
-                    item(item.id) {
-//                        var isRevealed by remember { mutableStateOf(false) }
-//                        KufarSwipeableItemWithActions(
-//                            isRevealed = isRevealed,
-//                            onExpanded = {
-//                                isRevealed = true
-//                            },
-//                            onCollapsed = {
-//                                isRevealed = false
-//                            },
-//                            actions = {
-//                                Row(
-//                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-//                                    modifier = Modifier.padding(start = 4.dp)
-//                                ) {
-//                                    ActionIcon(
-//                                        onClick = {
-//                                            onAction(
-//                                                ServicesHistoryScreenAction.OnPaidStatusChanged(
-//                                                    item
-//                                                )
-//                                            )
-//                                            isRevealed = false
-//                                        },
-//                                        backgroundColor = if (item.isPaid) KufarTheme.colors.bg.accent.green.main else KufarTheme.colors.bg.grey.tertiary,
-//                                        icon = Icons.Outlined.AttachMoney,
-//                                        iconColor = if (item.isPaid) KufarTheme.colors.icon.grey.lighter else KufarTheme.colors.icon.grey.darkest,
-//                                        modifier = Modifier.fillMaxHeight()
-//                                    )
-//                                    ActionIcon(
-//                                        onClick = {
-//                                            onAction(
-//                                                ServicesHistoryScreenAction.OnFinishStatusChanged(
-//                                                    item
-//                                                )
-//                                            )
-//                                            isRevealed = false
-//                                        },
-//                                        backgroundColor = if (item.isFinished) KufarTheme.colors.bg.accent.green.main else KufarTheme.colors.bg.grey.tertiary,
-//                                        icon = Icons.Outlined.CalendarMonth,
-//                                        iconColor = if (item.isFinished) KufarTheme.colors.icon.grey.lighter else KufarTheme.colors.icon.grey.darkest,
-//                                        modifier = Modifier.fillMaxHeight()
-//                                    )
-//                                    ActionIcon(
-//                                        onClick = {
-//                                            onAction(
-//                                                ServicesHistoryScreenAction.OnDeleteService(
-//                                                    item
-//                                                )
-//                                            )
-//                                            isRevealed = false
-//                                        },
-//                                        backgroundColor = KufarTheme.colors.bg.accent.red.main,
-//                                        icon = Icons.Outlined.Delete,
-//                                        iconColor = KufarTheme.colors.icon.grey.lighter,
-//                                        modifier = Modifier.fillMaxHeight()
-//                                    )
-//                                }
-//                            }
-//                        ) {
-                        ServiceItemView(
-                            serviceItem = item,
-                            onAction = onAction
-                        )
-//                        }
+                is ServicesListScreenItem.DateDivider -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(text = item.getUIDate())
+                        HorizontalDivider(thickness = 2.dp)
                     }
                 }
-            }
-        }
-    }
-}
 
-@Composable
-private fun ServiceItemView(
-    serviceItem: ServicesHistoryScreenItem.ServiceItem,
-    onAction: (ServicesHistoryScreenAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        onClick = { onAction(ServicesHistoryScreenAction.OnServiceClicked(serviceItem)) }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = serviceItem.title,
-                    modifier = Modifier.weight(1f)
-                )
-                if (serviceItem.isPaid) {
-                    Image(
-                        contentDescription = null,
-                        imageVector = Icons.Default.AttachMoney,
-                        modifier = Modifier.size(25.dp)
+                is ServicesListScreenItem.ServiceItem -> {
+                    ServiceItemView(
+                        serviceItem = item,
+                        onAction = { action ->
+                            when (action) {
+                                is com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenAction.OnServiceClicked ->
+                                    onAction(ServicesHistoryScreenAction.OnServiceClicked(action.serviceItem))
+                                is com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenAction.OnDeleteService ->
+                                    onAction(ServicesHistoryScreenAction.OnDeleteService(action.serviceItem))
+                                is com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenAction.OnPaidStatusChanged ->
+                                    onAction(ServicesHistoryScreenAction.OnPaidStatusChanged(action.serviceItem))
+                                is com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenAction.OnFinishStatusChanged ->
+                                    onAction(ServicesHistoryScreenAction.OnFinishStatusChanged(action.serviceItem))
+                                else -> Unit
+                            }
+                        }
                     )
                 }
             }
-
-            serviceItem.comment?.let {
-                Text(it)
-            }
-
-            Row(
-                modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    contentDescription = null,
-                    imageVector = Icons.Default.AccessTime,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = serviceItem.timeInterval)
-            }
         }
-    }
-}
-
-
-@PreviewLightDark
-@Composable
-private fun PreviewServicesHistoryScreenContent() {
-    ClientPlannerTheme {
-        ServicesHistoryScreenContent(
-            ServicesHistoryScreenState(
-                items = listOf(
-                    ServicesHistoryScreenItem.DateDivider(
-                        day = 2,
-                        dayOfWeek = 1,
-                        month = 1
-                    ),
-                    ServicesHistoryScreenItem.ServiceItem(
-                        title = "Playing videogames",
-
-                        isFinished = true,
-                        isPaid = true,
-                        comment = "Помыть собаку",
-                        timeInterval = "12:00 - 13:30"
-                    ),
-                    ServicesHistoryScreenItem.ServiceItem(
-                        title = "Playing videogames",
-
-                        timeInterval = "12:00 - 13:30"
-                    ),
-                    ServicesHistoryScreenItem.DateDivider(
-                        11,
-                        1,
-                        1
-                    ),
-                    ServicesHistoryScreenItem.ServiceItem(
-                        title = "Playing videogames",
-                        timeInterval = "12:00 - 13:30"
-                    ),
-                    ServicesHistoryScreenItem.ServiceItem(
-                        title = "Playing videogames",
-                        timeInterval = "12:00 - 13:30"
-                    )
-                )
-            ), {})
     }
 }

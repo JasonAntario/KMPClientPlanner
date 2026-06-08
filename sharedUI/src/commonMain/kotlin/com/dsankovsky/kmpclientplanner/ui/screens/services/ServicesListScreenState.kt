@@ -5,10 +5,10 @@ import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.additional.getHomeScreenFilters
 
 @Immutable
-data class HomeScreenState(
+data class ServicesListScreenState(
     val isLoading: Boolean = true,
     val currentFilter: ServicesFilter = ServicesFilter.TODAY,
     val filtersList: List<ServicesFilter> = getHomeScreenFilters(),
-    val items: List<HomeScreenItem> = emptyList(),
+    val items: List<ServicesListScreenItem> = emptyList(),
     val scrollToIndex: Int = 0
 )

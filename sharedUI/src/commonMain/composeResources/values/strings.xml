@@ -103,6 +103,7 @@
     <!--SERVICES LIST-->
     <string name="services_list_no_services">Список услуг пуст</string>
     <string name="services_list_no_services_description">Здесь пока ничего нет\nДобавьте свою первую услугу или измените фильтр</string>
+    <string name="services_list_history">История услуг</string>
 
     <!--ADD EDIT SERVICE-->
     <string name="service_choose_format_lession">Формат занятия</string>
@@ -137,6 +138,8 @@
     <string name="service_not_paid">Не оплачено</string>
     <string name="service_finished">Проведено</string>
     <string name="service_not_finished">Не проведено</string>
+    <string name="service_prefix_education">Занятие с</string>
+    <string name="service_prefix_sport">Тренировка с</string>
 
     <!--CLIENTS LIST-->
     <string name="clients_title">Клиенты</string>

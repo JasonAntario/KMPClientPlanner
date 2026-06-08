@@ -40,7 +40,7 @@ import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetails
 import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.service_type_selection.ServiceTypeSelectionScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreen
-import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenEvent
+import com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreenEvent
 import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsScreen
@@ -341,11 +341,11 @@ fun MainScreen() {
                         HomeScreen(
                             onEvent = { event ->
                                 when (event) {
-                                    is HomeScreenEvent.OpenServiceInfo -> {
+                                    is ServicesListScreenEvent.OpenServiceInfo -> {
                                         backStack.add(Screen.ServiceDetailsScreen(event.serviceId))
                                     }
 
-                                    HomeScreenEvent.ServiceDeleted -> {
+                                    ServicesListScreenEvent.ServiceDeleted -> {
                                         scope.launch {
                                             val message =
                                                 getString(Res.string.add_edit_service_deleted)
@@ -356,7 +356,7 @@ fun MainScreen() {
                                         }
                                     }
 
-                                    HomeScreenEvent.StatusUpdated -> {
+                                    ServicesListScreenEvent.StatusUpdated -> {
                                         scope.launch {
                                             val message =
                                                 getString(Res.string.client_details_status_updated)
@@ -367,7 +367,7 @@ fun MainScreen() {
                                         }
                                     }
 
-                                    HomeScreenEvent.AddService -> {
+                                    ServicesListScreenEvent.AddService -> {
                                         backStack.add(Screen.AddEditServiceScreen())
                                     }
                                 }

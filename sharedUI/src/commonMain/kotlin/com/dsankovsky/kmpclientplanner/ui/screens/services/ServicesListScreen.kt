@@ -3,7 +3,6 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.services
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
@@ -27,8 +27,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +36,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,15 +61,15 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
-    onEvent: (HomeScreenEvent) -> Unit,
+    onEvent: (ServicesListScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    val viewModel: HomeScreenViewModel = koinViewModel()
+    val viewModel: ServicesScreenViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(HomeScreenAction.LoadData)
+        viewModel.handleAction(ServicesListScreenAction.LoadData)
     }
 
     viewModel.event.collectWithLifecycle {
@@ -88,8 +90,8 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenContent(
-    state: HomeScreenState,
-    onAction: (HomeScreenAction) -> Unit,
+    state: ServicesListScreenState,
+    onAction: (ServicesListScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -97,7 +99,7 @@ fun HomeScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    onAction(HomeScreenAction.OnAddServiceClicked)
+                    onAction(ServicesListScreenAction.OnAddServiceClicked)
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
@@ -120,10 +122,7 @@ fun HomeScreenContent(
         ) {
 
             item {
-                HeaderView(
-                    stringResource(Res.string.main_title),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                HeaderView(stringResource(Res.string.main_title))
             }
 
             item {
@@ -132,7 +131,7 @@ fun HomeScreenContent(
                     state.filtersList.forEachIndexed { index, filter ->
                         Tab(
                             selected = index == selectedIndex,
-                            onClick = { onAction(HomeScreenAction.OnFilterClicked(filter)) },
+                            onClick = { onAction(ServicesListScreenAction.OnFilterClicked(filter)) },
                             text = { Text(filter.toTabLabel()) }
                         )
                     }
@@ -142,38 +141,37 @@ fun HomeScreenContent(
             if (state.items.isEmpty()) {
                 item {
                     Text(
-                        modifier = Modifier.padding(top = 16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                         text = stringResource(Res.string.services_list_no_services_description),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
-            state.items.forEachIndexed { index, item ->
+            items(state.items, key = { it }) { item ->
                 when (item) {
-                    is HomeScreenItem.DateDivider -> {
-                        stickyHeader {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .padding(vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = item.getUIDate()
-                                )
-                                HorizontalDivider(thickness = 2.dp)
-                            }
+                    is ServicesListScreenItem.DateDivider -> {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.background)
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = item.getUIDate()
+                            )
+                            HorizontalDivider(thickness = 2.dp)
                         }
                     }
 
-                    is HomeScreenItem.ServiceItem -> {
-                        item(key = item.id) {
-                            ServiceItemView(
-                                serviceItem = item,
-                                onAction = onAction
-                            )
-                        }
+                    is ServicesListScreenItem.ServiceItem -> {
+                        ServiceItemView(
+                            serviceItem = item,
+                            onAction = onAction
+                        )
                     }
                 }
             }
@@ -183,17 +181,16 @@ fun HomeScreenContent(
 
 @Composable
 fun ServiceItemView(
-    serviceItem: HomeScreenItem.ServiceItem,
-    onAction: (HomeScreenAction) -> Unit,
+    serviceItem: ServicesListScreenItem.ServiceItem,
+    onAction: (ServicesListScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        onClick = { onAction(HomeScreenAction.OnServiceClicked(serviceItem)) }
+        onClick = { onAction(ServicesListScreenAction.OnServiceClicked(serviceItem)) }
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -203,12 +200,16 @@ fun ServiceItemView(
             ) {
                 Text(
                     text = serviceItem.title,
-                    modifier = Modifier.weight(1f)
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 if (serviceItem.isPaid) {
-                    Image(
+                    Icon(
                         imageVector = Icons.Default.AttachMoney,
                         modifier = Modifier.size(25.dp),
+                        tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )
                 }
@@ -216,7 +217,9 @@ fun ServiceItemView(
 
             serviceItem.comment?.let {
                 Text(
-                    it,
+                    text = it,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 
@@ -225,26 +228,34 @@ fun ServiceItemView(
                     .padding(vertical = 2.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
+                Icon(
                     Icons.Default.AccessTime,
                     modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary,
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = serviceItem.timeInterval)
+                Text(
+                    text = serviceItem.timeInterval,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
+                Icon(
                     Icons.Default.Person, modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary,
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = serviceItem.client.getFullName(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -253,14 +264,17 @@ fun ServiceItemView(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
+                    Icon(
                         Icons.Default.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = it,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -283,12 +297,12 @@ private fun ServicesFilter.toTabLabel(): String = when (this) {
 private fun PreviewHomeScreen() {
     ClientPlannerTheme {
         HomeScreenContent(
-            HomeScreenState(
+            ServicesListScreenState(
                 items = listOf(
-                    HomeScreenItem.DateDivider(
+                    ServicesListScreenItem.DateDivider(
                         date = getCurrentDateTime().date
                     ),
-                    HomeScreenItem.ServiceItem(
+                    ServicesListScreenItem.ServiceItem(
                         title = "Playing videogames",
                         client = BaseClient(
                             name = "Otis",
@@ -300,7 +314,7 @@ private fun PreviewHomeScreen() {
                         comment = "Помыть собаку",
                         timeInterval = "12:00 - 13:30"
                     ),
-                    HomeScreenItem.ServiceItem(
+                    ServicesListScreenItem.ServiceItem(
                         title = "Playing videogames",
                         client = BaseClient(
                             name = "Otis",
@@ -309,15 +323,15 @@ private fun PreviewHomeScreen() {
                         ),
                         timeInterval = "12:00 - 13:30"
                     ),
-                    HomeScreenItem.DateDivider(
+                    ServicesListScreenItem.DateDivider(
                         date = getCurrentDateTime().date
                     ),
-                    HomeScreenItem.ServiceItem(
+                    ServicesListScreenItem.ServiceItem(
                         title = "Playing videogames",
                         client = BaseClient(name = "Otis", surname = "Pes"),
                         timeInterval = "12:00 - 13:30"
                     ),
-                    HomeScreenItem.ServiceItem(
+                    ServicesListScreenItem.ServiceItem(
                         title = "Playing videogames",
                         client = BaseClient(name = "Otis", surname = "Pes"),
                         timeInterval = "12:00 - 13:30"

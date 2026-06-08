@@ -18,12 +18,15 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.service.AutofillServiceUs
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.ServicesAutofillResult
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.ServicesAutofillResultError
+import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.service_prefix_education
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 
 class AddEditClientViewModel(
     private val addEditDeleteClientUseCase: AddEditDeleteClientUseCase,
@@ -440,7 +443,19 @@ class AddEditClientViewModel(
     private fun autofillServices(ignoreCrossing: Boolean = false) {
         viewModelScope.launch {
             val state = state.value
-            autofillServiceUseCase.autofillServices(state.id, state.serviceType, ignoreCrossing)
+            val titlePrefixRes = when (state.serviceType) {
+                ServiceType.EDUCATION -> Res.string.service_prefix_education
+                ServiceType.SPORT -> Res.string.service_prefix_education
+                else -> null
+            }
+
+            val titlePrefix = titlePrefixRes?.let { getString(it) }.orEmpty()
+            autofillServiceUseCase.autofillServices(
+                clientId = state.id,
+                serviceType = state.serviceType,
+                ignoreCrossing = ignoreCrossing,
+                titlePrefix = titlePrefix
+            )
                 .fold(
                     onSuccess = {
                         when (it) {

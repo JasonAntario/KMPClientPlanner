@@ -8,7 +8,7 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.AddEditDeleteServiceUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCase
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
-import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenEvent.OpenServiceInfo
+import com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenEvent.OpenServiceInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,44 +18,44 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeScreenViewModel(
+class ServicesScreenViewModel(
     private val getServicesUseCase: GetServicesUseCase,
     private val getClientsUseCase: GetClientsUseCase,
     private val addEditDeleteServiceUseCase: AddEditDeleteServiceUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeScreenState())
+    private val _state = MutableStateFlow(ServicesListScreenState())
     val state = _state.asStateFlow()
 
-    val event = MutableSharedFlow<HomeScreenEvent>()
+    val event = MutableSharedFlow<ServicesListScreenEvent>()
 
-    fun handleAction(action: HomeScreenAction) {
+    fun handleAction(action: ServicesListScreenAction) {
 
         when (action) {
-            HomeScreenAction.LoadData -> loadData()
-            is HomeScreenAction.OnDeleteService -> deleteService(action.serviceItem)
+            ServicesListScreenAction.LoadData -> loadData()
+            is ServicesListScreenAction.OnDeleteService -> deleteService(action.serviceItem)
 
-            is HomeScreenAction.OnServiceClicked -> {
+            is ServicesListScreenAction.OnServiceClicked -> {
                 viewModelScope.launch {
                     event.emit(OpenServiceInfo(action.serviceItem.id))
                 }
             }
 
-            is HomeScreenAction.OnFilterClicked -> {
+            is ServicesListScreenAction.OnFilterClicked -> {
                 updateDataByFilter(action.filter)
             }
 
-            is HomeScreenAction.OnFinishStatusChanged -> {
+            is ServicesListScreenAction.OnFinishStatusChanged -> {
                 updateFinishServiceStatus(action.serviceItem)
             }
 
-            is HomeScreenAction.OnPaidStatusChanged -> {
+            is ServicesListScreenAction.OnPaidStatusChanged -> {
                 updatePayServiceStatus(action.serviceItem)
             }
 
-            HomeScreenAction.OnAddServiceClicked -> {
+            ServicesListScreenAction.OnAddServiceClicked -> {
                 viewModelScope.launch {
-                    event.emit(HomeScreenEvent.AddService)
+                    event.emit(ServicesListScreenEvent.AddService)
                 }
             }
         }
@@ -83,7 +83,7 @@ class HomeScreenViewModel(
                     .mapNotNull { service ->
                         val client = clients.firstOrNull { service.clientId == it.id }
                             ?: return@mapNotNull null
-                        HomeScreenItem.ServiceItem(
+                        ServicesListScreenItem.ServiceItem(
                             id = service.id,
                             title = service.title,
                             client = client,
@@ -100,7 +100,7 @@ class HomeScreenViewModel(
                     .map { item ->
                         buildList {
                             add(
-                                HomeScreenItem.DateDivider(
+                                ServicesListScreenItem.DateDivider(
                                     item.key
                                 )
                             )
@@ -113,7 +113,7 @@ class HomeScreenViewModel(
                 .collectLatest { serviceItems ->
                     val currentDateTime = getCurrentDateTime()
                     val scrollIndex = serviceItems.indexOfFirst {
-                        it is HomeScreenItem.ServiceItem
+                        it is ServicesListScreenItem.ServiceItem
                                 && (it.startDate < currentDateTime && it.endDate > currentDateTime
                                 || it.startDate > currentDateTime)
                     }
@@ -129,10 +129,10 @@ class HomeScreenViewModel(
         }
     }
 
-    private fun deleteService(service: HomeScreenItem.ServiceItem) {
+    private fun deleteService(service: ServicesListScreenItem.ServiceItem) {
         viewModelScope.launch {
             addEditDeleteServiceUseCase.deleteService(service.id)
-            event.emit(HomeScreenEvent.ServiceDeleted)
+            event.emit(ServicesListScreenEvent.ServiceDeleted)
         }
     }
 
@@ -145,21 +145,21 @@ class HomeScreenViewModel(
         loadData()
     }
 
-    private fun updateFinishServiceStatus(item: HomeScreenItem.ServiceItem) {
+    private fun updateFinishServiceStatus(item: ServicesListScreenItem.ServiceItem) {
         viewModelScope.launch {
             val service = item.service
             val newService = service.copy(isFinished = !service.isFinished)
             addEditDeleteServiceUseCase.update(newService)
-            event.emit(HomeScreenEvent.StatusUpdated)
+            event.emit(ServicesListScreenEvent.StatusUpdated)
         }
     }
 
-    private fun updatePayServiceStatus(item: HomeScreenItem.ServiceItem) {
+    private fun updatePayServiceStatus(item: ServicesListScreenItem.ServiceItem) {
         viewModelScope.launch {
             val service = item.service
             val newService = service.copy(isPaid = !service.isPaid)
             addEditDeleteServiceUseCase.update(newService)
-            event.emit(HomeScreenEvent.StatusUpdated)
+            event.emit(ServicesListScreenEvent.StatusUpdated)
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,7 +31,8 @@ fun ServiceBeautyFieldsView(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            stringResource(Res.string.service_reference_or_result)
+            stringResource(Res.string.service_reference_or_result),
+            color = MaterialTheme.colorScheme.primary
         )
 //        KufarImageViewPager(
 //            uris = fields.images,

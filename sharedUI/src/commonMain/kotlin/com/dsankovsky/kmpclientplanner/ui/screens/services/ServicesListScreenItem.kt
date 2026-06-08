@@ -10,12 +10,12 @@ import com.dsankovsky.kmpclientplanner.ui.extensions.toUIDate
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 
-sealed interface HomeScreenItem {
+sealed interface ServicesListScreenItem {
 
     @Immutable
     data class DateDivider(
         val date: LocalDate
-    ) : HomeScreenItem {
+    ) : ServicesListScreenItem {
 
         @Composable
         fun getUIDate(): String {
@@ -38,5 +38,5 @@ sealed interface HomeScreenItem {
         val specificFieldsId: Long? = null,
         val isOptionsRevealed: Boolean = false,
         val service: BaseService = BaseService()
-    ) : HomeScreenItem
+    ) : ServicesListScreenItem
 }

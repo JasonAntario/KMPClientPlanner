@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceSpecificFields
 import com.dsankovsky.kmpclientplanner.ui.animation.SlideBottomAnimatedVisibility
+import com.dsankovsky.kmpclientplanner.ui.components.ToolbarView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.edgeToEdgeBottomPadding
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
@@ -68,14 +72,31 @@ fun ServiceDetailsScreen(
         viewModel.handleActions(ServiceDetailsScreenAction.LoadData(serviceId))
     }
 
-    when {
-        state.isLoading -> LoadingScreen()
-        else -> {
-            ServiceDetailsScreenContent(
-                state = state,
-                onAction = viewModel::handleActions,
-                modifier = modifier
+    Scaffold(
+        topBar = {
+            ToolbarView(
+                title = stringResource(Res.string.service_details),
+                onBackClicked = {
+                    viewModel.handleActions(ServiceDetailsScreenAction.OnCloseScreenClicked)
+                },
+                actionIcon = Icons.Default.Edit,
+                actionIconColor = MaterialTheme.colorScheme.onSurface,
+                onActionClicked = {
+                    viewModel.handleActions(ServiceDetailsScreenAction.OnEditServiceClicked)
+                }
             )
+        }
+    ) { paddingValues ->
+
+        when {
+            state.isLoading -> LoadingScreen()
+            else -> {
+                ServiceDetailsScreenContent(
+                    state = state,
+                    onAction = viewModel::handleActions,
+                    modifier = modifier.padding(paddingValues)
+                )
+            }
         }
     }
 }
@@ -98,27 +119,15 @@ private fun ServiceDetailsScreenContent(
             ).withNavBarPadding(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-//            item {
-//                KufarDetailsScreenHeader(
-//                    title = "",
-//                    showEditIcon = true,
-//                    modifier = Modifier
-//                        .fillMaxWidth(),
-//                    onBackClicked = {
-//                        onAction(ServiceDetailsScreenAction.OnCloseScreenClicked)
-//                    },
-//                    onEditClicked = {
-//                        onAction(ServiceDetailsScreenAction.OnEditServiceClicked)
-//                    }
-//                )
-//            }
 
             item {
                 Text(
                     state.title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp)
+                        .padding(top = 12.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -131,11 +140,13 @@ private fun ServiceDetailsScreenContent(
                     Text(
                         stringResource(Res.string.service_comment),
                         color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                     Text(
                         comment,
                         color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)

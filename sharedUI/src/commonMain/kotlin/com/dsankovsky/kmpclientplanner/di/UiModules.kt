@@ -7,7 +7,7 @@ import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.main.MainScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServicesScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenViewModel
-import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenViewModel
+import com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.services_history.ServicesHistoryScreenViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsViewModel
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.StatisticsScreenViewModel
@@ -20,7 +20,7 @@ val uiModule = module {
     viewModel<AddEditServiceViewModel>()
     viewModel<ClientDetailsViewModel>()
     viewModel<ClientsScreenViewModel>()
-    viewModel<HomeScreenViewModel>()
+    viewModel<ServicesScreenViewModel>()
     viewModel<PayServicesScreenViewModel>()
     viewModel<ServiceDetailsScreenViewModel>()
     viewModel<ServicesHistoryScreenViewModel>()
