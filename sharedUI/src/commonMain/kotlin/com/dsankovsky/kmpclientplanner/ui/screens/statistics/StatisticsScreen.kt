@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +27,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
+import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
@@ -36,6 +39,11 @@ import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.statistics_expected_in_period
 import kmpclientplanner.sharedui.generated.resources.statistics_income_in_period
 import kmpclientplanner.sharedui.generated.resources.statistics_title
+import kmpclientplanner.sharedui.generated.resources.tabs_all_time
+import kmpclientplanner.sharedui.generated.resources.tabs_day
+import kmpclientplanner.sharedui.generated.resources.tabs_month
+import kmpclientplanner.sharedui.generated.resources.tabs_week
+import kmpclientplanner.sharedui.generated.resources.tabs_year
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.stringResource
@@ -85,19 +93,18 @@ fun StatisticsScreenContent(
             )
         }
 
-//        item {
-//            KufarSimpleScrollableTabRow(
-//                tabItems = state.filters.map { it.tabItem },
-//                selectedTabItem = state.currentFilter.tabItem,
-//                modifier = Modifier
-//                    .ignoreParentsPadding(horizontal = 16.dp)
-//                    .fillMaxWidth(),
-//                onSelectItem = { tab ->
-//                    val filter = state.filters.first { it.tabItem == tab }
-//                    onAction(StatisticsScreenAction.OnFilterClicked(filter))
-//                }
-//            )
-//        }
+        item {
+            val selectedIndex = state.filters.indexOf(state.currentFilter)
+            PrimaryScrollableTabRow(selectedTabIndex = selectedIndex) {
+                state.filters.forEachIndexed { index, filter ->
+                    Tab(
+                        selected = index == selectedIndex,
+                        onClick = { onAction(StatisticsScreenAction.OnFilterClicked(filter)) },
+                        text = { Text(filter.toTabLabel()) }
+                    )
+                }
+            }
+        }
 
         item {
             Row(
@@ -200,6 +207,16 @@ fun StatisticsScreenContent(
             )
         }
     }
+}
+
+@Composable
+private fun ServicesFilter.toTabLabel(): String = when (this) {
+    ServicesFilter.DAY -> stringResource(Res.string.tabs_day)
+    ServicesFilter.CURRENT_WEEK -> stringResource(Res.string.tabs_week)
+    ServicesFilter.CURRENT_MONTH -> stringResource(Res.string.tabs_month)
+    ServicesFilter.YEAR -> stringResource(Res.string.tabs_year)
+    ServicesFilter.ALL_TIME -> stringResource(Res.string.tabs_all_time)
+    else -> name
 }
 
 @PreviewLightDark

@@ -6,7 +6,7 @@ class ClearDatabaseUseCase(
     private val appRepository: AppRepository
 ) {
 
-    fun clearDatabase() {
+    suspend fun clearDatabase() {
         appRepository.clearDatabase()
     }
 }

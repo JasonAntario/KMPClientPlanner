@@ -18,7 +18,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
+import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.service_type_base
+import kmpclientplanner.sharedui.generated.resources.service_type_beauty
+import kmpclientplanner.sharedui.generated.resources.service_type_education
+import kmpclientplanner.sharedui.generated.resources.service_type_sport
+import kmpclientplanner.sharedui.generated.resources.service_type_tattoo
 import kotlinx.coroutines.flow.SharedFlow
+import org.jetbrains.compose.resources.stringResource
 
 @Suppress("ComposableNaming")
 @Composable
@@ -54,3 +62,17 @@ fun Modifier.edgeToEdgeBottomPadding(additionalBottomPadding: Dp = 16.dp) =
     this
         .navigationBarsPadding()
         .padding(bottom = additionalBottomPadding)
+
+
+@Composable
+fun ServiceType.toUIName(): String {
+    val res = when (this) {
+        ServiceType.BASE -> Res.string.service_type_base
+        ServiceType.EDUCATION -> Res.string.service_type_education
+        ServiceType.BEAUTY -> Res.string.service_type_beauty
+        ServiceType.TATTOO -> Res.string.service_type_tattoo
+        ServiceType.SPORT -> Res.string.service_type_sport
+    }
+
+    return stringResource(res)
+}

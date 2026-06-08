@@ -1,13 +1,16 @@
 package com.dsankovsky.kmpclientplanner.data
 
 import com.dsankovsky.kmpclientplanner.data.db.AppDatabase
+import com.dsankovsky.kmpclientplanner.data.db.dao.client.ClientsDao
 import com.dsankovsky.kmpclientplanner.domain.AppRepository
 
 class AppRepositoryImpl(
-    private val appDatabase: AppDatabase
+    appDatabase: AppDatabase
 ) : AppRepository {
 
-    override fun clearDatabase() {
-//        appDatabase.clearAllTables()
+    private val clientsDao: ClientsDao = appDatabase.clientsDao()
+
+    override suspend fun clearDatabase() {
+        clientsDao.clearAllTables()
     }
 }

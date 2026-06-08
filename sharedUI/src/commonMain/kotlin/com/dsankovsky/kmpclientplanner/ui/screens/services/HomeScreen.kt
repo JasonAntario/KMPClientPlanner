@@ -4,6 +4,7 @@ package com.dsankovsky.kmpclientplanner.ui.screens.services
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,10 +18,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,14 +39,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
+import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
+import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.main_title
 import kmpclientplanner.sharedui.generated.resources.services_list_no_services_description
+import kmpclientplanner.sharedui.generated.resources.tabs_month
+import kmpclientplanner.sharedui.generated.resources.tabs_today
+import kmpclientplanner.sharedui.generated.resources.tabs_tomorrow
+import kmpclientplanner.sharedui.generated.resources.tabs_week
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -76,128 +92,88 @@ fun HomeScreenContent(
     onAction: (HomeScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(
-            top = 24.dp,
-            start = 16.dp,
-            end = 16.dp,
-            bottom = 100.dp
-        ).withNavBarPadding(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
 
-        item {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                text = stringResource(Res.string.main_title),
-            )
-        }
-
-//        item {
-//            KufarSimpleScrollableTabRow(
-//                tabItems = state.filtersList.map { it.tabItem },
-//                selectedTabItem = state.currentFilter.tabItem,
-//                modifier = Modifier
-//                    .ignoreParentsPadding(horizontal = 16.dp)
-//                    .fillMaxWidth(),
-//                onSelectItem = { tab ->
-//                    val filter = state.filtersList.first { it.tabItem == tab }
-//                    onAction(HomeScreenAction.OnFilterClicked(filter))
-//                }
-//            )
-//        }
-
-        if (state.items.isEmpty()) {
-            item {
-                Text(
-                    modifier = Modifier.padding(top = 16.dp),
-                    text = stringResource(Res.string.services_list_no_services_description),
-                )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onAction(HomeScreenAction.OnAddServiceClicked)
+                }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
+    ) { paddingValues ->
 
-        state.items.forEachIndexed { index, item ->
-            when (item) {
-                is HomeScreenItem.DateDivider -> {
-//                    stickyHeader {
-//                        Row(
-//                            verticalAlignment = Alignment.CenterVertically,
-//                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-//                            modifier = Modifier
-//                                .background(MaterialTheme.colorScheme.background)
-//                                .padding(vertical = 4.dp)
-//                        ) {
-//                            Text(
-//                                text = "${stringResource(item.dayOfWeek)}, ${item.day} ${
-//                                    stringResource(
-//                                        item.month
-//                                    )
-//                                }",
-//                            )
-//                            HorizontalDivider(thickness = 2.dp)
-//                        }
-//                    }
-                }
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                top = 24.dp,
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 100.dp
+            ).withNavBarPadding(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
-                is HomeScreenItem.ServiceItem -> {
-                    item(key = item.id) {
-//                        var isRevealed by remember { mutableStateOf(false) }
-//                        KufarSwipeableItemWithActions(
-//                            isRevealed = isRevealed,
-//                            onExpanded = {
-//                                isRevealed = true
-//                            },
-//                            onCollapsed = {
-//                                isRevealed = false
-//                            },
-//                            modifier = Modifier.animateItem(),
-//                            actions = {
-//                                Row(
-//                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-//                                    modifier = Modifier.padding(start = 4.dp)
-//                                ) {
-//                                    ActionIcon(
-//                                        onClick = {
-//                                            onAction(HomeScreenAction.OnPaidStatusChanged(item))
-//                                            isRevealed = false
-//                                        },
-//                                        backgroundColor = if (item.isPaid) KufarTheme.colors.bg.accent.green.main else KufarTheme.colors.bg.grey.tertiary,
-//                                        icon = Icons.Outlined.AttachMoney,
-//                                        iconColor = if (item.isPaid) KufarTheme.colors.icon.grey.lighter else KufarTheme.colors.icon.grey.darkest,
-//                                        modifier = Modifier.fillMaxHeight()
-//                                    )
-//                                    ActionIcon(
-//                                        onClick = {
-//                                            onAction(HomeScreenAction.OnFinishStatusChanged(item))
-//                                            isRevealed = false
-//                                        },
-//                                        backgroundColor = if (item.isFinished) KufarTheme.colors.bg.accent.green.main else KufarTheme.colors.bg.grey.tertiary,
-//                                        icon = Icons.Outlined.CalendarMonth,
-//                                        iconColor = if (item.isFinished) KufarTheme.colors.icon.grey.lighter else KufarTheme.colors.icon.grey.darkest,
-//                                        modifier = Modifier.fillMaxHeight()
-//                                    )
-//                                    ActionIcon(
-//                                        onClick = {
-//                                            onAction(HomeScreenAction.OnDeleteService(item))
-//                                            isRevealed = false
-//                                        },
-//                                        backgroundColor = KufarTheme.colors.bg.accent.red.main,
-//                                        icon = Icons.Outlined.Delete,
-//                                        iconColor = KufarTheme.colors.icon.grey.lighter,
-//                                        modifier = Modifier.fillMaxHeight()
-//                                    )
-//                                }
-//                            }
-//                        ) {
-                        ServiceItemView(
-                            serviceItem = item,
-                            onAction = onAction
+            item {
+                HeaderView(
+                    stringResource(Res.string.main_title),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            item {
+                val selectedIndex = state.filtersList.indexOf(state.currentFilter)
+                PrimaryScrollableTabRow(selectedTabIndex = selectedIndex) {
+                    state.filtersList.forEachIndexed { index, filter ->
+                        Tab(
+                            selected = index == selectedIndex,
+                            onClick = { onAction(HomeScreenAction.OnFilterClicked(filter)) },
+                            text = { Text(filter.toTabLabel()) }
                         )
+                    }
+                }
+            }
 
+            if (state.items.isEmpty()) {
+                item {
+                    Text(
+                        modifier = Modifier.padding(top = 16.dp),
+                        text = stringResource(Res.string.services_list_no_services_description),
+                    )
+                }
+            }
+
+            state.items.forEachIndexed { index, item ->
+                when (item) {
+                    is HomeScreenItem.DateDivider -> {
+                        stickyHeader {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = item.getUIDate()
+                                )
+                                HorizontalDivider(thickness = 2.dp)
+                            }
+                        }
+                    }
+
+                    is HomeScreenItem.ServiceItem -> {
+                        item(key = item.id) {
+                            ServiceItemView(
+                                serviceItem = item,
+                                onAction = onAction
+                            )
+                        }
                     }
                 }
             }
@@ -293,6 +269,15 @@ fun ServiceItemView(
 }
 
 
+@Composable
+private fun ServicesFilter.toTabLabel(): String = when (this) {
+    ServicesFilter.TODAY -> stringResource(Res.string.tabs_today)
+    ServicesFilter.TOMORROW -> stringResource(Res.string.tabs_tomorrow)
+    ServicesFilter.NEXT_WEEK -> stringResource(Res.string.tabs_week)
+    ServicesFilter.NEXT_MONTH -> stringResource(Res.string.tabs_month)
+    else -> name
+}
+
 @PreviewLightDark
 @Composable
 private fun PreviewHomeScreen() {
@@ -301,9 +286,7 @@ private fun PreviewHomeScreen() {
             HomeScreenState(
                 items = listOf(
                     HomeScreenItem.DateDivider(
-                        day = 2,
-                        dayOfWeek = 1,
-                        month = 1
+                        date = getCurrentDateTime().date
                     ),
                     HomeScreenItem.ServiceItem(
                         title = "Playing videogames",
@@ -327,9 +310,7 @@ private fun PreviewHomeScreen() {
                         timeInterval = "12:00 - 13:30"
                     ),
                     HomeScreenItem.DateDivider(
-                        11,
-                        1,
-                        1
+                        date = getCurrentDateTime().date
                     ),
                     HomeScreenItem.ServiceItem(
                         title = "Playing videogames",

@@ -62,6 +62,12 @@ class AddEditClientViewModel(
                 }
             }
 
+            is AddEditClientAction.OnCurrencyMenuExpandedChange -> {
+                _state.update {
+                    it.copy(isCurrencyMenuExpanded = action.isExpanded)
+                }
+            }
+
             is AddEditClientAction.OnNameChanged -> {
                 _state.update {
                     it.copy(name = action.name)
@@ -205,7 +211,14 @@ class AddEditClientViewModel(
                 }
             }
 
-            AddEditClientAction.OnClientSaveClicked -> saveClient()
+            is AddEditClientAction.OnClientSaveClicked -> saveClient(
+                name = action.name,
+                surname = action.surname,
+                comment = action.comment,
+                address = action.address,
+                phone = action.phone,
+                price = action.price
+            )
 
             AddEditClientAction.OnDeleteClient -> {
                 _state.update {
@@ -328,21 +341,28 @@ class AddEditClientViewModel(
         }
     }
 
-    private fun saveClient() {
+    private fun saveClient(
+        name: String,
+        surname: String,
+        comment: String,
+        address: String,
+        phone: String,
+        price: String
+    ) {
         viewModelScope.launch {
             val currentState = state.value
-            val price = currentState.price.toFloatOrNull()
+            val price = price.toFloatOrNull()
             val serviceType = currentState.serviceType
 
             val client = BaseClient(
                 id = currentState.id,
-                name = currentState.name.trim(),
-                surname = currentState.surname.trim().ifBlank { null },
-                address = currentState.address.trim().ifBlank { null },
-                phone = currentState.phone.trim().ifBlank { null },
+                name = name.trim(),
+                surname = surname.trim().ifBlank { null },
+                address = address.trim().ifBlank { null },
+                phone = phone.trim().ifBlank { null },
                 price = if (price == null || price == 0f) null else price,
                 currency = currentState.currency,
-                comment = currentState.comment.trim().ifBlank { null },
+                comment = comment.trim().ifBlank { null },
                 serviceType = serviceType
             )
 

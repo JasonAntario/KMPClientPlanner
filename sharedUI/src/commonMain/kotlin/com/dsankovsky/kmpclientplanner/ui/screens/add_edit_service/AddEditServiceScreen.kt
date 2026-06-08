@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,12 +41,20 @@ import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.specific_fiel
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.specific_fields.AddEditServiceSportFieldsView
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
+import com.dsankovsky.kmpclientplanner.ui.components.DateTimeViewWithPicker
 import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.cancel
 import kmpclientplanner.sharedui.generated.resources.client_address
 import kmpclientplanner.sharedui.generated.resources.client_address_placeholder
 import kmpclientplanner.sharedui.generated.resources.client_price
+import kmpclientplanner.sharedui.generated.resources.client_shoud_continue_autofill
+import kmpclientplanner.sharedui.generated.resources.confirm
 import kmpclientplanner.sharedui.generated.resources.service_add_service
 import kmpclientplanner.sharedui.generated.resources.service_comment
+import kmpclientplanner.sharedui.generated.resources.service_confirm_deleting
+import kmpclientplanner.sharedui.generated.resources.service_crossing
+import kmpclientplanner.sharedui.generated.resources.service_end_time
+import kmpclientplanner.sharedui.generated.resources.service_start_time
 import kmpclientplanner.sharedui.generated.resources.service_title
 import kmpclientplanner.sharedui.generated.resources.service_update_data
 import org.jetbrains.compose.resources.stringResource
@@ -65,59 +77,68 @@ fun AddEditServiceScreen(
         onEvent(event)
     }
 
-//    state.showDialog?.let { dialog ->
-//        KufarDialog(
-//            onPositiveClick = {
-//                when (dialog) {
-//                    AddEditServiceScreenState.ServiceScreenDialog.ConfirmServiceDeleting -> {
-//                        viewModel.handleActions(AddEditServiceAction.OnDeleteServiceConfirmed)
-//                    }
-//
-//                    is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing -> {
-//                        viewModel.handleActions(AddEditServiceAction.OnSaveServiceConfirmed)
-//                    }
-//                }
-//            },
-//            onNegativeClick = {
-//                viewModel.handleActions(AddEditServiceAction.OnDialogDismissed)
-//            }
-//        ) {
-//            when (dialog) {
-//                AddEditServiceScreenState.ServiceScreenDialog.ConfirmServiceDeleting -> {
-//                    KufarText(stringResource(Res.string.service_confirm_deleting))
-//                }
-//
-//                is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing -> {
-//                    LazyColumn(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .heightIn(max = 400.dp),
-//                        verticalArrangement = Arrangement.spacedBy(4.dp)
-//                    ) {
-//                        item {
-//                            KufarText(
-//                                stringResource(Res.string.service_crossing),
-//                                textStyle = KufarTheme.typography.H2.Bold,
-//                                textAlign = TextAlign.Center
-//                            )
-//                        }
-//                        items(dialog.services) { baseService ->
-//                            KufarText(baseService.title)
-//                            KufarText(baseService.getServiceTime())
-//                            KufarMaxWidthDivider()
-//                        }
-//                        item {
-//                            KufarSpacer(modifier = Modifier.height(8.dp))
-//                            KufarText(
-//                                stringResource(Res.string.client_shoud_continue_autofill),
-//                                textAlign = TextAlign.Center
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    state.showDialog?.let { dialog ->
+        val onConfirm: () -> Unit = when (dialog) {
+            AddEditServiceScreenState.ServiceScreenDialog.ConfirmServiceDeleting ->
+                { { viewModel.handleActions(AddEditServiceAction.OnDeleteServiceConfirmed) } }
+            is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing ->
+                { { viewModel.handleActions(AddEditServiceAction.OnSaveServiceConfirmed) } }
+        }
+        val onDismiss = { viewModel.handleActions(AddEditServiceAction.OnDialogDismissed) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(stringResource(Res.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            },
+            text = {
+                when (dialog) {
+                    AddEditServiceScreenState.ServiceScreenDialog.ConfirmServiceDeleting -> {
+                        Text(
+                            text = stringResource(Res.string.service_confirm_deleting),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 400.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            item {
+                                Text(
+                                    text = stringResource(Res.string.service_crossing),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            items(dialog.services) { service ->
+                                Text(text = service.title)
+                                Text(text = service.getServiceTime())
+                                HorizontalDivider()
+                            }
+                            item {
+                                Text(
+                                    text = stringResource(Res.string.client_shoud_continue_autofill),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
 
     when {
         state.isLoading -> LoadingScreen()
@@ -141,7 +162,7 @@ fun AddEditServiceScreenContent(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.background)
             .imePadding(),
         contentPadding = PaddingValues(16.dp).withNavBarPadding(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -215,31 +236,33 @@ fun AddEditServiceScreenContent(
 //            )
 //        }
 
-//        item {
-//            KufarDateTimeViewWithPicker(
-//                title = stringResource(Res.string.service_start_time),
-//                dateTime = screenState.startDateTime,
-//                onDateChanged = { date ->
-//                    onAction(AddEditServiceAction.OnDateChanged(date, DateSource.BASE_START_DATE))
-//                },
-//                onTimeChanged = { time ->
-//                    onAction(AddEditServiceAction.OnTimeChanged(time, TimeSource.BASE_START_TIME))
-//                }
-//            )
-//        }
+        item {
+            DateTimeViewWithPicker(
+                title = stringResource(Res.string.service_start_time),
+                dateTime = screenState.startDateTime,
+                onDateChanged = { date ->
+                    onAction(AddEditServiceAction.OnDateChanged(date, DateSource.BASE_START_DATE))
+                },
+                onTimeChanged = { time ->
+                    onAction(AddEditServiceAction.OnTimeChanged(time, TimeSource.BASE_START_TIME))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
-//        item {
-//            KufarDateTimeViewWithPicker(
-//                title = stringResource(Res.string.service_end_time),
-//                dateTime = screenState.endDateTime,
-//                onDateChanged = { date ->
-//                    onAction(AddEditServiceAction.OnDateChanged(date, DateSource.BASE_END_DATE))
-//                },
-//                onTimeChanged = { time ->
-//                    onAction(AddEditServiceAction.OnTimeChanged(time, TimeSource.BASE_END_TIME))
-//                }
-//            )
-//        }
+        item {
+            DateTimeViewWithPicker(
+                title = stringResource(Res.string.service_end_time),
+                dateTime = screenState.endDateTime,
+                onDateChanged = { date ->
+                    onAction(AddEditServiceAction.OnDateChanged(date, DateSource.BASE_END_DATE))
+                },
+                onTimeChanged = { time ->
+                    onAction(AddEditServiceAction.OnTimeChanged(time, TimeSource.BASE_END_TIME))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         item {
             val address = rememberTextFieldState(screenState.address)

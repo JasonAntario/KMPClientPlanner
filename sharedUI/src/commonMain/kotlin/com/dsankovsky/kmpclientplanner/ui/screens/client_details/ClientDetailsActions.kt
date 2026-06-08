@@ -5,9 +5,7 @@ sealed interface ClientDetailsActions {
     data class LoadData(val clientId: Long) : ClientDetailsActions
     data object OnCloseScreenClicked : ClientDetailsActions
     data object OnEditClientClicked : ClientDetailsActions
-    data object OnUpdateDataClicked : ClientDetailsActions
     data object FillServicesClicked : ClientDetailsActions
-
     data object OnAutofillConfirmClicked : ClientDetailsActions
     data object OnAutofillWithCrossingConfirmClicked : ClientDetailsActions
     data object OnAutofillDismissClicked : ClientDetailsActions
@@ -36,7 +34,6 @@ sealed interface ClientDetailsActions {
 sealed interface ClientDetailsEvents {
     data object OnCloseScreen : ClientDetailsEvents
     data object OpenEditClientScreen : ClientDetailsEvents
-    data object ClientsDataUpdated : ClientDetailsEvents
     data object AutofillCompleted : ClientDetailsEvents
     data object OpenServicesHistory : ClientDetailsEvents
 }

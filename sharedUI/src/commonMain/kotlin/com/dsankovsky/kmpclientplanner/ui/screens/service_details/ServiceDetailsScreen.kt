@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -269,8 +270,10 @@ fun DetailItem(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                title,
+                text = title,
                 color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
             )
             val pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 10f), 0f)
             val dottedLineColor = MaterialTheme.colorScheme.primary
@@ -289,7 +292,8 @@ fun DetailItem(
         }
         Text(
             description,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
     }

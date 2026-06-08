@@ -130,14 +130,6 @@ class ClientDetailsViewModel(
                 }
             }
 
-            ClientDetailsActions.OnUpdateDataClicked -> {
-                viewModelScope.launch {
-                    val fields = state.value.clientSpecificFields ?: return@launch
-                    addEditClientSpecificFields.updateSpecificField(fields)
-                    event.emit(ClientDetailsEvents.ClientsDataUpdated)
-                }
-            }
-
             ClientDetailsActions.FillServicesClicked -> {
                 viewModelScope.launch {
                     val currentState = state.value
@@ -221,11 +213,7 @@ class ClientDetailsViewModel(
 
     private fun loadData(clientId: Long) {
         viewModelScope.launch {
-            val client = getClientsUseCase.getClientById(clientId).firstOrNull()
-            if (client == null) {
-                return@launch
-            }
-
+            val client = getClientsUseCase.getClientById(clientId).firstOrNull() ?: return@launch
             val serviceType = client.serviceType
             val specificFields =
                 getClientSpecificFieldsUseCase.getSpecificField(client.id, serviceType)

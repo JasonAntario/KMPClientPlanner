@@ -1,8 +1,8 @@
 package com.dsankovsky.kmpclientplanner.domain.models.base
 
+import com.dsankovsky.kmpclientplanner.data.BaseConstants.UNDEFINED_ID
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
-import com.dsankovsky.kmpclientplanner.data.BaseConstants.UNDEFINED_ID
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -25,5 +25,5 @@ data class BaseClient(
 
     fun getServiceName() = "Service with ${getFullName()}"
 
-    fun getFormattedPrice() = "$price ${currency.code}"
+    fun getFormattedPrice() = price?.let { "$it ${currency.code}" }
 }

@@ -24,7 +24,8 @@ data class AddEditClientScreenState(
     val serviceType: ServiceType = ServiceType.BASE,
     val initialServiceFields: ClientSpecificFields? = null,
     val clientSpecificFields: ClientSpecificFields? = null,
-    val showDialog: ClientScreenDialog? = null
+    val showDialog: ClientScreenDialog? = null,
+    val isCurrencyMenuExpanded: Boolean = false
 ) {
 
     fun getShortName(): String {

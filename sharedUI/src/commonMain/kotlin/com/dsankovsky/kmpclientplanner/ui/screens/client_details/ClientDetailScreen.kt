@@ -1,51 +1,55 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.client_details
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
-import com.dsankovsky.kmpclientplanner.ui.animation.SlideBottomAnimatedVisibility
+import com.dsankovsky.kmpclientplanner.ui.components.CardView
+import com.dsankovsky.kmpclientplanner.ui.components.ShortNameBoxView
+import com.dsankovsky.kmpclientplanner.ui.components.ToolbarView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIName
 import com.dsankovsky.kmpclientplanner.ui.extensions.toUITime
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.ClientScreenDialog
 import com.dsankovsky.kmpclientplanner.ui.screens.client_details.specific_fields.TattooClientFieldsView
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.service_details.DetailItem
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.autofill_prolong_description
+import kmpclientplanner.sharedui.generated.resources.cancel
 import kmpclientplanner.sharedui.generated.resources.client_address
 import kmpclientplanner.sharedui.generated.resources.client_details_fill_lessons
 import kmpclientplanner.sharedui.generated.resources.client_details_fill_trainings
@@ -54,10 +58,12 @@ import kmpclientplanner.sharedui.generated.resources.client_details_services
 import kmpclientplanner.sharedui.generated.resources.client_details_training
 import kmpclientplanner.sharedui.generated.resources.client_phone
 import kmpclientplanner.sharedui.generated.resources.client_price
+import kmpclientplanner.sharedui.generated.resources.client_shoud_continue_autofill
+import kmpclientplanner.sharedui.generated.resources.confirm
 import kmpclientplanner.sharedui.generated.resources.service_comment
+import kmpclientplanner.sharedui.generated.resources.service_crossing
 import kmpclientplanner.sharedui.generated.resources.service_details
 import kmpclientplanner.sharedui.generated.resources.service_subtype
-import kmpclientplanner.sharedui.generated.resources.service_update_data
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,93 +81,105 @@ fun ClientDetailsScreen(
         onEvent(it)
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(clientId) {
         viewModel.handleActions(ClientDetailsActions.LoadData(clientId))
     }
 
-//    state.showDialog?.let { dialog ->
-//        KufarDialog(
-//            onNegativeClick = {
-//                when (dialog) {
-//                    ClientScreenDialog.ConfirmAutofillServices -> {
-//                        viewModel.handleActions(ClientDetailsActions.OnAutofillDismissClicked)
-//                    }
-//
-//                    is ClientScreenDialog.ServicesCrossing -> {
-//                        viewModel.handleActions(ClientDetailsActions.CloseClientDialog)
-//                    }
-//
-//                    else -> {}
-//                }
-//            },
-//            onPositiveClick = {
-//                when (dialog) {
-//                    ClientScreenDialog.ConfirmAutofillServices -> {
-//                        viewModel.handleActions(ClientDetailsActions.OnAutofillConfirmClicked)
-//                    }
-//
-//                    is ClientScreenDialog.ServicesCrossing -> {
-//                        viewModel.handleActions(ClientDetailsActions.OnAutofillWithCrossingConfirmClicked)
-//                    }
-//
-//                    else -> {}
-//                }
-//            }
-//        ) {
-//            when (dialog) {
-//                ClientScreenDialog.ConfirmAutofillServices -> {
-//                    KufarText(
-//                        stringResource(Res.string.autofill_prolong_description),
-//                        textAlign = TextAlign.Center
-//                    )
-//                }
-//
-//                is ClientScreenDialog.ServicesCrossing -> {
-//                    LazyColumn(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .heightIn(max = 400.dp),
-//                        verticalArrangement = Arrangement.spacedBy(4.dp)
-//                    ) {
-//                        item {
-//                            KufarText(
-//                                stringResource(Res.string.service_crossing),
-//                                textStyle = KufarTheme.typography.H2.Bold,
-//                                textAlign = TextAlign.Center
-//                            )
-//                        }
-//                        items(dialog.services) { baseService ->
-//                            KufarText(baseService.title)
-//                            KufarText(baseService.getServiceTime())
-//                            KufarMaxWidthDivider()
-//                        }
-//                        item {
-//                            KufarSpacer(modifier = Modifier.height(8.dp))
-//                            KufarText(
-//                                stringResource(Res.string.client_shoud_continue_autofill),
-//                                textAlign = TextAlign.Center
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                else -> {}
-//            }
-//        }
-//    }
+    state.showDialog?.let { dialog ->
+        val onDismiss: () -> Unit = when (dialog) {
+            ClientScreenDialog.ConfirmAutofillServices -> {
+                { viewModel.handleActions(ClientDetailsActions.OnAutofillDismissClicked) }
+            }
+
+            is ClientScreenDialog.ServicesCrossing -> {
+                { viewModel.handleActions(ClientDetailsActions.CloseClientDialog) }
+            }
+
+            else -> {
+                { viewModel.handleActions(ClientDetailsActions.CloseClientDialog) }
+            }
+        }
+        val onConfirm: () -> Unit = when (dialog) {
+            ClientScreenDialog.ConfirmAutofillServices -> {
+                { viewModel.handleActions(ClientDetailsActions.OnAutofillConfirmClicked) }
+            }
+
+            is ClientScreenDialog.ServicesCrossing -> {
+                { viewModel.handleActions(ClientDetailsActions.OnAutofillWithCrossingConfirmClicked) }
+            }
+
+            else -> {
+                { viewModel.handleActions(ClientDetailsActions.CloseClientDialog) }
+            }
+        }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(stringResource(Res.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            },
+            text = {
+                when (dialog) {
+                    ClientScreenDialog.ConfirmAutofillServices -> {
+                        Text(
+                            text = stringResource(Res.string.autofill_prolong_description),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    is ClientScreenDialog.ServicesCrossing -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 400.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            item {
+                                Text(
+                                    text = stringResource(Res.string.service_crossing),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            items(dialog.services) { service ->
+                                Text(text = service.title)
+                                Text(text = service.getServiceTime())
+                                HorizontalDivider()
+                            }
+                            item {
+                                Text(
+                                    text = stringResource(Res.string.client_shoud_continue_autofill),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(state.clientName) },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            viewModel.handleActions(ClientDetailsActions.OnCloseScreenClicked)
-                        }
-                    ) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
-                    }
+            ToolbarView(
+                title = state.client.getFullName(),
+                actionIcon = Icons.Default.Edit,
+                onActionClicked = {
+                    viewModel.handleActions(ClientDetailsActions.OnEditClientClicked)
+                },
+                onBackClicked = {
+                    viewModel.handleActions(ClientDetailsActions.OnCloseScreenClicked)
                 }
             )
         }
@@ -195,21 +213,6 @@ fun ClientDetailsScreenContent(
             contentPadding = PaddingValues(16.dp).withNavBarPadding(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
-//            item {
-//                KufarDetailsScreenHeader(
-//                    title = state.clientName,
-//                    showEditIcon = true,
-//                    modifier = Modifier
-//                        .fillMaxWidth(),
-//                    onBackClicked = {
-//                        onAction(ClientDetailsActions.OnCloseScreenClicked)
-//                    },
-//                    onEditClicked = {
-//                        onAction(ClientDetailsActions.OnEditClientClicked)
-//                    }
-//                )
-//            }
             item {
                 Box(
                     modifier = Modifier
@@ -217,20 +220,10 @@ fun ClientDetailsScreenContent(
                         .padding(vertical = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(150.dp)
-                            .background(
-                                MaterialTheme.colorScheme.primaryContainer
-                            )
-                    ) {
-                        Text(
-                            text = state.clientShortName,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                        )
-                    }
+                    ShortNameBoxView(
+                        text = state.clientShortName,
+                        modifier = Modifier.size(150.dp)
+                    )
                 }
             }
 
@@ -241,13 +234,15 @@ fun ClientDetailsScreenContent(
             state.comment?.let { comment ->
                 item {
                     Text(
-                        stringResource(Res.string.service_comment),
+                        text = stringResource(Res.string.service_comment),
                         color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                     Text(
-                        comment,
-                        color = MaterialTheme.colorScheme.primary,
+                        text = comment,
+                        color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
@@ -261,6 +256,8 @@ fun ClientDetailsScreenContent(
                     item {
                         Text(
                             color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
                             text = stringResource(Res.string.client_details_lessons),
                             modifier = Modifier.padding(top = 16.dp)
                         )
@@ -270,8 +267,9 @@ fun ClientDetailsScreenContent(
                         val day = training.dayOfWeek.name
                         val startTime = training.time.toUITime()
                         Text(
-                            "$day, $startTime",
-                            color = MaterialTheme.colorScheme.primary,
+                            text = "$day, $startTime",
+                            color = MaterialTheme.colorScheme.secondary,
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     }
 
@@ -281,11 +279,13 @@ fun ClientDetailsScreenContent(
                                 onClick = {
                                     onAction(ClientDetailsActions.FillServicesClicked)
                                 },
-                                modifier = Modifier.padding(top = 16.dp)
+                                modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
                             ) {
                                 Text(
                                     stringResource(Res.string.client_details_fill_lessons),
                                     color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold,
                                 )
                             }
                         }
@@ -296,6 +296,9 @@ fun ClientDetailsScreenContent(
                     item {
                         Text(
                             stringResource(Res.string.client_details_training),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 16.dp)
                         )
                     }
@@ -303,7 +306,11 @@ fun ClientDetailsScreenContent(
                     items(fields.lessonDateTimeList) { training ->
                         val day = training.dayOfWeek.name
                         val startTime = training.time.toUITime()
-                        Text("$day, $startTime")
+                        Text(
+                            "$day, $startTime",
+                            color = MaterialTheme.colorScheme.secondary,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
                     }
 
                     if (fields.lessonDateTimeList.isNotEmpty()) {
@@ -312,9 +319,14 @@ fun ClientDetailsScreenContent(
                                 onClick = {
                                     onAction(ClientDetailsActions.FillServicesClicked)
                                 },
-                                modifier = Modifier.padding(top = 16.dp)
+                                modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
                             ) {
-                                Text(stringResource(Res.string.client_details_fill_trainings))
+                                Text(
+                                    stringResource(Res.string.client_details_fill_trainings),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
@@ -335,7 +347,7 @@ fun ClientDetailsScreenContent(
 
             if (state.showServicesHistory) {
                 item {
-                    Card(
+                    CardView(
                         modifier = Modifier.padding(top = 12.dp),
                         onClick = {
                             onAction(ClientDetailsActions.ShowServicesHistory)
@@ -348,36 +360,13 @@ fun ClientDetailsScreenContent(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(stringResource(Res.string.client_details_services))
-                            Image(
+                            Icon(
                                 imageVector = Icons.Default.ChevronRight,
+                                tint = MaterialTheme.colorScheme.primary,
                                 contentDescription = null
                             )
                         }
                     }
-                }
-            }
-        }
-
-        SlideBottomAnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomCenter),
-            visible = state.clientSpecificFields != state.initialClientSpecificFields
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = {
-                        onAction(ClientDetailsActions.OnUpdateDataClicked)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(Res.string.service_update_data))
                 }
             }
         }
@@ -399,6 +388,7 @@ private fun ClientDetailsList(
         Text(
             stringResource(Res.string.service_details),
             color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -426,7 +416,7 @@ private fun ClientDetailsList(
 
         DetailItem(
             stringResource(Res.string.service_subtype),
-            state.client.getServiceName()
+            state.client.serviceType.toUIName()
         )
     }
 }
@@ -434,7 +424,7 @@ private fun ClientDetailsList(
 
 @PreviewLightDark
 @Composable
-private fun PreveiwClientDetailsScreen() {
+private fun PreviewEducation() {
     ClientPlannerTheme {
         ClientDetailsScreenContent(
             state = ClientDetailsScreenState(
@@ -447,7 +437,37 @@ private fun PreveiwClientDetailsScreen() {
                 clientSpecificFields = ClientSpecificFields.EducationClientSpecificFields(
                     lessonDateTimeList = listOf(
                         ServiceDateTime()
-                    )
+                    ),
+                    level = "Stupid as hell",
+                    isOnline = true
+                ),
+
+                showServicesHistory = true
+            ),
+            onAction = {}
+        )
+    }
+}
+
+
+@PreviewLightDark
+@Composable
+private fun PreviewSport() {
+    ClientPlannerTheme {
+        ClientDetailsScreenContent(
+            state = ClientDetailsScreenState(
+                price = "BYN 35,00",
+                clientShortName = "ИО",
+                clientName = "Игорь Отисов",
+                address = "ул. Покемонов 35",
+                phone = "291440022",
+                comment = "Он странный чел",
+                clientSpecificFields = ClientSpecificFields.SportClientSpecificFields(
+                    lessonDateTimeList = listOf(
+                        ServiceDateTime()
+                    ),
+                    weight = "111 kg",
+                    isOnline = true
                 ),
                 showServicesHistory = true
             ),

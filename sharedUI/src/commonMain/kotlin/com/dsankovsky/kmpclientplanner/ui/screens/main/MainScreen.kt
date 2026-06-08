@@ -55,7 +55,6 @@ import kmpclientplanner.sharedui.generated.resources.add_edit_service_created
 import kmpclientplanner.sharedui.generated.resources.add_edit_service_deleted
 import kmpclientplanner.sharedui.generated.resources.add_edit_service_updated
 import kmpclientplanner.sharedui.generated.resources.client_details_autofill_completed
-import kmpclientplanner.sharedui.generated.resources.client_details_data_updated
 import kmpclientplanner.sharedui.generated.resources.client_details_status_updated
 import kmpclientplanner.sharedui.generated.resources.services_paid
 import kotlinx.coroutines.launch
@@ -174,19 +173,6 @@ fun MainScreen() {
                                             it.clientId
                                         )
                                     )
-
-                                    ClientDetailsEvents.ClientsDataUpdated -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.client_details_data_updated)
-
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                        backStack.removeLastOrNull()
-                                    }
 
                                     ClientDetailsEvents.AutofillCompleted -> {
                                         scope.launch {
@@ -380,6 +366,10 @@ fun MainScreen() {
                                             )
                                         }
                                     }
+
+                                    HomeScreenEvent.AddService -> {
+                                        backStack.add(Screen.AddEditServiceScreen())
+                                    }
                                 }
                             }
                         )
@@ -440,6 +430,10 @@ fun MainScreen() {
                                 when (event) {
                                     is ClientsListScreenEvent.OpenClientInfo -> {
                                         backStack.add(Screen.ClientDetailsScreen(event.clientId))
+                                    }
+
+                                    ClientsListScreenEvent.AddClient -> {
+                                        backStack.add(Screen.AddEditClientScreen())
                                     }
                                 }
                             }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.specific_fields
 
 import androidx.compose.foundation.layout.Arrangement
@@ -5,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,11 +17,14 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
+import com.dsankovsky.kmpclientplanner.ui.components.OnlineSelectorView
+import com.dsankovsky.kmpclientplanner.ui.components.ServiceDateTimeSelectorView
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientAction
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.client_add_lesson
 import kmpclientplanner.sharedui.generated.resources.client_level
+import kmpclientplanner.sharedui.generated.resources.service_training_delete_lesson
 import org.jetbrains.compose.resources.stringResource
 
 
@@ -42,44 +48,33 @@ fun AddEditEducationClientFieldsView(
             }
         )
 
-//        KufarOnlineSelector(
-//            modifier = Modifier.fillMaxWidth(),
-//            isOnline = fields.isOnline,
-//            serviceType = ServiceType.EDUCATION,
-//            onChanged = {
-//                onAction(AddEditClientAction.EducationClientAction.OnFormatChanged(it))
-//            }
-//        )
+        OnlineSelectorView(
+            isOnline = fields.isOnline,
+            modifier = Modifier.fillMaxWidth(),
+            onChange = {
+                onAction(AddEditClientAction.EducationClientAction.OnFormatChanged(it))
+            }
+        )
 
-//        fields.lessonDateTimeList.forEachIndexed { index, dateTimeItem ->
-//            KufarDayOfWeekTimeSelectorView(
-//                serviceType = ServiceType.EDUCATION,
-//                dayOfWeek = dateTimeItem.dayOfWeek,
-//                serviceTime = dateTimeItem.time,
-//                duration = dateTimeItem.duration,
-//                onDayOfWeekChanged = {
-//                    onAction(
-//                        AddEditClientAction.EducationClientAction.OnDayOfWeekChanged(index, it)
-//                    )
-//                },
-//                onTimeChanged = { time ->
-//                    onAction(
-//                        AddEditClientAction.EducationClientAction.OnTimeChanged(index, time)
-//                    )
-//                },
-//                onDeleteClicked = {
-//                    onAction(AddEditClientAction.EducationClientAction.OnDeleteLessonClicked(index))
-//                },
-//                onDurationChanged = { duration, isCorrect ->
-//                    onAction(
-//                        AddEditClientAction.EducationClientAction.OnDurationChanged(
-//                            index,
-//                            duration
-//                        )
-//                    )
-//                }
-//            )
-//        }
+        fields.lessonDateTimeList.forEachIndexed { index, dateTimeItem ->
+            ServiceDateTimeSelectorView(
+                serviceDateTime = dateTimeItem,
+                deleteLabel = stringResource(Res.string.service_training_delete_lesson),
+                onDayOfWeekChanged = {
+                    onAction(AddEditClientAction.EducationClientAction.OnDayOfWeekChanged(index, it))
+                },
+                onTimeChanged = { time ->
+                    onAction(AddEditClientAction.EducationClientAction.OnTimeChanged(index, time))
+                },
+                onDurationChanged = { duration ->
+                    onAction(AddEditClientAction.EducationClientAction.OnDurationChanged(index, duration))
+                },
+                onDeleteClicked = {
+                    onAction(AddEditClientAction.EducationClientAction.OnDeleteLessonClicked(index))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         TextButton(
             onClick = {
                 onAction(AddEditClientAction.EducationClientAction.OnAddNewServiceTime)

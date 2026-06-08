@@ -5,6 +5,9 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.RoomRawQuery
+import androidx.room.Transaction
 import androidx.room.Update
 import com.dsankovsky.kmpclientplanner.data.db.models.base.BaseClientDbModel
 import kotlinx.coroutines.flow.Flow
@@ -29,4 +32,13 @@ interface ClientsDao {
 
     @Query("SELECT * FROM base_clients WHERE id = :clientId LIMIT 1")
     fun getClientById(clientId: Long?): Flow<BaseClientDbModel>
+
+    @Transaction
+    @Query("DELETE FROM base_clients")
+    suspend fun clearAllTables()
+
+    @RawQuery
+    suspend fun query(query: RoomRawQuery): Int
+
+    suspend fun query(sql: String) = query(RoomRawQuery(sql))
 }

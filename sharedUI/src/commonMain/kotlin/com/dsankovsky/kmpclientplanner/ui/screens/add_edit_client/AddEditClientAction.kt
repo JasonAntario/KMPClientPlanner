@@ -13,10 +13,19 @@ sealed interface AddEditClientAction {
     data class OnPhoneChanged(val phone: String) : AddEditClientAction
     data class OnPriceChanged(val price: String) : AddEditClientAction
     data class OnCurrencyChanged(val currency: CurrencyItem) : AddEditClientAction
+    data class OnCurrencyMenuExpandedChange(val isExpanded: Boolean) : AddEditClientAction
     data class OnCommentChanged(val comment: String) : AddEditClientAction
     data object OnDeleteClient : AddEditClientAction
     data object OnDeleteClientConfirmed : AddEditClientAction
-    data object OnClientSaveClicked : AddEditClientAction
+    data class OnClientSaveClicked(
+        val name: String,
+        val surname: String,
+        val comment: String,
+        val address: String,
+        val phone: String,
+        val price: String
+    ) : AddEditClientAction
+
     data object OnCloseScreenClicked : AddEditClientAction
 
     data object CloseClientDialog : AddEditClientAction

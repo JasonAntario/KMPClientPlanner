@@ -191,7 +191,7 @@
 
     <string name="payment_title">Выберите клиента и количество услуг, которые хотите оплатить</string>
     <string name="payment_available_services">Доступно услуг для оплаты: %1$s</string>
-    <string name="welcome_message">Добро пожаловать в Куфар Блокнот!</string>
+    <string name="welcome_message">Добро пожаловать в Блокнот!</string>
     <string name="welcome_desctription">Приложение позволяет вести учет клиентов, услуг и оплат за оказываемые услуги</string>
     <string name="start">Начать</string>
     <string name="client_address_placeholder">Улица, Дом</string>

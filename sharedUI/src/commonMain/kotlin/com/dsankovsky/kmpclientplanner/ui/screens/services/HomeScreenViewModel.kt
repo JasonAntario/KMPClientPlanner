@@ -52,6 +52,12 @@ class HomeScreenViewModel(
             is HomeScreenAction.OnPaidStatusChanged -> {
                 updatePayServiceStatus(action.serviceItem)
             }
+
+            HomeScreenAction.OnAddServiceClicked -> {
+                viewModelScope.launch {
+                    event.emit(HomeScreenEvent.AddService)
+                }
+            }
         }
     }
 
@@ -93,15 +99,9 @@ class HomeScreenViewModel(
                     .groupBy { it.startDate.date }
                     .map { item ->
                         buildList {
-//                            val dayOfWeek =
-//                                LocalizedDayOfWeek.entries.first { it.isoIndex == item.key.dayOfWeek.isoDayNumber }
-//                            val month =
-//                                LocalizedMonths.entries.first { it.monthNumber == item.key.month.number }
                             add(
                                 HomeScreenItem.DateDivider(
-                                    item.key.day,
-                                    1,
-                                    1
+                                    item.key
                                 )
                             )
                             addAll(item.value)

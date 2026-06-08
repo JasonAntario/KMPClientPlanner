@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditDeleteClientUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientsUseCase
+import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreenEvent.OpenClientInfo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,11 +28,16 @@ class ClientsScreenViewModel(
             ClientsListScreenAction.LoadClientsList -> loadClients()
             is ClientsListScreenAction.OnClientItemClicked -> {
                 viewModelScope.launch {
-                    event.emit(ClientsListScreenEvent.OpenClientInfo(action.client.id))
+                    event.emit(OpenClientInfo(action.client.id))
                 }
             }
 
             is ClientsListScreenAction.OnClientDeleteClicked -> deleteClient(action.client)
+            ClientsListScreenAction.AddClientClicked -> {
+                viewModelScope.launch {
+                    event.emit(ClientsListScreenEvent.AddClient)
+                }
+            }
         }
     }
 

@@ -14,11 +14,14 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
+import com.dsankovsky.kmpclientplanner.ui.components.OnlineSelectorView
+import com.dsankovsky.kmpclientplanner.ui.components.ServiceDateTimeSelectorView
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientAction
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.client_add_training
 import kmpclientplanner.sharedui.generated.resources.client_weight
+import kmpclientplanner.sharedui.generated.resources.service_training_delete_training
 import org.jetbrains.compose.resources.stringResource
 
 
@@ -42,41 +45,33 @@ fun AddEditSportClientFieldsView(
             }
         )
 
-//        KufarOnlineSelector(
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            serviceType = ServiceType.SPORT,
-//            isOnline = fields.isOnline,
-//            onChanged = {
-//                onAction(AddEditClientAction.SportClientAction.OnFormatChanged(it))
-//            }
-//        )
+        OnlineSelectorView(
+            isOnline = fields.isOnline,
+            modifier = Modifier.fillMaxWidth(),
+            onChange = {
+                onAction(AddEditClientAction.SportClientAction.OnFormatChanged(it))
+            }
+        )
 
-//        fields.lessonDateTimeList.forEachIndexed { index, dateTime ->
-//            KufarDayOfWeekTimeSelectorView(
-//                serviceType = ServiceType.SPORT,
-//                serviceTime = dateTime.time,
-//                dayOfWeek = dateTime.dayOfWeek,
-//                duration = dateTime.duration,
-//                onDayOfWeekChanged = {
-//                    onAction(AddEditClientAction.SportClientAction.OnDayOfWeekChanged(index, it))
-//                },
-//                onTimeChanged = { time ->
-//                    onAction(AddEditClientAction.SportClientAction.OnTimeChanged(index, time))
-//                },
-//                onDeleteClicked = {
-//                    onAction(AddEditClientAction.SportClientAction.OnDeleteTrainingClicked(index))
-//                },
-//                onDurationChanged = { duration, isCorrect ->
-//                    onAction(
-//                        AddEditClientAction.SportClientAction.OnDurationChanged(
-//                            index,
-//                            duration
-//                        )
-//                    )
-//                }
-//            )
-//        }
+        fields.lessonDateTimeList.forEachIndexed { index, dateTime ->
+            ServiceDateTimeSelectorView(
+                serviceDateTime = dateTime,
+                deleteLabel = stringResource(Res.string.service_training_delete_training),
+                onDayOfWeekChanged = {
+                    onAction(AddEditClientAction.SportClientAction.OnDayOfWeekChanged(index, it))
+                },
+                onTimeChanged = { time ->
+                    onAction(AddEditClientAction.SportClientAction.OnTimeChanged(index, time))
+                },
+                onDurationChanged = { duration ->
+                    onAction(AddEditClientAction.SportClientAction.OnDurationChanged(index, duration))
+                },
+                onDeleteClicked = {
+                    onAction(AddEditClientAction.SportClientAction.OnDeleteTrainingClicked(index))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         TextButton(
             onClick = {
