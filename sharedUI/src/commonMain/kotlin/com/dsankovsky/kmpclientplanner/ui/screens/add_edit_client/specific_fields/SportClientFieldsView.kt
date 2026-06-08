@@ -14,12 +14,14 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
-import com.dsankovsky.kmpclientplanner.ui.components.OnlineSelectorView
+import com.dsankovsky.kmpclientplanner.ui.components.BooleanSelectorView
 import com.dsankovsky.kmpclientplanner.ui.components.ServiceDateTimeSelectorView
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientAction
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.client_add_training
+import kmpclientplanner.sharedui.generated.resources.client_offline
+import kmpclientplanner.sharedui.generated.resources.client_online
 import kmpclientplanner.sharedui.generated.resources.client_weight
 import kmpclientplanner.sharedui.generated.resources.service_training_delete_training
 import org.jetbrains.compose.resources.stringResource
@@ -45,12 +47,12 @@ fun AddEditSportClientFieldsView(
             }
         )
 
-        OnlineSelectorView(
-            isOnline = fields.isOnline,
+        BooleanSelectorView(
+            value = fields.isOnline,
+            falseLabel = stringResource(Res.string.client_offline),
+            trueLabel = stringResource(Res.string.client_online),
             modifier = Modifier.fillMaxWidth(),
-            onChange = {
-                onAction(AddEditClientAction.SportClientAction.OnFormatChanged(it))
-            }
+            onChange = { onAction(AddEditClientAction.SportClientAction.OnFormatChanged(it)) }
         )
 
         fields.lessonDateTimeList.forEachIndexed { index, dateTime ->

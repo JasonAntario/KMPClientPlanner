@@ -14,7 +14,13 @@ sealed interface AddEditServiceAction {
     data class OnTimeChanged(val time: LocalTime, val source: TimeSource) : AddEditServiceAction
     data class OnDateChanged(val date: LocalDate, val source: DateSource) : AddEditServiceAction
     data class OnAddressChanged(val address: String) : AddEditServiceAction
-    data object OnSaveServiceClicked : AddEditServiceAction
+    data class OnSaveServiceClicked(
+        val title: String,
+        val address: String,
+        val price: String,
+        val comment: String
+    ) : AddEditServiceAction
+
     data object OnCloseScreenClicked : AddEditServiceAction
     data class OnPaidStatusChanged(val isPaid: Boolean) : AddEditServiceAction
     data class OnFinishedStatusChanged(val isFinished: Boolean) : AddEditServiceAction

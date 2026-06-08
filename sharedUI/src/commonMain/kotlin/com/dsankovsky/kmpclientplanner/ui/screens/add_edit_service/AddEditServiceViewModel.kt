@@ -65,7 +65,15 @@ class AddEditServiceViewModel(
                 }
             }
 
-            AddEditServiceAction.OnSaveServiceClicked -> {
+            is AddEditServiceAction.OnSaveServiceClicked -> {
+                _state.update {
+                    it.copy(
+                        title = action.title,
+                        address = action.address,
+                        price = action.price,
+                        comment = action.comment
+                    )
+                }
                 checkServiceBeforeSaving()
             }
 

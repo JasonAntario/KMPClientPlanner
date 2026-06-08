@@ -8,24 +8,31 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,13 +42,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceSpecificFields
+import com.dsankovsky.kmpclientplanner.ui.components.BooleanSelectorView
+import com.dsankovsky.kmpclientplanner.ui.components.DateTimeViewWithPicker
+import com.dsankovsky.kmpclientplanner.ui.components.DropDownMenuView
+import com.dsankovsky.kmpclientplanner.ui.components.ToolbarView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.specific_fields.AddEditServiceEducationFieldsView
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.specific_fields.AddEditServiceSportFieldsView
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
-import com.dsankovsky.kmpclientplanner.ui.components.DateTimeViewWithPicker
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.cancel
 import kmpclientplanner.sharedui.generated.resources.client_address
@@ -50,10 +60,17 @@ import kmpclientplanner.sharedui.generated.resources.client_price
 import kmpclientplanner.sharedui.generated.resources.client_shoud_continue_autofill
 import kmpclientplanner.sharedui.generated.resources.confirm
 import kmpclientplanner.sharedui.generated.resources.service_add_service
+import kmpclientplanner.sharedui.generated.resources.service_choose_client
 import kmpclientplanner.sharedui.generated.resources.service_comment
 import kmpclientplanner.sharedui.generated.resources.service_confirm_deleting
 import kmpclientplanner.sharedui.generated.resources.service_crossing
+import kmpclientplanner.sharedui.generated.resources.service_edit_service
 import kmpclientplanner.sharedui.generated.resources.service_end_time
+import kmpclientplanner.sharedui.generated.resources.service_finished
+import kmpclientplanner.sharedui.generated.resources.service_new_service
+import kmpclientplanner.sharedui.generated.resources.service_not_finished
+import kmpclientplanner.sharedui.generated.resources.service_not_paid
+import kmpclientplanner.sharedui.generated.resources.service_paid
 import kmpclientplanner.sharedui.generated.resources.service_start_time
 import kmpclientplanner.sharedui.generated.resources.service_title
 import kmpclientplanner.sharedui.generated.resources.service_update_data
@@ -62,14 +79,14 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AddEditServiceScreen(
-    onEvent: (AddEditServiceEvent) -> Unit,
-    modifier: Modifier = Modifier,
     serviceId: Long? = null,
+    modifier: Modifier = Modifier,
+    onEvent: (AddEditServiceEvent) -> Unit
 ) {
     val viewModel = koinViewModel<AddEditServiceViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(serviceId) {
         viewModel.handleActions(AddEditServiceAction.LoadServiceData(serviceId))
     }
 
@@ -79,10 +96,13 @@ fun AddEditServiceScreen(
 
     state.showDialog?.let { dialog ->
         val onConfirm: () -> Unit = when (dialog) {
-            AddEditServiceScreenState.ServiceScreenDialog.ConfirmServiceDeleting ->
-                { { viewModel.handleActions(AddEditServiceAction.OnDeleteServiceConfirmed) } }
-            is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing ->
-                { { viewModel.handleActions(AddEditServiceAction.OnSaveServiceConfirmed) } }
+            AddEditServiceScreenState.ServiceScreenDialog.ConfirmServiceDeleting -> {
+                { viewModel.handleActions(AddEditServiceAction.OnDeleteServiceConfirmed) }
+            }
+
+            is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing -> {
+                { viewModel.handleActions(AddEditServiceAction.OnSaveServiceConfirmed) }
+            }
         }
         val onDismiss = { viewModel.handleActions(AddEditServiceAction.OnDialogDismissed) }
 
@@ -106,6 +126,7 @@ fun AddEditServiceScreen(
                             textAlign = TextAlign.Center
                         )
                     }
+
                     is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing -> {
                         LazyColumn(
                             modifier = Modifier
@@ -139,15 +160,34 @@ fun AddEditServiceScreen(
             }
         )
     }
-
-    when {
-        state.isLoading -> LoadingScreen()
-        else -> {
-            AddEditServiceScreenContent(
-                screenState = state,
-                onAction = viewModel::handleActions,
-                modifier = modifier
+    Scaffold(
+        topBar = {
+            ToolbarView(
+                title = if (state.isEdit)
+                    stringResource(Res.string.service_edit_service)
+                else
+                    stringResource(Res.string.service_new_service),
+                onBackClicked = {
+                    viewModel.handleActions(AddEditServiceAction.OnCloseScreenClicked)
+                },
+                actionIcon = if (state.isEdit) Icons.Default.DeleteForever else null,
+                actionIconColor = if (state.isEdit) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                onActionClicked = {
+                    viewModel.handleActions(AddEditServiceAction.OnDeleteService)
+                }
             )
+        }
+    ) { paddingValues ->
+
+        when {
+            state.isLoading -> LoadingScreen()
+            else -> {
+                AddEditServiceScreenContent(
+                    screenState = state,
+                    onAction = viewModel::handleActions,
+                    modifier = modifier.padding(paddingValues)
+                )
+            }
         }
     }
 }
@@ -158,6 +198,23 @@ fun AddEditServiceScreenContent(
     onAction: (AddEditServiceAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
+    val title = rememberTextFieldState(screenState.title)
+    val address = rememberTextFieldState(screenState.address)
+    val price = rememberTextFieldState(screenState.price)
+    val comment = rememberTextFieldState(screenState.comment)
+
+    LaunchedEffect(screenState.client) {
+        screenState.client?.let { cl ->
+            address.edit {
+                replace(0, length, cl.address ?: originalText)
+            }
+            price.edit {
+                replace(0, length, cl.price?.toString() ?: originalText)
+            }
+        }
+    }
 
     LazyColumn(
         modifier = modifier
@@ -167,74 +224,43 @@ fun AddEditServiceScreenContent(
         contentPadding = PaddingValues(16.dp).withNavBarPadding(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-//        stickyHeader {
-//            KufarDetailsScreenHeader(
-//                title = if (screenState.isEdit)
-//                    stringResource(Res.string.service_edit_service)
-//                else
-//                    stringResource(Res.string.service_new_service),
-//                showDeleteIcon = screenState.isEdit,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .kufarBackground(KufarTheme.colors.bg.grey.secondary),
-//                onBackClicked = {
-//                    onAction(AddEditServiceAction.OnCloseScreenClicked)
-//                },
-//                onDeleteClicked = {
-//                    onAction(AddEditServiceAction.OnDeleteService)
-//                }
-//            )
-//        }
+
 
         item {
-            val title = rememberTextFieldState(screenState.title)
-
             OutlinedTextField(
                 state = title,
                 label = {
                     Text(stringResource(Res.string.service_title))
                 },
+                modifier = Modifier.fillMaxWidth(),
+                lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Next
-                )
+                ),
+                onKeyboardAction = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                }
             )
         }
 
-//        item {
-//            KufarDropDownRawBoxed(
-//                currentItem = screenState.client,
-//                selectableItems = screenState.clientsList,
-//                hint = stringResource(Res.string.required_field),
-//                colors = kufarDropDownColorsWithBackground(
-//                    backgroundColor = KufarTheme.colors.border.grey.divider,
-//                    borderColor = KufarColor.Transparent
-//                ),
-//                label = stringResource(Res.string.service_choose_client),
-//                onItemSelected = { client ->
-//                    client?.let {
-//                        onAction(AddEditServiceAction.OnClientChanged(client))
-//                    }
-//                },
-//                transformation = {
-//                    it?.getFullName() ?: ""
-//                },
-//                itemContent = {
-//                    Column {
-//                        KufarText(
-//                            text = it?.getFullName() ?: "",
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(8.dp)
-//                        )
-//                        if (it != screenState.clientsList.last()) {
-//                            KufarMaxWidthDivider()
-//                        }
-//                    }
-//                }
-//            )
-//        }
+        if (screenState.clientsList.isNotEmpty()) {
+            item {
+                DropDownMenuView(
+                    currentItem = screenState.client,
+                    items = screenState.clientsList,
+                    transformItemToText = { it?.getFullName() ?: "" },
+                    label = stringResource(Res.string.service_choose_client),
+                    onItemSelected = { client ->
+                        client?.let {
+                            onAction(AddEditServiceAction.OnClientChanged(it))
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
 
         item {
             DateTimeViewWithPicker(
@@ -265,8 +291,6 @@ fun AddEditServiceScreenContent(
         }
 
         item {
-            val address = rememberTextFieldState(screenState.address)
-
             OutlinedTextField(
                 state = address,
                 label = {
@@ -278,7 +302,12 @@ fun AddEditServiceScreenContent(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                onKeyboardAction = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                }
             )
         }
 
@@ -287,8 +316,6 @@ fun AddEditServiceScreenContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val price = rememberTextFieldState(screenState.price)
-
                 OutlinedTextField(
                     state = price,
                     label = {
@@ -298,57 +325,22 @@ fun AddEditServiceScreenContent(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Next
                     ),
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(2f),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    onKeyboardAction = {
+                        focusManager.moveFocus(FocusDirection.Right)
+                    }
                 )
 
-//                KufarDropDownRawFree(
-//                    currentItem = screenState.currency,
-//                    selectableItems = screenState.currenciesList,
-//                    colors = kufarDropDownColorsWithBackground(
-//                        backgroundColor = KufarTheme.colors.border.grey.divider,
-//                        borderColor = KufarColor.Transparent
-//                    ),
-//                    modifier = Modifier.weight(1f),
-//                    label = stringResource(Res.string.client_currency),
-//                    onItemSelected = {
-//                        onAction(AddEditServiceAction.OnCurrencyChanged(it))
-//                    },
-//                    transformation = { it.code },
-//                    itemContent = {
-//                        val isSelected = it.code == screenState.currency.code
-//                        val textColor = if (isSelected)
-//                            KufarTheme.colors.text.accent.green.main
-//                        else
-//                            KufarTheme.colors.text.grey.primary
-//                        Column {
-//                            Row(
-//                                modifier = Modifier
-//                                    .defaultMinSize(minWidth = 200.dp)
-//                                    .padding(8.dp),
-//                                verticalAlignment = Alignment.CenterVertically
-//                            ) {
-//                                Column(modifier = Modifier.weight(1f)) {
-//                                    KufarText(it.code, textColor = textColor)
-//                                    KufarText(
-//                                        stringResource(it.descriptionId),
-//                                        textColor = textColor,
-//                                        textStyle = KufarTheme.typography.B3
-//                                    )
-//                                }
-//                                if (isSelected) {
-//                                    KufarImage(
-//                                        imageVector = Icons.Default.Check,
-//                                        modifier = Modifier.size(24.dp),
-//                                        iconColor = KufarTheme.colors.icon.accent.green.main
-//                                    )
-//                                }
-//                            }
-//                            if (it.code != screenState.currenciesList.last().code) {
-//                                KufarMaxWidthDivider()
-//                            }
-//                        }
-//                    }
-//                )
+                DropDownMenuView(
+                    currentItem = screenState.currency,
+                    items = screenState.currenciesList,
+                    transformItemToText = { it.code },
+                    modifier = Modifier.weight(1f),
+                    onItemSelected = {
+                        onAction(AddEditServiceAction.OnCurrencyChanged(it))
+                    }
+                )
             }
 
         }
@@ -371,23 +363,28 @@ fun AddEditServiceScreenContent(
         }
 
         item {
-//            KufarStatusSelector(
-//                isPaid = screenState.isPaid,
-//                isFinished = screenState.isFinished,
-//                onFinishedChanged = {
-//                    onAction(AddEditServiceAction.OnFinishedStatusChanged(it))
-//                },
-//                onPaidChanged = {
-//                    onAction(AddEditServiceAction.OnPaidStatusChanged(it))
-//                },
-//                modifier = Modifier.padding(bottom = 8.dp)
-//            )
-            HorizontalDivider()
+            BooleanSelectorView(
+                value = screenState.isPaid,
+                falseLabel = stringResource(Res.string.service_not_paid),
+                trueLabel = stringResource(Res.string.service_paid),
+                onChange = {
+                    onAction(AddEditServiceAction.OnPaidStatusChanged(it))
+                }
+            )
         }
 
         item {
-            val comment = rememberTextFieldState(screenState.comment)
+            BooleanSelectorView(
+                value = screenState.isFinished,
+                falseLabel = stringResource(Res.string.service_not_finished),
+                trueLabel = stringResource(Res.string.service_finished),
+                onChange = {
+                    onAction(AddEditServiceAction.OnFinishedStatusChanged(it))
+                }
+            )
+        }
 
+        item {
             OutlinedTextField(
                 state = comment,
                 label = {
@@ -404,11 +401,18 @@ fun AddEditServiceScreenContent(
         }
 
         item {
-            TextButton(
+            Button(
                 onClick = {
-                    onAction(AddEditServiceAction.OnSaveServiceClicked)
+                    onAction(
+                        AddEditServiceAction.OnSaveServiceClicked(
+                            title = title.text.toString(),
+                            address = address.text.toString(),
+                            price = price.text.toString(),
+                            comment = comment.text.toString()
+                        )
+                    )
                 },
-                enabled = screenState.isFinishButtonEnabled(),
+                enabled = screenState.client != null && title.text.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth()
                     .padding(vertical = 16.dp)
             ) {

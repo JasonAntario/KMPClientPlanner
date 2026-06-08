@@ -1,5 +1,6 @@
 package com.dsankovsky.kmpclientplanner.ui.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -19,27 +20,26 @@ import kmpclientplanner.sharedui.generated.resources.client_online
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun OnlineSelectorView(
-    isOnline: Boolean,
-    modifier: Modifier = Modifier,
-    onChange: (Boolean) -> Unit
+fun BooleanSelectorView(
+    value: Boolean,
+    falseLabel: String,
+    trueLabel: String,
+    onChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val options = remember { listOf(Res.string.client_offline, Res.string.client_online) }
-    var selectedIndex by remember(isOnline) { mutableIntStateOf(if (isOnline) 1 else 0) }
+    val options = remember(falseLabel, trueLabel) { listOf(falseLabel, trueLabel) }
+    var selectedIndex by remember(value) { mutableIntStateOf(if (value) 1 else 0) }
 
-    SingleChoiceSegmentedButtonRow(modifier = modifier) {
-        options.forEachIndexed { index, res ->
+    SingleChoiceSegmentedButtonRow(modifier = modifier.fillMaxWidth()) {
+        options.forEachIndexed { index, label ->
             SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index,
-                    count = options.size
-                ),
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                 onClick = {
                     selectedIndex = index
                     onChange(index == 1)
                 },
                 selected = index == selectedIndex,
-                label = { Text(stringResource(res), color = MaterialTheme.colorScheme.primary) }
+                label = { Text(label, color = MaterialTheme.colorScheme.primary) }
             )
         }
     }
@@ -47,8 +47,13 @@ fun OnlineSelectorView(
 
 @PreviewLightDark
 @Composable
-fun PreviewOnline() {
+private fun PreviewBooleanSelectorView() {
     ClientPlannerTheme {
-        OnlineSelectorView(false) {}
+        BooleanSelectorView(
+            value = false,
+            falseLabel = stringResource(Res.string.client_offline),
+            trueLabel = stringResource(Res.string.client_online),
+            onChange = {}
+        )
     }
 }

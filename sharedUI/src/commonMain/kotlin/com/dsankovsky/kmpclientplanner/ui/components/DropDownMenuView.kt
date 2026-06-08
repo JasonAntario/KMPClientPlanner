@@ -28,6 +28,7 @@ fun <T> DropDownMenuView(
     transformItemToText: (T) -> String,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
+    label: String = "",
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -46,7 +47,7 @@ fun <T> DropDownMenuView(
             value = currentValue,
             readOnly = true,
             onValueChange = {},
-            label = { Text("Currency") },
+            label = { if (label.isNotEmpty()) Text(label) },
             trailingIcon = {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = null)
             },

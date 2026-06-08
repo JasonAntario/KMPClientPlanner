@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 import com.dsankovsky.kmpclientplanner.ui.animation.ExpandShrinkAnimatedVisibility
+import com.dsankovsky.kmpclientplanner.ui.components.DropDownMenuView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.edgeToEdgeBottomPadding
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
@@ -30,6 +31,7 @@ import kmpclientplanner.sharedui.generated.resources.confirm
 import kmpclientplanner.sharedui.generated.resources.payment_available_services
 import kmpclientplanner.sharedui.generated.resources.payment_title
 import kmpclientplanner.sharedui.generated.resources.service_amount
+import kmpclientplanner.sharedui.generated.resources.service_choose_client
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -82,34 +84,16 @@ fun PayServicesScreenContent(
             text = stringResource(Res.string.payment_title),
         )
 
-//        KufarDropDownRawBoxed(
-//            currentItem = screenState.client,
-//            selectableItems = screenState.clientsList,
-//            colors = kufarDropDownColorsWithBackground(
-//                backgroundColor = KufarTheme.colors.border.grey.divider,
-//                borderColor = KufarColor.Transparent
-//            ),
-//            label = stringResource(Res.string.service_choose_client),
-//            onItemSelected = { client ->
-//                client?.let {
-//                    onAction(PayServiceScreenAction.OnChangeClientCLicked(client))
-//                }
-//            },
-//            transformation = {
-//                it?.getFullName() ?: ""
-//            },
-//            itemContent = {
-//                Column {
-//                    KufarText(
-//                        text = it?.getFullName() ?: "",
-//                        modifier = Modifier.padding(8.dp)
-//                    )
-//                    if (it != screenState.clientsList.last()) {
-//                        KufarMaxWidthDivider()
-//                    }
-//                }
-//            }
-//        )
+        if (screenState.clientsList.isNotEmpty()) {
+            DropDownMenuView(
+                currentItem = screenState.client ?: screenState.clientsList.first(),
+                items = screenState.clientsList,
+                transformItemToText = { it.getFullName() },
+                label = stringResource(Res.string.service_choose_client),
+                onItemSelected = { onAction(PayServiceScreenAction.OnChangeClientCLicked(it)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         ExpandShrinkAnimatedVisibility(screenState.client != null) {
             Text(
