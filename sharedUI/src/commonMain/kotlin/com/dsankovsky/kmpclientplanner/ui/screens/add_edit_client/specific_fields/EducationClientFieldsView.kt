@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.OutlinedTextField
@@ -33,6 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AddEditEducationClientFieldsView(
     fields: ClientSpecificFields.EducationClientSpecificFields,
+    level: TextFieldState,
     onAction: (AddEditClientAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -40,8 +42,6 @@ fun AddEditEducationClientFieldsView(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        val level = rememberTextFieldState(fields.level.orEmpty())
-
         OutlinedTextField(
             state = level,
             modifier = Modifier.fillMaxWidth(),
@@ -101,6 +101,7 @@ private fun PreviewAddEditClientScreenEducation() {
                 isOnline = true,
                 lessonDateTimeList = listOf(ServiceDateTime())
             ),
+            level = rememberTextFieldState("C29"),
             {},
             modifier = Modifier.padding(16.dp)
         )

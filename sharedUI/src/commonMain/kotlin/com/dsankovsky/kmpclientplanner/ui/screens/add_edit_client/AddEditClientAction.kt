@@ -23,7 +23,9 @@ sealed interface AddEditClientAction {
         val comment: String,
         val address: String,
         val phone: String,
-        val price: String
+        val price: String,
+        val level: String = "",
+        val weight: String = ""
     ) : AddEditClientAction
 
     data object OnCloseScreenClicked : AddEditClientAction

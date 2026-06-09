@@ -220,7 +220,9 @@ class AddEditClientViewModel(
                 comment = action.comment,
                 address = action.address,
                 phone = action.phone,
-                price = action.price
+                price = action.price,
+                level = action.level,
+                weight = action.weight
             )
 
             AddEditClientAction.OnDeleteClient -> {
@@ -346,11 +348,13 @@ class AddEditClientViewModel(
 
     private fun saveClient(
         name: String,
-        surname: String,
-        comment: String,
-        address: String,
-        phone: String,
-        price: String
+        surname: String = "",
+        comment: String = "",
+        address: String = "",
+        phone: String = "",
+        price: String = "",
+        level: String = "",
+        weight: String = ""
     ) {
         viewModelScope.launch {
             val currentState = state.value
@@ -376,7 +380,7 @@ class AddEditClientViewModel(
                 addEditDeleteClientUseCase.addClient(client)
             }
 
-            val specificFields = checkSpecificFieldsBeforeSaving(clientId)
+            val specificFields = checkSpecificFieldsBeforeSaving(clientId, level, weight)
             specificFields?.let {
                 if (currentState.isEdit) {
                     addEditClientSpecificFields.updateSpecificField(specificFields)
@@ -405,13 +409,17 @@ class AddEditClientViewModel(
         }
     }
 
-    private fun checkSpecificFieldsBeforeSaving(clientId: Long): ClientSpecificFields? {
+    private fun checkSpecificFieldsBeforeSaving(
+        clientId: Long,
+        level: String = "",
+        weight: String = ""
+    ): ClientSpecificFields? {
         return when (val fields = state.value.clientSpecificFields) {
             is ClientSpecificFields.EducationClientSpecificFields -> {
                 ClientSpecificFields.EducationClientSpecificFields(
                     id = fields.id,
                     clientId = clientId,
-                    level = fields.level?.ifBlank { null },
+                    level = level.ifBlank { null },
                     isOnline = fields.isOnline,
                     lessonDateTimeList = fields.lessonDateTimeList
                 )
@@ -430,7 +438,7 @@ class AddEditClientViewModel(
                 ClientSpecificFields.SportClientSpecificFields(
                     id = fields.id,
                     clientId = clientId,
-                    weight = fields.weight?.ifBlank { null },
+                    weight = weight.ifBlank { null },
                     isOnline = fields.isOnline,
                     lessonDateTimeList = fields.lessonDateTimeList
                 )

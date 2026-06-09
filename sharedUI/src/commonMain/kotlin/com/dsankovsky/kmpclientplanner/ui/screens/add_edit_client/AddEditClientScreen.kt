@@ -226,12 +226,20 @@ fun AddEditClientScreenContent(
     val phone = rememberTextFieldState()
     val price = rememberTextFieldState()
 
+    val level = rememberTextFieldState()
+    val weight = rememberTextFieldState()
+
     LaunchedEffect(screenState.name) { name.edit { replace(0, length, screenState.name) } }
     LaunchedEffect(screenState.surname) { surname.edit { replace(0, length, screenState.surname) } }
     LaunchedEffect(screenState.comment) { comment.edit { replace(0, length, screenState.comment) } }
     LaunchedEffect(screenState.address) { address.edit { replace(0, length, screenState.address) } }
     LaunchedEffect(screenState.phone) { phone.edit { replace(0, length, screenState.phone) } }
     LaunchedEffect(screenState.price) { price.edit { replace(0, length, screenState.price) } }
+
+    val educationFields = screenState.clientSpecificFields as? ClientSpecificFields.EducationClientSpecificFields
+    val sportFields = screenState.clientSpecificFields as? ClientSpecificFields.SportClientSpecificFields
+    LaunchedEffect(educationFields?.level) { level.edit { replace(0, length, educationFields?.level.orEmpty()) } }
+    LaunchedEffect(sportFields?.weight) { weight.edit { replace(0, length, sportFields?.weight.orEmpty()) } }
 
     val clientShortName by remember {
         derivedStateOf {
@@ -403,6 +411,7 @@ fun AddEditClientScreenContent(
                 item {
                     AddEditEducationClientFieldsView(
                         fields = screenState.clientSpecificFields,
+                        level = level,
                         onAction = onAction
                     )
                 }
@@ -412,6 +421,7 @@ fun AddEditClientScreenContent(
                 item {
                     AddEditSportClientFieldsView(
                         fields = screenState.clientSpecificFields,
+                        weight = weight,
                         onAction = onAction
                     )
                 }
@@ -430,7 +440,9 @@ fun AddEditClientScreenContent(
                             comment = comment.text.toString(),
                             address = address.text.toString(),
                             phone = phone.text.toString(),
-                            price = price.text.toString()
+                            price = price.text.toString(),
+                            level = level.text.toString(),
+                            weight = weight.text.toString()
                         )
                     )
                 },

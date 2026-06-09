@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,6 +31,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AddEditSportClientFieldsView(
     fields: ClientSpecificFields.SportClientSpecificFields,
+    weight: TextFieldState,
     onAction: (AddEditClientAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -37,8 +39,6 @@ fun AddEditSportClientFieldsView(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        val weight = rememberTextFieldState(fields.weight.orEmpty())
-
         OutlinedTextField(
             state = weight,
             modifier = Modifier.fillMaxWidth(),
@@ -96,6 +96,7 @@ private fun PreviewAddEditClientScreenSport() {
                 weight = "296",
                 lessonDateTimeList = listOf(ServiceDateTime())
             ),
+            weight = rememberTextFieldState("296"),
             {},
             modifier = Modifier.padding(16.dp)
         )
