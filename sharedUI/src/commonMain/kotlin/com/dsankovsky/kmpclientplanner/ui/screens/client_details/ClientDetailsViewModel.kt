@@ -3,6 +3,7 @@ package com.dsankovsky.kmpclientplanner.ui.screens.client_details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dsankovsky.kmpclientplanner.data.datastore.AppSettings
+import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditClientSpecificFieldsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientSpecificFieldsUseCase
@@ -11,12 +12,19 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.service.AutofillServiceUs
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.ServicesAutofillResultError
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.ClientScreenDialog
+import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.service_prefix_beauty
+import kmpclientplanner.sharedui.generated.resources.service_prefix_default
+import kmpclientplanner.sharedui.generated.resources.service_prefix_education
+import kmpclientplanner.sharedui.generated.resources.service_prefix_sport
+import kmpclientplanner.sharedui.generated.resources.service_prefix_tattoo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 
 class ClientDetailsViewModel(
     private val getClientsUseCase: GetClientsUseCase,
@@ -182,11 +190,23 @@ class ClientDetailsViewModel(
         viewModelScope.launch {
             val state = state.value
             val lastDate = getServicesUseCase.getLastServiceForClient(state.client.id)
+
+            val titlePrefixRes = when (state.client.serviceType) {
+                ServiceType.EDUCATION -> Res.string.service_prefix_education
+                ServiceType.SPORT -> Res.string.service_prefix_sport
+                ServiceType.BASE -> Res.string.service_prefix_default
+                ServiceType.BEAUTY -> Res.string.service_prefix_beauty
+                ServiceType.TATTOO -> Res.string.service_prefix_tattoo
+            }
+
+            val titlePrefix = getString(titlePrefixRes)
+
             autofillServiceUseCase.autofillServices(
                 clientId = state.client.id,
                 serviceType = state.client.serviceType,
                 ignoreCrossing = ignoreCrossing,
-                startDateTime = lastDate.endDate
+                startDateTime = lastDate.endDate,
+                titlePrefix = titlePrefix
             )
                 .fold(
                     onSuccess = {

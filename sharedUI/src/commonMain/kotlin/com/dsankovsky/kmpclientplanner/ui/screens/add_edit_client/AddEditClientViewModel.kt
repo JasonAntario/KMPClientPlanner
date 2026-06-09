@@ -19,7 +19,11 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCas
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.ServicesAutofillResult
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.ServicesAutofillResultError
 import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.service_prefix_beauty
+import kmpclientplanner.sharedui.generated.resources.service_prefix_default
 import kmpclientplanner.sharedui.generated.resources.service_prefix_education
+import kmpclientplanner.sharedui.generated.resources.service_prefix_sport
+import kmpclientplanner.sharedui.generated.resources.service_prefix_tattoo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -453,11 +457,13 @@ class AddEditClientViewModel(
             val state = state.value
             val titlePrefixRes = when (state.serviceType) {
                 ServiceType.EDUCATION -> Res.string.service_prefix_education
-                ServiceType.SPORT -> Res.string.service_prefix_education
-                else -> null
+                ServiceType.SPORT -> Res.string.service_prefix_sport
+                ServiceType.BASE -> Res.string.service_prefix_default
+                ServiceType.BEAUTY -> Res.string.service_prefix_beauty
+                ServiceType.TATTOO -> Res.string.service_prefix_tattoo
             }
 
-            val titlePrefix = titlePrefixRes?.let { getString(it) }.orEmpty()
+            val titlePrefix = getString(titlePrefixRes)
             autofillServiceUseCase.autofillServices(
                 clientId = state.id,
                 serviceType = state.serviceType,

@@ -138,8 +138,11 @@
     <string name="service_not_paid">Не оплачено</string>
     <string name="service_finished">Проведено</string>
     <string name="service_not_finished">Не проведено</string>
-    <string name="service_prefix_education">Занятие с</string>
+    <string name="service_prefix_education">Урок с</string>
     <string name="service_prefix_sport">Тренировка с</string>
+    <string name="service_prefix_tattoo">Сеанс тату с</string>
+    <string name="service_prefix_beauty">Сеанс с</string>
+    <string name="service_prefix_default">Сессия с</string>
 
     <!--CLIENTS LIST-->
     <string name="clients_title">Клиенты</string>
