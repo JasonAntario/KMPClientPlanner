@@ -200,10 +200,15 @@ fun AddEditServiceScreenContent(
 ) {
     val focusManager = LocalFocusManager.current
 
-    val title = rememberTextFieldState(screenState.title)
-    val address = rememberTextFieldState(screenState.address)
-    val price = rememberTextFieldState(screenState.price)
-    val comment = rememberTextFieldState(screenState.comment)
+    val title = rememberTextFieldState()
+    val address = rememberTextFieldState()
+    val price = rememberTextFieldState()
+    val comment = rememberTextFieldState()
+
+    LaunchedEffect(screenState.title) { title.edit { replace(0, length, screenState.title) } }
+    LaunchedEffect(screenState.address) { address.edit { replace(0, length, screenState.address) } }
+    LaunchedEffect(screenState.price) { price.edit { replace(0, length, screenState.price) } }
+    LaunchedEffect(screenState.comment) { comment.edit { replace(0, length, screenState.comment) } }
 
     LaunchedEffect(screenState.client) {
         screenState.client?.let { cl ->

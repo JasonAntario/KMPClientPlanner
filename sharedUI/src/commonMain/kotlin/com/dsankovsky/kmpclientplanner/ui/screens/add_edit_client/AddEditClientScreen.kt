@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -221,12 +219,19 @@ fun AddEditClientScreenContent(
 
     val focusManager = LocalFocusManager.current
 
-    val name = rememberTextFieldState(screenState.name)
-    val surname = rememberTextFieldState(screenState.surname)
-    val comment = rememberTextFieldState(screenState.comment)
-    val address = rememberTextFieldState(screenState.address)
-    val phone = rememberTextFieldState(screenState.phone)
-    val price = rememberTextFieldState(screenState.price)
+    val name = rememberTextFieldState()
+    val surname = rememberTextFieldState()
+    val comment = rememberTextFieldState()
+    val address = rememberTextFieldState()
+    val phone = rememberTextFieldState()
+    val price = rememberTextFieldState()
+
+    LaunchedEffect(screenState.name) { name.edit { replace(0, length, screenState.name) } }
+    LaunchedEffect(screenState.surname) { surname.edit { replace(0, length, screenState.surname) } }
+    LaunchedEffect(screenState.comment) { comment.edit { replace(0, length, screenState.comment) } }
+    LaunchedEffect(screenState.address) { address.edit { replace(0, length, screenState.address) } }
+    LaunchedEffect(screenState.phone) { phone.edit { replace(0, length, screenState.phone) } }
+    LaunchedEffect(screenState.price) { price.edit { replace(0, length, screenState.price) } }
 
     val clientShortName by remember {
         derivedStateOf {
