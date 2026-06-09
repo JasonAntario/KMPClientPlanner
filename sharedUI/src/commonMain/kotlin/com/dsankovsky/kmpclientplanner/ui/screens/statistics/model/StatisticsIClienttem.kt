@@ -10,6 +10,7 @@ data class StatisticsClientItem(
     val income: List<StatisticsPaymentItem>,
     val mustBePaid: List<StatisticsPaymentItem>
 ) {
+    @Immutable
     data class StatisticsPaymentItem(
         val money: Float,
         val currency: CurrencyItem
