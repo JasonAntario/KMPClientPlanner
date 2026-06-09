@@ -170,6 +170,7 @@
 
     <!--STATISTICS SCREEN-->
     <string name="statistics_title">Моя статистика</string>
+    <string name="statistics_by_client">Статистика по клиентам</string>
     <string name="statistics_client">Клиент</string>
     <string name="statistics_paid">Оплачено</string>
     <string name="statistics_expected">Ожидается</string>

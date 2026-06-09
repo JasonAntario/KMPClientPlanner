@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -26,14 +28,17 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.components.CardView
+import com.dsankovsky.kmpclientplanner.ui.components.DropDownMenuView
 import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIName
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.feedback_url
 import kmpclientplanner.sharedui.generated.resources.settings_clear_date
 import kmpclientplanner.sharedui.generated.resources.settings_feedback
+import kmpclientplanner.sharedui.generated.resources.settings_service_type
 import kmpclientplanner.sharedui.generated.resources.settings_title
 import kmpclientplanner.sharedui.generated.resources.settings_version
 import org.jetbrains.compose.resources.stringResource
@@ -85,6 +90,22 @@ fun SettingsScreenContent(
         item {
             HeaderView(stringResource(Res.string.settings_title))
         }
+
+        item {
+            val serviceTypeNames = screenState.serviceTypeList.associateWith { it.toUIName() }
+            DropDownMenuView(
+                currentItem = screenState.serviceType,
+                items = screenState.serviceTypeList,
+                transformItemToText = { serviceTypeNames[it] ?: it.name },
+                label = stringResource(Res.string.settings_service_type),
+                onItemSelected = { serviceType ->
+                    onAction(SettingsScreenAction.OnServiceTypeSelected(serviceType.ordinal))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
         item {
             SettingsItem(
                 label = stringResource(Res.string.settings_version),
@@ -107,44 +128,6 @@ fun SettingsScreenContent(
                 onClick = { uriHandler.openUri(url) }
             )
         }
-
-//        item {
-//            SettingsItemDropDown(
-//                items = screenState.serviceTypeList,
-//                label = stringResource(Res.string.settings_service_type),
-//                interactionContent = {
-//                    Text(screenState.serviceType.name)
-//                },
-//                dropDownItem = {
-//                    Column {
-//                        Row(
-//                            modifier = Modifier
-//                                .defaultMinSize(minWidth = 200.dp)
-//                                .padding(8.dp),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Text(
-//                                text = it.name,
-//                                modifier = Modifier.weight(1f)
-//                            )
-//                            if (isSelected) {
-//                                KufarImage(
-//                                    imageVector = Icons.Default.Check,
-//                                    modifier = Modifier.size(24.dp),
-//                                    iconColor = KufarTheme.colors.icon.accent.green.main
-//                                )
-//                            }
-//                        }
-//                        if (it.index != screenState.serviceTypeList.last().index) {
-//                            KufarMaxWidthDivider()
-//                        }
-//                    }
-//                },
-//                onItemClicked = {
-//                    onAction(SettingsScreenAction.OnServiceTypeSelected(it.index))
-//                }
-//            )
-//        }
 
         item {
             SettingsItem(
@@ -196,76 +179,6 @@ private fun SettingsItem(
         }
     }
 }
-
-//@Composable
-//private fun <T> SettingsItemDropDown(
-//    items: List<T>,
-//    label: String,
-//    interactionContent: @Composable () -> Unit,
-//    dropDownItem: @Composable (T) -> Unit,
-//    modifier: Modifier = Modifier,
-//    icon: ImageVector? = null,
-//    onItemClicked: (T) -> Unit
-//) {
-//
-//    var expanded by remember { mutableStateOf(false) }
-//
-//    KufarCard(
-//        contentPadding = PaddingValues(12.dp),
-//        backgroundColor = KufarTheme.colors.border.grey.divider,
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .height(48.dp),
-//        clickable = true,
-//        onClick = {
-//            expanded = !expanded
-//        }
-//    ) {
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.spacedBy(16.dp),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            icon?.let {
-//                KufarImage(
-//                    imageVector = it,
-//                    iconColor = iconColor
-//                )
-//            }
-//
-//            KufarText(
-//                label,
-//                textStyle = KufarTheme.typography.B1.Regular,
-//                textColor = textColor,
-//                modifier = Modifier.weight(1f)
-//            )
-//            interactionContent()
-//        }
-//
-//        DropdownMenu(
-//            modifier = Modifier
-//                .kufarBackground(
-//                    KufarTheme.colors.bg.grey.primary,
-//                    KufarTheme.shapes.medium
-//                ),
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false }
-//        ) {
-//            items.forEach { item ->
-//                Box(
-//                    modifier = Modifier.clickable(
-//                        onClick = {
-//                            onItemClicked(item)
-//                            expanded = false
-//                        }
-//                    )
-//                ) {
-//                    dropDownItem(item)
-//                }
-//            }
-//        }
-//    }
-//}
 
 @PreviewLightDark
 @Composable

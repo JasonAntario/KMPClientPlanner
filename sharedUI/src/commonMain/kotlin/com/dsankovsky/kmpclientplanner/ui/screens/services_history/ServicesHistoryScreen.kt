@@ -99,7 +99,7 @@ fun ServicesHistoryScreenContent(
             }
         }
 
-        items(state.items, key = { it }) { item ->
+        items(state.items) { item ->
             when (item) {
                 is ServicesListScreenItem.DateDivider -> {
                     Row(

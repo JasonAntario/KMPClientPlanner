@@ -47,6 +47,7 @@ import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
+import com.dsankovsky.kmpclientplanner.ui.platform.isDesktopTarget
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
@@ -97,12 +98,14 @@ fun HomeScreenContent(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    onAction(ServicesListScreenAction.OnAddServiceClicked)
+            if (!isDesktopTarget()) {
+                FloatingActionButton(
+                    onClick = {
+                        onAction(ServicesListScreenAction.OnAddServiceClicked)
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
                 }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->
@@ -127,7 +130,7 @@ fun HomeScreenContent(
 
             item {
                 val selectedIndex = state.filtersList.indexOf(state.currentFilter)
-                PrimaryScrollableTabRow(selectedTabIndex = selectedIndex) {
+                PrimaryScrollableTabRow(selectedTabIndex = selectedIndex, edgePadding = 0.dp) {
                     state.filtersList.forEachIndexed { index, filter ->
                         Tab(
                             selected = index == selectedIndex,
@@ -150,7 +153,7 @@ fun HomeScreenContent(
                 }
             }
 
-            items(state.items, key = { it }) { item ->
+            items(state.items) { item ->
                 when (item) {
                     is ServicesListScreenItem.DateDivider -> {
                         Row(

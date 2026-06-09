@@ -1,19 +1,20 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.statistics
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -22,22 +23,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
+import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIDate
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.components.KufarPieChart
-import com.dsankovsky.kmpclientplanner.ui.screens.statistics.components.KufarStatisticPaymentItem
+import com.dsankovsky.kmpclientplanner.ui.screens.statistics.components.StatisticsCurrencyCardView
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.model.StatisticsClientItem
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.statistics_by_client
+import kmpclientplanner.sharedui.generated.resources.statistics_expected
 import kmpclientplanner.sharedui.generated.resources.statistics_expected_in_period
 import kmpclientplanner.sharedui.generated.resources.statistics_income_in_period
+import kmpclientplanner.sharedui.generated.resources.statistics_paid
 import kmpclientplanner.sharedui.generated.resources.statistics_title
 import kmpclientplanner.sharedui.generated.resources.tabs_all_time
 import kmpclientplanner.sharedui.generated.resources.tabs_day
@@ -71,66 +77,70 @@ fun StatisticsScreenContent(
     onAction: (StatisticsScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     LazyColumn(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(
             top = 24.dp,
             start = 16.dp,
             end = 16.dp,
             bottom = 100.dp
         ).withNavBarPadding(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
         item {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                text = stringResource(Res.string.statistics_title),
+            HeaderView(
+                stringResource(Res.string.statistics_title),
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
 
         item {
             val selectedIndex = state.filters.indexOf(state.currentFilter)
-            PrimaryScrollableTabRow(selectedTabIndex = selectedIndex) {
+            PrimaryScrollableTabRow(
+                selectedTabIndex = selectedIndex,
+                edgePadding = 0.dp
+            ) {
                 state.filters.forEachIndexed { index, filter ->
                     Tab(
                         selected = index == selectedIndex,
                         onClick = { onAction(StatisticsScreenAction.OnFilterClicked(filter)) },
-                        text = { Text(filter.toTabLabel()) }
+                        text = {
+                            Text(
+                                text = filter.toTabLabel(),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
                     )
                 }
             }
         }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                ) {
-                    Image(
-                        contentDescription = null,
-                        imageVector = Icons.Outlined.CalendarMonth,
+        state.dateInterval?.let { (start, end) ->
+            item {
+                Card(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+                    Row(
                         modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-
-                state.dateInterval?.let {
-                    Text(
-                        "interval",
-                    )
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CalendarMonth,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Column {
+                            Text(
+                                text = "${start.toUIDate()} — ${end.toUIDate()}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -141,70 +151,60 @@ fun StatisticsScreenContent(
                 expectedAmount = state.expectedTotal,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 36.dp, top = 24.dp)
+                    .padding(bottom = 16.dp)
             )
         }
 
         if (state.receivedTotalByCurrency.isNotEmpty()) {
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.statistics_income_in_period),
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        state.receivedTotalByCurrency.forEach {
-                            Text(
-                                "${it.money} ${it.currency.code}",
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
+                StatisticsCurrencyCardView(
+                    title = stringResource(Res.string.statistics_income_in_period),
+                    items = state.receivedTotalByCurrency,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
         if (state.expectedTotalByCurrency.isNotEmpty()) {
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.statistics_expected_in_period),
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        state.expectedTotalByCurrency.forEach {
-                            Text(
-                                "${it.money} ${it.currency.code}",
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
+                StatisticsCurrencyCardView(
+                    title = stringResource(Res.string.statistics_expected_in_period),
+                    items = state.expectedTotalByCurrency,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (state.itemsByClients.isNotEmpty()) {
+            item {
+                Text(
+                    text = stringResource(Res.string.statistics_by_client),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
             }
         }
 
         items(state.itemsByClients) { item ->
-            KufarStatisticPaymentItem(
-                clientName = item.client.getFullName(),
-                income = item.income,
-                mustBePaid = item.mustBePaid
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = item.client.getFullName(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                StatisticsCurrencyCardView(
+                    title = stringResource(Res.string.statistics_paid),
+                    items = item.income,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                StatisticsCurrencyCardView(
+                    title = stringResource(Res.string.statistics_expected),
+                    items = item.mustBePaid,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

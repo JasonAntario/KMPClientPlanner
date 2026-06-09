@@ -213,7 +213,7 @@ private fun ServiceDetailsScreenContent(
                 ) {
                     Text(
                         stringResource(Res.string.service_update_data),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
