@@ -1,19 +1,23 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.pay_services
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,11 +27,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 import com.dsankovsky.kmpclientplanner.ui.animation.ExpandShrinkAnimatedVisibility
 import com.dsankovsky.kmpclientplanner.ui.components.DropDownMenuView
+import com.dsankovsky.kmpclientplanner.ui.components.ToolbarView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
-import com.dsankovsky.kmpclientplanner.ui.extensions.edgeToEdgeBottomPadding
+import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.confirm
+import kmpclientplanner.sharedui.generated.resources.pay_services_title
 import kmpclientplanner.sharedui.generated.resources.payment_available_services
 import kmpclientplanner.sharedui.generated.resources.payment_title
 import kmpclientplanner.sharedui.generated.resources.service_amount
@@ -65,73 +71,97 @@ fun PayServicesScreenContent(
     onAction: (PayServiceScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .edgeToEdgeBottomPadding(0.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    val servicesAmount = rememberTextFieldState(screenState.servicesAmount)
 
-//        KufarDetailsScreenHeader(
-//            title = stringResource(Res.string.pay_services_title),
-//            onBackClicked = {
-//                onAction(PayServiceScreenAction.OnBackClicked)
-//            }
-//        )
-
-        Text(
-            text = stringResource(Res.string.payment_title),
-        )
-
-        if (screenState.clientsList.isNotEmpty()) {
-            DropDownMenuView(
-                currentItem = screenState.client ?: screenState.clientsList.first(),
-                items = screenState.clientsList,
-                transformItemToText = { it.getFullName() },
-                label = stringResource(Res.string.service_choose_client),
-                onItemSelected = { onAction(PayServiceScreenAction.OnChangeClientCLicked(it)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        ExpandShrinkAnimatedVisibility(screenState.client != null) {
-            Text(
-                stringResource(
-                    Res.string.payment_available_services,
-                    screenState.availableServices
-                ),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        val servicesAmount = rememberTextFieldState(screenState.servicesAmount)
-
-        OutlinedTextField(
-            state = servicesAmount,
-            label = {
-                Text(stringResource(Res.string.service_amount))
-            },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            onKeyboardAction = {
-                onAction(PayServiceScreenAction.OnServicesAmountChanged(servicesAmount.text.toString()))
+    LaunchedEffect(servicesAmount) {
+        snapshotFlow { servicesAmount.text.toString() }
+            .collect { text ->
+                onAction(PayServiceScreenAction.OnServicesAmountChanged(text))
             }
-        )
+    }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        TextButton(
-            onClick = {
-                onAction(PayServiceScreenAction.OnPayClicked)
-            },
-            enabled = screenState.isPaymentReady,
-            modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            ToolbarView(
+                title = stringResource(Res.string.pay_services_title),
+                onBackClicked = { onAction(PayServiceScreenAction.OnBackClicked) }
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                top = 16.dp,
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 100.dp
+            ).withNavBarPadding(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(stringResource(Res.string.confirm))
+            item {
+                Text(
+                    text = stringResource(Res.string.payment_title),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (screenState.clientsList.isNotEmpty()) {
+                item {
+                    DropDownMenuView(
+                        currentItem = screenState.client,
+                        items = screenState.clientsList,
+                        transformItemToText = { it.getFullName() },
+                        label = stringResource(Res.string.service_choose_client),
+                        onItemSelected = { onAction(PayServiceScreenAction.OnChangeClientCLicked(it)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            item {
+                ExpandShrinkAnimatedVisibility(screenState.client != null) {
+                    Text(
+                        text = stringResource(
+                            Res.string.payment_available_services,
+                            screenState.availableServices
+                        ),
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            item {
+                OutlinedTextField(
+                    state = servicesAmount,
+                    label = {
+                        Text(stringResource(Res.string.service_amount))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    )
+                )
+            }
+
+            item {
+                Button(
+                    onClick = { onAction(PayServiceScreenAction.OnPayClicked) },
+                    enabled = screenState.isPaymentReady,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Text(stringResource(Res.string.confirm))
+                }
+            }
         }
     }
 }

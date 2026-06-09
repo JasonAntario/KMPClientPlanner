@@ -473,7 +473,11 @@ fun MainScreen() {
                         }
 
                         entry<Screen.StatisticsScreen> {
-                            StatisticsScreen()
+                            StatisticsScreen(
+                                onOpenPayServices = {
+                                    backStack.add(Screen.PayServicesScreen)
+                                }
+                            )
                         }
 
                         entry<Screen.PayServicesScreen>(

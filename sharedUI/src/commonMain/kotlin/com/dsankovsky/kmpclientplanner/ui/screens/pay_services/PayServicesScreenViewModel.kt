@@ -39,7 +39,7 @@ class PayServicesScreenViewModel(
 
                 _state.update {
                     it.copy(
-                        isPaymentReady = amount <= it.availableServices,
+                        isPaymentReady = it.client != null && amount > 0 && amount <= it.availableServices,
                         servicesAmount = action.amount
                     )
                 }
@@ -74,9 +74,11 @@ class PayServicesScreenViewModel(
                 getServicesUseCase.getAllUnpaidServices(client.id)
                     .firstOrNull() ?: emptyList()
             _state.update {
+                val amount = it.servicesAmount.toIntOrNull() ?: 0
                 it.copy(
                     client = client,
-                    availableServices = availableServices.size
+                    availableServices = availableServices.size,
+                    isPaymentReady = amount > 0 && amount <= availableServices.size
                 )
             }
         }

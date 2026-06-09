@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun <T> DropDownMenuView(
-    currentItem: T,
+    currentItem: T?,
     items: List<T>,
     transformItemToText: (T) -> String,
     onItemSelected: (T) -> Unit,
@@ -36,7 +36,7 @@ fun <T> DropDownMenuView(
     var currentValue by remember { mutableStateOf("") }
 
     LaunchedEffect(currentItem) {
-        currentValue = transformItemToText(currentItem)
+        currentValue = if (currentItem != null) transformItemToText(currentItem) else ""
     }
 
     ExposedDropdownMenuBox(
