@@ -25,7 +25,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.dsankovsky.kmpclientplanner"
+            packageName = "Client Planner"
             packageVersion = "0.1.0"
 
             windows{
