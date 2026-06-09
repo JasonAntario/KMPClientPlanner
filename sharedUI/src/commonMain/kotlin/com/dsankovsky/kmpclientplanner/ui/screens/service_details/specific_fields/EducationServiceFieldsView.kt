@@ -3,7 +3,6 @@ package com.dsankovsky.kmpclientplanner.ui.screens.service_details.specific_fiel
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,10 +26,9 @@ fun ServiceEducationFieldsView(
     modifier: Modifier = Modifier
 ) {
 
-    val homework = rememberTextFieldState(fields.homework.orEmpty())
-
     OutlinedTextField(
-        state = homework,
+        value = fields.homework.orEmpty(),
+        onValueChange = { onAction(ServiceDetailsScreenAction.EducationServiceAction.OnHomeworkChanged(it)) },
         label = {
             Text(stringResource(Res.string.service_homework))
         },

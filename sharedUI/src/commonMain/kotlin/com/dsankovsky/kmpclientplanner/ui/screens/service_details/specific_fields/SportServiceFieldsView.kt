@@ -23,7 +23,6 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun ServiceSportFieldsView(
     fields: ServiceSpecificFields.SportServiceSpecificFields,
-    exercisesList: List<String>,
     onAction: (ServiceDetailsScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -38,7 +37,6 @@ fun ServiceSportFieldsView(
             ExerciseItemView(
                 exercise = exercise,
                 exerciseIndex = exerciseIndex,
-                exercisesList = exercisesList,
                 onAction = onAction,
                 modifier = Modifier
             )
@@ -74,7 +72,6 @@ private fun PreviewAddEditServiceSportFieldsView() {
                     )
                 )
             ),
-            exercisesList = listOf("Жим Лежа"),
             onAction = {}
         )
     }

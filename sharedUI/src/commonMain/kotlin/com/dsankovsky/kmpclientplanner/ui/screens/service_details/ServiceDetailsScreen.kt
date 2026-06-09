@@ -176,7 +176,6 @@ private fun ServiceDetailsScreenContent(
                         ServiceSportFieldsView(
                             fields = field,
                             onAction = onAction,
-                            exercisesList = state.exercisesList.map { it.title }
                         )
                     }
                 }

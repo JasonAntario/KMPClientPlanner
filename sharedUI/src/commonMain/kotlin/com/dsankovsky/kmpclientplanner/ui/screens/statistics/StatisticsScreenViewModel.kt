@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 
 class StatisticsScreenViewModel(
     private val getClientsUseCase: GetClientsUseCase,
@@ -24,29 +25,60 @@ class StatisticsScreenViewModel(
     fun handleAction(action: StatisticsScreenAction) {
         when (action) {
             StatisticsScreenAction.LoadData -> loadData()
-            is StatisticsScreenAction.OnFilterClicked -> updateDataByFilter(action.filter)
 
-            StatisticsScreenAction.CloseDatePickerClicked -> {
-                _state.update {
-                    it.copy(showDatePicker = false)
+            is StatisticsScreenAction.OnFilterClicked -> {
+                if (action.filter == ServicesFilter.CUSTOM_INTERVAL) {
+                    _state.update { it.copy(showDatePicker = true) }
+                } else {
+                    updateDataByFilter(action.filter)
                 }
             }
 
-            StatisticsScreenAction.OpenDatePickerClicked -> {
+            StatisticsScreenAction.CloseDatePickerClicked -> {
+                _state.update { it.copy(showDatePicker = false) }
+            }
+
+            is StatisticsScreenAction.SetCustomInterval -> {
                 _state.update {
-                    it.copy(showDatePicker = true)
+                    it.copy(
+                        showDatePicker = false,
+                        currentFilter = ServicesFilter.CUSTOM_INTERVAL,
+                        customIntervalStart = action.startDate,
+                        customIntervalEnd = action.endDate
+                    )
                 }
+                loadData(
+                    filter = ServicesFilter.CUSTOM_INTERVAL,
+                    customStart = action.startDate,
+                    customEnd = action.endDate
+                )
             }
         }
     }
 
     private fun loadData(
-        filter: ServicesFilter = state.value.currentFilter
+        filter: ServicesFilter = state.value.currentFilter,
+        customStart: LocalDate? = state.value.customIntervalStart,
+        customEnd: LocalDate? = state.value.customIntervalEnd
     ) {
         viewModelScope.launch {
-            val state = state.value
-            val services =
-                getServicesUseCase.getAllServices(state.currentFilter).firstOrNull() ?: emptyList()
+            val allServices = getServicesUseCase.getAllServices().firstOrNull() ?: emptyList()
+
+            val services = if (filter == ServicesFilter.CUSTOM_INTERVAL) {
+                if (customStart != null && customEnd != null) {
+                    allServices.filter { it.startDate.date in customStart..customEnd }
+                } else {
+                    allServices
+                }
+            } else {
+                val dateInterval = filter.getDateInterval()
+                if (dateInterval != null) {
+                    allServices.filter { it.startDate.date in dateInterval.first..dateInterval.second }
+                } else {
+                    allServices
+                }
+            }
+
             val clients = getClientsUseCase.getAllClients().firstOrNull() ?: emptyList()
 
             val clientItemList = clients.mapNotNull { client ->
@@ -64,14 +96,13 @@ class StatisticsScreenViewModel(
                             money = paidServices.sumOf { it.price?.toDouble() ?: 0.0 }.toFloat(),
                             currency = it.key
                         )
-
                     }
 
                 val mustBePaid = servicesForClient
                     .map {
-                        val paidServices = it.value.filter { !it.isPaid && it.isFinished }
+                        val unpaidFinished = it.value.filter { !it.isPaid && it.isFinished }
                         StatisticsClientItem.StatisticsPaymentItem(
-                            money = paidServices.sumOf { it.price?.toDouble() ?: 0.0 }.toFloat(),
+                            money = unpaidFinished.sumOf { it.price?.toDouble() ?: 0.0 }.toFloat(),
                             currency = it.key
                         )
                     }
@@ -110,7 +141,12 @@ class StatisticsScreenViewModel(
                     )
                 }
 
-            val dateInterval = filter.getDateInterval()
+            val displayInterval = when {
+                filter == ServicesFilter.CUSTOM_INTERVAL && customStart != null && customEnd != null ->
+                    Pair(customStart, customEnd)
+                filter != ServicesFilter.CUSTOM_INTERVAL -> filter.getDateInterval()
+                else -> null
+            }
 
             _state.update {
                 it.copy(
@@ -120,16 +156,14 @@ class StatisticsScreenViewModel(
                     receivedTotal = revivedTotal.toFloat(),
                     expectedTotal = expectedTotal.toFloat(),
                     itemsByClients = clientItemList,
-                    dateInterval = dateInterval,
+                    dateInterval = displayInterval,
                     currentFilter = filter
                 )
             }
         }
     }
 
-    private fun updateDataByFilter(
-        filter: ServicesFilter
-    ) {
+    private fun updateDataByFilter(filter: ServicesFilter) {
         _state.update {
             it.copy(currentFilter = filter, showDatePicker = false)
         }

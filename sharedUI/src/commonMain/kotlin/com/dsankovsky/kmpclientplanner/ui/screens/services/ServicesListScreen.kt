@@ -47,16 +47,17 @@ import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
-import com.dsankovsky.kmpclientplanner.ui.platform.isDesktopTarget
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.main_title
 import kmpclientplanner.sharedui.generated.resources.services_list_no_services_description
-import kmpclientplanner.sharedui.generated.resources.tabs_month
+import kmpclientplanner.sharedui.generated.resources.tabs_current_month
+import kmpclientplanner.sharedui.generated.resources.tabs_current_week
+import kmpclientplanner.sharedui.generated.resources.tabs_next_month
+import kmpclientplanner.sharedui.generated.resources.tabs_next_week
 import kmpclientplanner.sharedui.generated.resources.tabs_today
 import kmpclientplanner.sharedui.generated.resources.tabs_tomorrow
-import kmpclientplanner.sharedui.generated.resources.tabs_week
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -98,14 +99,12 @@ fun HomeScreenContent(
 
     Scaffold(
         floatingActionButton = {
-            if (!isDesktopTarget()) {
-                FloatingActionButton(
-                    onClick = {
-                        onAction(ServicesListScreenAction.OnAddServiceClicked)
-                    }
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+            FloatingActionButton(
+                onClick = {
+                    onAction(ServicesListScreenAction.OnAddServiceClicked)
                 }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->
@@ -290,9 +289,11 @@ fun ServiceItemView(
 private fun ServicesFilter.toTabLabel(): String = when (this) {
     ServicesFilter.TODAY -> stringResource(Res.string.tabs_today)
     ServicesFilter.TOMORROW -> stringResource(Res.string.tabs_tomorrow)
-    ServicesFilter.NEXT_WEEK -> stringResource(Res.string.tabs_week)
-    ServicesFilter.NEXT_MONTH -> stringResource(Res.string.tabs_month)
-    else -> name
+    ServicesFilter.CURRENT_WEEK -> stringResource(Res.string.tabs_current_week)
+    ServicesFilter.NEXT_WEEK -> stringResource(Res.string.tabs_next_week)
+    ServicesFilter.CURRENT_MONTH -> stringResource(Res.string.tabs_current_month)
+    ServicesFilter.NEXT_MONTH -> stringResource(Res.string.tabs_next_month)
+    ServicesFilter.CUSTOM_INTERVAL -> name
 }
 
 @PreviewLightDark

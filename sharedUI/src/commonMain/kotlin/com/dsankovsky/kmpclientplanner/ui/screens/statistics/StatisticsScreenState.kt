@@ -16,7 +16,9 @@ data class StatisticsScreenState(
     val expectedTotalByCurrency: List<StatisticsClientItem.StatisticsPaymentItem> = emptyList(),
     val itemsByClients: List<StatisticsClientItem> = emptyList(),
     val filters: List<ServicesFilter> = getStatisticsScreenFilters(),
-    val currentFilter: ServicesFilter = ServicesFilter.DAY,
+    val currentFilter: ServicesFilter = ServicesFilter.TODAY,
     val showDatePicker: Boolean = false,
-    val dateInterval: Pair<LocalDate, LocalDate>? = null
+    val dateInterval: Pair<LocalDate, LocalDate>? = null,
+    val customIntervalStart: LocalDate? = null,
+    val customIntervalEnd: LocalDate? = null
 )

@@ -19,17 +19,7 @@ class GetServicesUseCase(
         return repository.getAllServices().map {
             it.filter { service ->
                 val dateInterval = filter.getDateInterval() ?: return@filter true
-                when (filter) {
-                    ServicesFilter.CURRENT_MONTH -> {
-                        service.startDate.month == dateInterval.first.month
-                    }
-
-                    ServicesFilter.YEAR -> {
-                        service.startDate.year == dateInterval.first.year
-                    }
-
-                    else -> service.startDate.date in dateInterval.first..dateInterval.second
-                }
+                service.startDate.date in dateInterval.first..dateInterval.second
             }
         }
     }

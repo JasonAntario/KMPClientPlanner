@@ -72,13 +72,7 @@ class ServicesScreenViewModel(
                     .filter { service ->
                         val filter = state.value.currentFilter
                         val dateInterval = filter.getDateInterval() ?: return@filter true
-                        when (filter) {
-                            ServicesFilter.CURRENT_MONTH -> {
-                                service.startDate.month == dateInterval.first.month
-                            }
-
-                            else -> service.startDate.date in dateInterval.first..dateInterval.second
-                        }
+                        service.startDate.date in dateInterval.first..dateInterval.second
                     }
                     .mapNotNull { service ->
                         val client = clients.firstOrNull { service.clientId == it.id }

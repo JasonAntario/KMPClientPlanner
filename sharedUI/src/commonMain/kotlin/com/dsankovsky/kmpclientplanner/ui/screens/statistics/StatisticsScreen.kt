@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.dsankovsky.kmpclientplanner.ui.screens.statistics
 
 import androidx.compose.foundation.background
@@ -13,11 +15,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,19 +46,26 @@ import com.dsankovsky.kmpclientplanner.ui.screens.statistics.components.Statisti
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.model.StatisticsClientItem
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
+import kmpclientplanner.sharedui.generated.resources.date_picker_cancel
+import kmpclientplanner.sharedui.generated.resources.date_picker_confirm
 import kmpclientplanner.sharedui.generated.resources.statistics_by_client
 import kmpclientplanner.sharedui.generated.resources.statistics_expected
 import kmpclientplanner.sharedui.generated.resources.statistics_expected_in_period
 import kmpclientplanner.sharedui.generated.resources.statistics_income_in_period
 import kmpclientplanner.sharedui.generated.resources.statistics_paid
 import kmpclientplanner.sharedui.generated.resources.statistics_title
-import kmpclientplanner.sharedui.generated.resources.tabs_all_time
-import kmpclientplanner.sharedui.generated.resources.tabs_day
-import kmpclientplanner.sharedui.generated.resources.tabs_month
-import kmpclientplanner.sharedui.generated.resources.tabs_week
-import kmpclientplanner.sharedui.generated.resources.tabs_year
+import kmpclientplanner.sharedui.generated.resources.tabs_current_month
+import kmpclientplanner.sharedui.generated.resources.tabs_current_week
+import kmpclientplanner.sharedui.generated.resources.tabs_custom_interval
+import kmpclientplanner.sharedui.generated.resources.tabs_next_month
+import kmpclientplanner.sharedui.generated.resources.tabs_next_week
+import kmpclientplanner.sharedui.generated.resources.tabs_today
+import kmpclientplanner.sharedui.generated.resources.tabs_tomorrow
 import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -77,6 +91,43 @@ fun StatisticsScreenContent(
     onAction: (StatisticsScreenAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (state.showDatePicker) {
+        val dateRangePickerState = rememberDateRangePickerState()
+        DatePickerDialog(
+            onDismissRequest = { onAction(StatisticsScreenAction.CloseDatePickerClicked) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val startMillis = dateRangePickerState.selectedStartDateMillis
+                        val endMillis = dateRangePickerState.selectedEndDateMillis
+                        if (startMillis != null && endMillis != null) {
+                            onAction(
+                                StatisticsScreenAction.SetCustomInterval(
+                                    startDate = Instant.fromEpochMilliseconds(startMillis)
+                                        .toLocalDateTime(TimeZone.UTC).date,
+                                    endDate = Instant.fromEpochMilliseconds(endMillis)
+                                        .toLocalDateTime(TimeZone.UTC).date
+                                )
+                            )
+                        }
+                    }
+                ) {
+                    Text(stringResource(Res.string.date_picker_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onAction(StatisticsScreenAction.CloseDatePickerClicked) }) {
+                    Text(stringResource(Res.string.date_picker_cancel))
+                }
+            }
+        ) {
+            DateRangePicker(
+                state = dateRangePickerState,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -211,12 +262,13 @@ fun StatisticsScreenContent(
 
 @Composable
 private fun ServicesFilter.toTabLabel(): String = when (this) {
-    ServicesFilter.DAY -> stringResource(Res.string.tabs_day)
-    ServicesFilter.CURRENT_WEEK -> stringResource(Res.string.tabs_week)
-    ServicesFilter.CURRENT_MONTH -> stringResource(Res.string.tabs_month)
-    ServicesFilter.YEAR -> stringResource(Res.string.tabs_year)
-    ServicesFilter.ALL_TIME -> stringResource(Res.string.tabs_all_time)
-    else -> name
+    ServicesFilter.TODAY -> stringResource(Res.string.tabs_today)
+    ServicesFilter.TOMORROW -> stringResource(Res.string.tabs_tomorrow)
+    ServicesFilter.CURRENT_WEEK -> stringResource(Res.string.tabs_current_week)
+    ServicesFilter.NEXT_WEEK -> stringResource(Res.string.tabs_next_week)
+    ServicesFilter.CURRENT_MONTH -> stringResource(Res.string.tabs_current_month)
+    ServicesFilter.NEXT_MONTH -> stringResource(Res.string.tabs_next_month)
+    ServicesFilter.CUSTOM_INTERVAL -> stringResource(Res.string.tabs_custom_interval)
 }
 
 @PreviewLightDark

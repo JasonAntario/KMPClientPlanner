@@ -175,13 +175,15 @@
     <string name="statistics_paid">Оплачено</string>
     <string name="statistics_expected">Ожидается</string>
 
-    <string name="tabs_day">день</string>
-    <string name="tabs_week">неделя</string>
-    <string name="tabs_month">месяц</string>
-    <string name="tabs_year">год</string>
     <string name="tabs_today">сегодня</string>
     <string name="tabs_tomorrow">завтра</string>
-    <string name="tabs_all_time">все время</string>
+    <string name="tabs_current_week">текущая неделя</string>
+    <string name="tabs_next_week">следующая неделя</string>
+    <string name="tabs_current_month">текущий месяц</string>
+    <string name="tabs_next_month">следующий месяц</string>
+    <string name="tabs_custom_interval">период</string>
+    <string name="date_picker_confirm">ОК</string>
+    <string name="date_picker_cancel">Отмена</string>
 
     <string name="service_education_title_autofill">Занятие с %1$s</string>
     <string name="service_sport_title_autofill">Тренировка с %1$s</string>

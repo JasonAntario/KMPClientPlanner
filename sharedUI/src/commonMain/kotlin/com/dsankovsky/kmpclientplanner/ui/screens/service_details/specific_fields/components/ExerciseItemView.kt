@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Card
@@ -23,8 +22,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceSpecificFields
-import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenAction
+import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.service_repeats
 import kmpclientplanner.sharedui.generated.resources.service_title
@@ -38,7 +37,6 @@ fun ExerciseItemView(
     exercise: ServiceSpecificFields.SportServiceSpecificFields.Exercise,
     exerciseIndex: Int,
     modifier: Modifier = Modifier,
-    exercisesList: List<String> = emptyList(),
     onAction: (ServiceDetailsScreenAction) -> Unit
 ) {
     Card(
@@ -48,10 +46,17 @@ fun ExerciseItemView(
             modifier = Modifier.padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val title = rememberTextFieldState(exercise.title)
-
             OutlinedTextField(
-                state = title,
+                value = exercise.title,
+                onValueChange = {
+                    onAction(
+                        ServiceDetailsScreenAction.SportServiceAction.OnExerciseTitleChanged(
+                            exerciseIndex = exerciseIndex,
+                            title = it,
+                            isSelectable = false
+                        )
+                    )
+                },
                 label = {
                     Text(stringResource(Res.string.service_title))
                 },
@@ -72,10 +77,17 @@ fun ExerciseItemView(
                         modifier = Modifier.padding(top = 42.dp),
                     )
 
-                    val repeats = rememberTextFieldState(set.repeats)
-
                     OutlinedTextField(
-                        state = repeats,
+                        value = set.repeats,
+                        onValueChange = {
+                            onAction(
+                                ServiceDetailsScreenAction.SportServiceAction.OnSetRepeatsChanged(
+                                    exerciseIndex = exerciseIndex,
+                                    setIndex = setIndex,
+                                    repeats = it
+                                )
+                            )
+                        },
                         label = {
                             Text(stringResource(Res.string.service_repeats))
                         },
@@ -86,10 +98,17 @@ fun ExerciseItemView(
                         )
                     )
 
-                    val weight = rememberTextFieldState(set.weight)
-
                     OutlinedTextField(
-                        state = weight,
+                        value = set.weight,
+                        onValueChange = {
+                            onAction(
+                                ServiceDetailsScreenAction.SportServiceAction.OnSetWeightChanged(
+                                    exerciseIndex = exerciseIndex,
+                                    setIndex = setIndex,
+                                    weight = it
+                                )
+                            )
+                        },
                         label = {
                             Text(stringResource(Res.string.service_weight))
                         },
@@ -156,7 +175,6 @@ private fun PreviewExerciseItemView() {
         ExerciseItemView(
             exercise = ServiceSpecificFields.SportServiceSpecificFields.Exercise(),
             exerciseIndex = 1,
-            exercisesList = listOf("Жим лежа", "Приседания"),
             onAction = {},
             modifier = Modifier.padding(16.dp)
         )

@@ -90,7 +90,6 @@ fun MainScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-
     NavigationSuiteScaffold(
         state = navSuiteState,
         navigationSuiteItems = {
