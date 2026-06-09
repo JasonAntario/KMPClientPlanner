@@ -64,6 +64,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun HomeScreen(
     onEvent: (ServicesListScreenEvent) -> Unit,
+    showFab: Boolean = true,
     modifier: Modifier = Modifier
 ) {
 
@@ -84,6 +85,7 @@ fun HomeScreen(
             HomeScreenContent(
                 state = state,
                 onAction = viewModel::handleAction,
+                showFab = showFab,
                 modifier = modifier
             )
         }
@@ -94,17 +96,20 @@ fun HomeScreen(
 fun HomeScreenContent(
     state: ServicesListScreenState,
     onAction: (ServicesListScreenAction) -> Unit,
+    showFab: Boolean = true,
     modifier: Modifier = Modifier
 ) {
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    onAction(ServicesListScreenAction.OnAddServiceClicked)
+            if (showFab) {
+                FloatingActionButton(
+                    onClick = {
+                        onAction(ServicesListScreenAction.OnAddServiceClicked)
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
                 }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->

@@ -1,16 +1,30 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.main
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -19,6 +33,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.dsankovsky.kmpclientplanner.navigation.NavigationItem
@@ -77,410 +92,430 @@ fun MainScreen() {
         derivedStateOf { backStack.lastOrNull() in screensWithNavBar }
     }
 
-    val navSuiteState = rememberNavigationSuiteScaffoldState()
-
-    LaunchedEffect(showNavigationBar) {
-        if (showNavigationBar) {
-            navSuiteState.show()
-        } else {
-            navSuiteState.hide()
-        }
-    }
-
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    NavigationSuiteScaffold(
-        state = navSuiteState,
-        navigationSuiteItems = {
-            NavigationItem.items.forEach {
-                item(
-                    icon = {
-                        Icon(it.icon, contentDescription = null)
-                    },
-                    label = {
-                        Text(stringResource(it.title))
-                    },
-                    selected = it.screen == backStack.lastOrNull(),
-                    onClick = {
-                        backStack.add(it.screen)
+    LaunchedEffect(Unit) {
+        viewModel.handleActions(MainScreenActions.GetStartDestination)
+    }
+
+    viewModel.event.collectWithLifecycle { event ->
+        when (event) {
+            is MainScreenEvent.Navigate -> {
+                backStack.clear()
+                backStack.add(event.screen)
+            }
+        }
+    }
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val isWideScreen = maxWidth >= 600.dp
+        val currentScreen by remember { derivedStateOf { backStack.lastOrNull() } }
+        val showFabInRail = isWideScreen &&
+                (currentScreen == Screen.ClientsScreen || currentScreen == Screen.HomeScreen)
+
+        Scaffold(
+            contentWindowInsets = WindowInsets.statusBars,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            bottomBar = {
+                if (!isWideScreen && showNavigationBar) {
+                    NavigationBar {
+                        NavigationItem.items.forEach { item ->
+                            NavigationBarItem(
+                                icon = { Icon(item.icon, contentDescription = null) },
+                                label = { Text(stringResource(item.title)) },
+                                selected = item.screen == currentScreen,
+                                onClick = { backStack.add(item.screen) }
+                            )
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Row(modifier = Modifier.padding(paddingValues)) {
+                if (isWideScreen && showNavigationBar) {
+                    NavigationRail(
+                        windowInsets = WindowInsets.safeDrawing,
+                        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
+                        header = {
+                            AnimatedVisibility(showFabInRail) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        when (currentScreen) {
+                                            Screen.ClientsScreen -> backStack.add(Screen.AddEditClientScreen())
+                                            Screen.HomeScreen -> backStack.add(Screen.AddEditServiceScreen())
+                                            else -> {}
+                                        }
+                                    }
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null)
+                                }
+                            }
+                        }
+                    ) {
+                        NavigationItem.items.forEach { item ->
+                            NavigationRailItem(
+                                icon = { Icon(item.icon, contentDescription = null) },
+                                label = { Text(stringResource(item.title)) },
+                                selected = item.screen == currentScreen,
+                                onClick = { backStack.add(item.screen) }
+                            )
+                        }
+                    }
+                }
+                NavDisplay(
+                    backStack = backStack,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    onBack = { backStack.removeLastOrNull() },
+                    entryProvider = entryProvider {
+                        entry<Screen.LoadingScreen> {
+                            LoadingScreen()
+                        }
+
+                        entry<Screen.WelcomeScreen> {
+                            WelcomeScreen(
+                                modifier = Modifier,
+                                onStartClick = {
+                                    backStack.add(Screen.ServiceTypeSelectionScreen)
+                                }
+                            )
+                        }
+
+                        entry<Screen.ServiceTypeSelectionScreen>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            ServiceTypeSelectionScreen(
+                                onServiceTypeClicked = {
+                                    viewModel.handleActions(
+                                        MainScreenActions.OnServiceTypeSelected(it)
+                                    )
+                                }
+                            )
+                        }
+
+                        entry<Screen.ClientDetailsScreen>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            ClientDetailsScreen(
+                                clientId = it.clientId,
+                                onEvent = { event ->
+                                    when (event) {
+                                        ClientDetailsEvents.OnCloseScreen -> backStack.removeLastOrNull()
+                                        ClientDetailsEvents.OpenEditClientScreen -> backStack.add(
+                                            Screen.AddEditClientScreen(it.clientId)
+                                        )
+
+                                        ClientDetailsEvents.AutofillCompleted -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.client_details_autofill_completed)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+
+                                        ClientDetailsEvents.OpenServicesHistory -> {
+                                            backStack.add(Screen.ServicesHistory(it.clientId))
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        entry<Screen.AddEditClientScreen>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            AddEditClientScreen(
+                                onEvent = { event ->
+                                    when (event) {
+                                        AddEditClientEvent.OnClientSaved -> {
+                                            scope.launch {
+                                                val message = if (it.clientId != null) {
+                                                    getString(Res.string.add_edit_client_updated)
+                                                } else {
+                                                    getString(Res.string.add_edit_client_created)
+                                                }
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+
+                                            if (backStack.any { it::class == Screen.ClientDetailsScreen::class }) {
+                                                backStack.removeLastOrNull()
+                                            } else {
+                                                backStack.clear()
+                                                backStack.add(Screen.ClientsScreen)
+                                            }
+                                        }
+
+                                        AddEditClientEvent.OnDismissClicked -> {
+                                            backStack.removeLastOrNull()
+                                        }
+
+                                        is AddEditClientEvent.OnClientDeleted -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.add_edit_client_deleted)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                            if (event.noClients) {
+                                                viewModel.handleActions(MainScreenActions.GetStartDestination)
+                                            } else {
+                                                backStack.clear()
+                                                backStack.add(Screen.ClientsScreen)
+                                            }
+                                        }
+
+                                        AddEditClientEvent.AutofillCompleted -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.client_details_autofill_completed)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+                                    }
+                                },
+                                clientId = it.clientId
+                            )
+                        }
+
+                        entry<Screen.ServiceDetailsScreen>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            val serviceId = it.serviceId
+                            ServiceDetailsScreen(
+                                serviceId = serviceId,
+                                onEvent = {
+                                    when (it) {
+                                        ServiceDetailsScreenEvent.OnCloseScreen -> backStack.removeLastOrNull()
+                                        ServiceDetailsScreenEvent.OpenEditServiceScreen -> backStack.add(
+                                            Screen.AddEditServiceScreen(serviceId)
+                                        )
+
+                                        ServiceDetailsScreenEvent.StatusUpdated -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.client_details_status_updated)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        entry<Screen.AddEditServiceScreen>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            val serviceId = it.serviceId
+                            AddEditServiceScreen(
+                                onEvent = { event ->
+                                    when (event) {
+                                        AddEditServiceEvent.OnDismissClicked -> {
+                                            backStack.removeLastOrNull()
+                                        }
+
+                                        AddEditServiceEvent.OnServiceDeleted -> {
+                                            backStack.clear()
+                                            backStack.add(Screen.ClientsScreen)
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.add_edit_service_deleted)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+
+                                        AddEditServiceEvent.OnServiceSaved -> {
+                                            scope.launch {
+                                                val message = if (it.serviceId != null) {
+                                                    getString(Res.string.add_edit_service_updated)
+                                                } else {
+                                                    getString(Res.string.add_edit_service_created)
+                                                }
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+
+                                            if (backStack.any { it::class == Screen.ServiceDetailsScreen::class }) {
+                                                backStack.removeLastOrNull()
+                                            } else {
+                                                backStack.clear()
+                                                backStack.add(Screen.HomeScreen)
+                                            }
+                                        }
+                                    }
+                                },
+                                serviceId = serviceId
+                            )
+                        }
+
+                        entry<Screen.HomeScreen> {
+                            HomeScreen(
+                                showFab = !isWideScreen,
+                                onEvent = { event ->
+                                    when (event) {
+                                        is ServicesListScreenEvent.OpenServiceInfo -> {
+                                            backStack.add(Screen.ServiceDetailsScreen(event.serviceId))
+                                        }
+
+                                        ServicesListScreenEvent.ServiceDeleted -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.add_edit_service_deleted)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+
+                                        ServicesListScreenEvent.StatusUpdated -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.client_details_status_updated)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+
+                                        ServicesListScreenEvent.AddService -> {
+                                            backStack.add(Screen.AddEditServiceScreen())
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        entry<Screen.ServicesHistory>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            ServicesHistoryScreen(
+                                clientId = it.clientId,
+                                onEvent = { event ->
+                                    when (event) {
+                                        is ServicesHistoryScreenEvent.OpenServiceInfo -> {
+                                            backStack.add(Screen.ServiceDetailsScreen(event.serviceId))
+                                        }
+
+                                        ServicesHistoryScreenEvent.CloseScreen -> backStack.removeLastOrNull()
+                                        ServicesHistoryScreenEvent.ServiceDeleted -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.add_edit_service_deleted)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+
+                                        ServicesHistoryScreenEvent.StatusUpdated -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.add_edit_service_deleted)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        entry<Screen.NoClientsScreen> {
+                            NoClientsScreen(
+                                onAddClientCLicked = {
+                                    backStack.add(Screen.AddEditClientScreen())
+                                },
+                                onChangeServiceTypeCLicked = {
+                                    backStack.add(Screen.ServiceTypeSelectionScreen)
+                                }
+                            )
+                        }
+
+                        entry<Screen.ClientsScreen> {
+                            ClientsListScreen(
+                                showFab = !isWideScreen,
+                                onEvent = { event ->
+                                    when (event) {
+                                        is ClientsListScreenEvent.OpenClientInfo -> {
+                                            backStack.add(Screen.ClientDetailsScreen(event.clientId))
+                                        }
+
+                                        ClientsListScreenEvent.AddClient -> {
+                                            backStack.add(Screen.AddEditClientScreen())
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        entry<Screen.StatisticsScreen> {
+                            StatisticsScreen()
+                        }
+
+                        entry<Screen.PayServicesScreen>(
+                            metadata = transitionHorizontalSlideAnimation()
+                        ) {
+                            PayServicesScreen(
+                                onEvent = {
+                                    when (it) {
+                                        PayServiceScreenEvent.OnDismissClicked -> {
+                                            backStack.removeLastOrNull()
+                                        }
+
+                                        PayServiceScreenEvent.OnSuccess -> {
+                                            scope.launch {
+                                                val message =
+                                                    getString(Res.string.services_paid)
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+
+                        entry<Screen.SettingsScreen> {
+                            SettingsScreen(
+                                onEvent = { event ->
+                                    when (event) {
+                                        SettingsScreenEvent.AllDataCleared -> {
+                                            backStack.clear()
+                                            backStack.add(Screen.WelcomeScreen)
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
                 )
             }
-        },
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        LaunchedEffect(Unit) {
-            viewModel.handleActions(MainScreenActions.GetStartDestination)
-        }
-
-        viewModel.event.collectWithLifecycle { event ->
-            when (event) {
-                is MainScreenEvent.Navigate -> {
-                    backStack.clear()
-                    backStack.add(event.screen)
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-
-            NavDisplay(
-                backStack = backStack,
-                modifier = Modifier,
-                onBack = { backStack.removeLastOrNull() },
-                entryProvider = entryProvider {
-                    entry<Screen.LoadingScreen> {
-                        LoadingScreen()
-                    }
-
-                    entry<Screen.WelcomeScreen> {
-                        WelcomeScreen(
-                            modifier = Modifier,
-                            onStartClick = {
-                                backStack.add(Screen.ServiceTypeSelectionScreen)
-                            }
-                        )
-                    }
-
-                    entry<Screen.ServiceTypeSelectionScreen>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        ServiceTypeSelectionScreen(
-                            onServiceTypeClicked = {
-                                viewModel.handleActions(
-                                    MainScreenActions.OnServiceTypeSelected(
-                                        it
-                                    )
-                                )
-                            }
-                        )
-                    }
-
-                    entry<Screen.ClientDetailsScreen>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        ClientDetailsScreen(
-                            clientId = it.clientId,
-                            onEvent = { event ->
-                                when (event) {
-                                    ClientDetailsEvents.OnCloseScreen -> backStack.removeLastOrNull()
-                                    ClientDetailsEvents.OpenEditClientScreen -> backStack.add(
-                                        Screen.AddEditClientScreen(
-                                            it.clientId
-                                        )
-                                    )
-
-                                    ClientDetailsEvents.AutofillCompleted -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.client_details_autofill_completed)
-
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-
-                                    ClientDetailsEvents.OpenServicesHistory -> {
-                                        backStack.add(Screen.ServicesHistory(it.clientId))
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    entry<Screen.AddEditClientScreen>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        AddEditClientScreen(
-                            onEvent = { event ->
-                                when (event) {
-                                    AddEditClientEvent.OnClientSaved -> {
-                                        scope.launch {
-                                            val message = if (it.clientId != null) {
-                                                getString(Res.string.add_edit_client_updated)
-                                            } else {
-                                                getString(Res.string.add_edit_client_created)
-                                            }
-
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-
-                                        if (backStack.any { it::class == Screen.ClientDetailsScreen::class }) {
-                                            backStack.removeLastOrNull()
-                                        } else {
-                                            backStack.clear()
-                                            backStack.add(Screen.ClientsScreen)
-                                        }
-                                    }
-
-                                    AddEditClientEvent.OnDismissClicked -> {
-                                        backStack.removeLastOrNull()
-                                    }
-
-                                    is AddEditClientEvent.OnClientDeleted -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.add_edit_client_deleted)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                        if (event.noClients) {
-                                            viewModel.handleActions(MainScreenActions.GetStartDestination)
-                                        } else {
-                                            backStack.clear()
-                                            backStack.add(Screen.ClientsScreen)
-                                        }
-                                    }
-
-                                    AddEditClientEvent.AutofillCompleted -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.client_details_autofill_completed)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-                            clientId = it.clientId
-                        )
-                    }
-
-                    entry<Screen.ServiceDetailsScreen>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        val serviceId = it.serviceId
-                        ServiceDetailsScreen(
-                            serviceId = serviceId,
-                            onEvent = {
-                                when (it) {
-                                    ServiceDetailsScreenEvent.OnCloseScreen -> backStack.removeLastOrNull()
-                                    ServiceDetailsScreenEvent.OpenEditServiceScreen -> backStack.add(
-                                        Screen.AddEditServiceScreen(serviceId)
-                                    )
-
-                                    ServiceDetailsScreenEvent.StatusUpdated -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.client_details_status_updated)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    entry<Screen.AddEditServiceScreen>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        val serviceId = it.serviceId
-                        AddEditServiceScreen(
-                            onEvent = { event ->
-                                when (event) {
-                                    AddEditServiceEvent.OnDismissClicked -> {
-                                        backStack.removeLastOrNull()
-                                    }
-
-                                    AddEditServiceEvent.OnServiceDeleted -> {
-                                        backStack.clear()
-                                        backStack.add(Screen.ClientsScreen)
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.add_edit_service_deleted)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-
-                                    AddEditServiceEvent.OnServiceSaved -> {
-                                        scope.launch {
-                                            val message = if (it.serviceId != null) {
-                                                getString(Res.string.add_edit_service_updated)
-                                            } else {
-                                                getString(Res.string.add_edit_service_created)
-                                            }
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-
-                                        if (backStack.any { it::class == Screen.ServiceDetailsScreen::class }) {
-                                            backStack.removeLastOrNull()
-                                        } else {
-                                            backStack.clear()
-                                            backStack.add(Screen.HomeScreen)
-                                        }
-                                    }
-                                }
-                            },
-                            serviceId = serviceId
-                        )
-                    }
-
-                    entry<Screen.HomeScreen> {
-                        HomeScreen(
-                            onEvent = { event ->
-                                when (event) {
-                                    is ServicesListScreenEvent.OpenServiceInfo -> {
-                                        backStack.add(Screen.ServiceDetailsScreen(event.serviceId))
-                                    }
-
-                                    ServicesListScreenEvent.ServiceDeleted -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.add_edit_service_deleted)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-
-                                    ServicesListScreenEvent.StatusUpdated -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.client_details_status_updated)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-
-                                    ServicesListScreenEvent.AddService -> {
-                                        backStack.add(Screen.AddEditServiceScreen())
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    entry<Screen.ServicesHistory>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        ServicesHistoryScreen(
-                            clientId = it.clientId,
-                            onEvent = { event ->
-                                when (event) {
-                                    is ServicesHistoryScreenEvent.OpenServiceInfo -> {
-                                        backStack.add(Screen.ServiceDetailsScreen(event.serviceId))
-                                    }
-
-                                    ServicesHistoryScreenEvent.CloseScreen -> backStack.removeLastOrNull()
-                                    ServicesHistoryScreenEvent.ServiceDeleted -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.add_edit_service_deleted)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-
-                                    ServicesHistoryScreenEvent.StatusUpdated -> {
-                                        scope.launch {
-                                            val message =
-                                                getString(Res.string.add_edit_service_deleted)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    entry<Screen.NoClientsScreen> {
-                        NoClientsScreen(
-                            onAddClientCLicked = {
-                                backStack.add(Screen.AddEditClientScreen())
-                            },
-                            onChangeServiceTypeCLicked = {
-                                backStack.add(Screen.ServiceTypeSelectionScreen)
-                            }
-                        )
-                    }
-
-                    entry<Screen.ClientsScreen> {
-                        ClientsListScreen(
-                            onEvent = { event ->
-                                when (event) {
-                                    is ClientsListScreenEvent.OpenClientInfo -> {
-                                        backStack.add(Screen.ClientDetailsScreen(event.clientId))
-                                    }
-
-                                    ClientsListScreenEvent.AddClient -> {
-                                        backStack.add(Screen.AddEditClientScreen())
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    entry<Screen.StatisticsScreen> {
-                        StatisticsScreen()
-                    }
-
-                    entry<Screen.PayServicesScreen>(
-                        metadata = transitionHorizontalSlideAnimation()
-                    ) {
-                        PayServicesScreen(
-                            onEvent = {
-                                when (it) {
-                                    PayServiceScreenEvent.OnDismissClicked -> {
-                                        backStack.removeLastOrNull()
-                                    }
-
-                                    PayServiceScreenEvent.OnSuccess -> {
-                                        scope.launch {
-                                            val message = getString(Res.string.services_paid)
-                                            snackbarHostState.showSnackbar(
-                                                message = message,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    entry<Screen.SettingsScreen> {
-                        SettingsScreen(
-                            onEvent = { event ->
-                                when (event) {
-                                    SettingsScreenEvent.AllDataCleared -> {
-                                        backStack.clear()
-                                        backStack.add(Screen.WelcomeScreen)
-                                    }
-                                }
-                            }
-                        )
-                    }
-                }
-            )
         }
     }
 }

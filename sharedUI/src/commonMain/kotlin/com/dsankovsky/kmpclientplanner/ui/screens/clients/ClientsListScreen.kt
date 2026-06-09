@@ -50,6 +50,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ClientsListScreen(
     onEvent: (ClientsListScreenEvent) -> Unit,
+    showFab: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val viewModel: ClientsScreenViewModel = koinViewModel()
@@ -71,6 +72,7 @@ fun ClientsListScreen(
             ClientsListScreenContent(
                 screenState = state,
                 onAction = viewModel::handleAction,
+                showFab = showFab,
                 modifier = modifier
             )
         }
@@ -81,6 +83,7 @@ fun ClientsListScreen(
 fun ClientsListScreenContent(
     screenState: ClientsListScreenState,
     onAction: (ClientsListScreenAction) -> Unit,
+    showFab: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -88,12 +91,14 @@ fun ClientsListScreenContent(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    onAction(ClientsListScreenAction.AddClientClicked)
+            if (showFab) {
+                FloatingActionButton(
+                    onClick = {
+                        onAction(ClientsListScreenAction.AddClientClicked)
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
                 }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->
