@@ -157,7 +157,7 @@ class AutofillServiceUseCase(
 
                 dates.forEach { dateTimePair ->
                     val service = BaseService(
-                        title = "",
+                        title = "$titlePrefix ${client.name}",
                         clientId = clientId,
                         startDate = dateTimePair.first,
                         endDate = dateTimePair.second,

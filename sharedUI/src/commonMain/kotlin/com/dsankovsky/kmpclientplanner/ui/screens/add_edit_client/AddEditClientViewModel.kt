@@ -329,6 +329,8 @@ class AddEditClientViewModel(
             val specificFields =
                 getClientSpecificFieldsUseCase.getSpecificField(client?.id, serviceType)
 
+            println("load client ST - $serviceType")
+
             _state.update {
                 it.copy(
                     id = id,
@@ -400,7 +402,7 @@ class AddEditClientViewModel(
             val askAboutAutofill = autofillServiceUseCase.askAboutAutofill(
                 specificFields,
                 currentState.initialServiceFields,
-                currentState.serviceType
+                serviceType
             )
 
             if (askAboutAutofill) {
@@ -462,6 +464,8 @@ class AddEditClientViewModel(
                 ServiceType.BEAUTY -> Res.string.service_prefix_beauty
                 ServiceType.TATTOO -> Res.string.service_prefix_tattoo
             }
+
+            println("autofill services ST - ${state.serviceType}")
 
             val titlePrefix = getString(titlePrefixRes)
             autofillServiceUseCase.autofillServices(
