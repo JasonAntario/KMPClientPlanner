@@ -1,7 +1,9 @@
 package com.dsankovsky.kmpclientplanner.data.db
 
+import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import com.dsankovsky.kmpclientplanner.data.db.dao.client.ClientsDao
 import com.dsankovsky.kmpclientplanner.data.db.dao.client.EducationClientFieldsDao
@@ -45,6 +47,7 @@ import com.dsankovsky.kmpclientplanner.data.db.type_converters.ServiceTypeConver
     version = 1,
     exportSchema = false
 )
+@ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun clientsDao(): ClientsDao
@@ -61,4 +64,9 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         const val DB_NAME = "my_schedule_pal.db"
     }
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase
 }

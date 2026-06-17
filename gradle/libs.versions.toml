@@ -25,6 +25,7 @@ ksp = "2.3.9"
 material3 = "1.11.0-alpha07"
 room = "2.8.4"
 sqlite = "2.6.2"
+skie = "0.10.12"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -71,3 +72,4 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
+skie = { id = "co.touchlab.skie", version.ref = "skie" }
