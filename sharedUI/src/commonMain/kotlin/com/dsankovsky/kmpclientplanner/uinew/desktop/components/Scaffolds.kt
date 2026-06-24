@@ -10,18 +10,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.uinew.desktop.theme.LessonsColors
@@ -111,7 +117,60 @@ fun ChipRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         labels.forEachIndexed { index, label ->
-            FilterChip(label = label, selected = index == selectedIndex, onClick = { onSelect(index) })
+            FilterChip(
+                label = label,
+                selected = index == selectedIndex,
+                onClick = { onSelect(index) })
         }
     }
+}
+
+/** Filled placeholder pane used only by the scaffold previews. */
+@Composable
+private fun PreviewPane(color: Color) {
+    Box(Modifier.fillMaxSize().background(color))
+}
+
+@Preview
+@Composable
+private fun MasterDetailScaffoldPreview() = ComponentPreview(padding = 0.dp) {
+    Box(Modifier.size(width = 760.dp, height = 440.dp)) {
+        MasterDetailScaffold(
+            rail = { PreviewPane(LessonsColors.RailBackground) },
+            master = { PreviewPane(LessonsColors.PanelBackground) },
+            detail = { PreviewPane(LessonsColors.CardBackground) },
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun RailContentScaffoldPreview() = ComponentPreview(padding = 0.dp) {
+    Box(Modifier.size(width = 760.dp, height = 440.dp)) {
+        RailContentScaffold(
+            rail = { PreviewPane(LessonsColors.RailBackground) },
+            content = { PreviewPane(LessonsColors.CardBackground) },
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ModalScaffoldPreview() = ComponentPreview(padding = 0.dp) {
+    Box(Modifier.size(width = 640.dp, height = 480.dp)) {
+        ModalScaffold(onDismiss = {}) {
+            Box(Modifier.fillMaxWidth().height(220.dp))
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ChipRowPreview() = ComponentPreview {
+    var selected by remember { mutableStateOf(0) }
+    ChipRow(
+        labels = listOf("Сегодня", "Неделя", "Месяц"),
+        selectedIndex = selected,
+        onSelect = { selected = it },
+    )
 }

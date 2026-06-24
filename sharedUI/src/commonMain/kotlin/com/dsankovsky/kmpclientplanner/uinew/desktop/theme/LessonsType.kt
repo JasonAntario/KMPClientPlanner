@@ -56,11 +56,26 @@ fun lessonsTypography(): Typography {
  */
 object LessonsText {
     @Composable
-    fun style(weight: FontWeight, size: Int, letterSpacingEm: Float = 0f): TextStyle =
+    fun style(
+        weight: FontWeight,
+        size: Int,
+        letterSpacingEm: Float = 0f,
+        lineHeight: Int = 0,
+    ): TextStyle =
         TextStyle(
             fontFamily = nunitoFamily(),
             fontWeight = weight,
             fontSize = size.sp,
             letterSpacing = (size * letterSpacingEm).sp,
+            lineHeight = (if (lineHeight > 0) lineHeight else size).sp,
         )
+
+    /** Named scale from the design system's "02 — Typography" section. */
+    val Display: TextStyle @Composable get() = style(FontWeight.ExtraBold, 36, -0.02f, 40)
+    val Title: TextStyle @Composable get() = style(FontWeight.ExtraBold, 24, lineHeight = 28)
+    val SectionHeading: TextStyle @Composable get() = style(FontWeight.Bold, 18, lineHeight = 24)
+    val BodyStrong: TextStyle @Composable get() = style(FontWeight.Bold, 15, lineHeight = 20)
+    val Body: TextStyle @Composable get() = style(FontWeight.Medium, 15, lineHeight = 22)
+    val Caption: TextStyle @Composable get() = style(FontWeight.SemiBold, 13, lineHeight = 18)
+    val Overline: TextStyle @Composable get() = style(FontWeight.Bold, 11, 0.06f)
 }

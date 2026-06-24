@@ -38,12 +38,16 @@ object LessonsColors {
     val SuccessTintBorder = Color(0xFFBFE0CD)
     val Warning = Color(0xFFE0A04A)
     val WarningStrong = Color(0xFFC9883B)
+    val WarningTint = Color(0xFFFBF1E4)
     val Danger = Color(0xFFC75D5D)
     val DangerTint = Color(0xFFFBEDED)
     val DangerTintBorder = Color(0xFFF0CFCF)
 
-    // Progress track
+    // Progress track / segmented control background
     val Track = Color(0xFFEFE6DB)
+
+    // Toggle (off state)
+    val ToggleOff = Color(0xFFD8CBBD)
 
     // Avatar palette (rotating)
     val AvatarColors = listOf(
