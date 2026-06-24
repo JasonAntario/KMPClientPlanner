@@ -5,29 +5,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dsankovsky.kmpclientplanner.uinew.desktop.theme.LessonsColors
@@ -47,8 +38,7 @@ fun FilterChip(
             .clip(shape)
             .then(
                 if (selected) Modifier.background(LessonsColors.Primary)
-                else Modifier.background(LessonsColors.CardBackground)
-                    .border(1.dp, LessonsColors.Border, shape)
+                else Modifier.background(LessonsColors.CardBackground).border(1.dp, LessonsColors.Border, shape)
             )
             .clickable(onClick = onClick)
             .padding(horizontal = 13.dp, vertical = 6.dp),
@@ -129,60 +119,5 @@ fun IconActionButton(
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
-    }
-}
-
-@Preview
-@Composable
-private fun FilterChipPreview() = ComponentPreview {
-    var selected by remember { mutableStateOf(0) }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("Сегодня", "Неделя", "Месяц").forEachIndexed { i, label ->
-            FilterChip(label = label, selected = i == selected, onClick = { selected = i })
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun StatusPillPreview() = ComponentPreview {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        StatusPill(
-            label = "Оплачено",
-            icon = Icons.Filled.CheckCircle,
-            contentColor = LessonsColors.Success,
-            background = LessonsColors.SuccessTint,
-            border = LessonsColors.SuccessTintBorder,
-        )
-        StatusPill(
-            label = "Не оплачено",
-            icon = Icons.Filled.CheckCircle,
-            contentColor = LessonsColors.Primary,
-            background = LessonsColors.PrimaryTint,
-            border = LessonsColors.PrimaryTintBorder,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun StatusDotPreview() = ComponentPreview {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        StatusDot(LessonsColors.Success)
-        StatusDot(LessonsColors.Warning)
-        StatusDot(LessonsColors.Danger)
-    }
-}
-
-@Preview
-@Composable
-private fun IconActionButtonPreview() = ComponentPreview {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        IconActionButton(icon = Icons.Filled.Edit, onClick = {})
-        IconActionButton(
-            icon = Icons.Filled.Edit,
-            onClick = {},
-            tint = LessonsColors.Danger,
-        )
     }
 }

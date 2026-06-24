@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
@@ -24,17 +23,12 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dsankovsky.kmpclientplanner.uinew.desktop.theme.LessonsColors
@@ -162,20 +156,6 @@ private fun RailItem(section: NavSection, selected: Boolean, onClick: () -> Unit
             fontFamily = nunitoFamily(),
             fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
             fontSize = 14.sp,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun NavRailPreview() = ComponentPreview(padding = 0.dp) {
-    var selected by remember { mutableStateOf(NavSection.Home) }
-    Box(Modifier.height(520.dp)) {
-        NavRail(
-            selected = selected,
-            onSelect = { selected = it },
-            professionLabel = "Репетитор",
-            action = RailAction("Добавить урок", Icons.Filled.Add, onClick = {}),
         )
     }
 }

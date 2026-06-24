@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.navigation.Screen
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.toUIName
@@ -36,8 +35,7 @@ import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.DesktopClientsScree
 import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.DesktopHomeScreen
 import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.DesktopSettingsScreen
 import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.DesktopStatisticsScreen
-import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.ServiceTypeSelectionScreen
-import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.WelcomeScreen
+import com.dsankovsky.kmpclientplanner.uinew.desktop.screens.OnboardingScreen
 import com.dsankovsky.kmpclientplanner.uinew.desktop.theme.LessonsColors
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -65,43 +63,18 @@ fun DesktopApp() {
     when (startScreen) {
         null -> LoadingBox()
 
-        Screen.WelcomeScreen -> OnboardingFlow(
+        Screen.WelcomeScreen -> OnboardingScreen(
             onServiceTypeSelected = { type ->
                 mainViewModel.handleActions(MainScreenActions.OnServiceTypeSelected(type))
             }
         )
 
-        else -> MainShell(
-            onDataCleared = {
-                // Wiping all data clears the saved service type, so re-resolving the
-                // start destination sends the user back to the welcome/onboarding flow.
-                mainViewModel.handleActions(MainScreenActions.GetStartDestination)
-            }
-        )
-    }
-}
-
-/**
- * Two-step onboarding: the greeting [WelcomeScreen] followed by the
- * [ServiceTypeSelectionScreen] profession picker. Selecting a type is reported
- * upward so the host can persist it and recompute the start destination.
- */
-@Composable
-private fun OnboardingFlow(onServiceTypeSelected: (ServiceType) -> Unit) {
-    var showServiceTypes by remember { mutableStateOf(false) }
-
-    if (showServiceTypes) {
-        ServiceTypeSelectionScreen(
-            onServiceTypeSelected = onServiceTypeSelected,
-            onBack = { showServiceTypes = false },
-        )
-    } else {
-        WelcomeScreen(onStart = { showServiceTypes = true })
+        else -> MainShell()
     }
 }
 
 @Composable
-private fun MainShell(onDataCleared: () -> Unit) {
+private fun MainShell() {
     // SettingsViewModel exposes the selected profession (service type) for the rail header.
     val settingsViewModel: SettingsViewModel = koinViewModel()
     val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
@@ -153,7 +126,7 @@ private fun MainShell(onDataCleared: () -> Unit) {
 
                 NavSection.Settings -> DesktopSettingsScreen(
                     rail = rail,
-                    onDataCleared = onDataCleared,
+                    onDataCleared = { refreshKey++ },
                 )
             }
         }
