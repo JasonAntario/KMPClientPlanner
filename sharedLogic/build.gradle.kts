@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.koin.compiler)
-    alias(libs.plugins.skie)
 }
 
 kotlin {
@@ -56,14 +55,6 @@ kotlin {
 
 room {
     schemaDirectory("$projectDir/schemas")
-}
-
-koinCompiler {
-    // `AppDatabase` and `DataStore` are provided by the platform-specific `platformModule`
-    // (expect/actual). The compile-time safety pass, triggered by the iOS `startKoin`
-    // aggregator (initKoinIos), can't resolve those lambda-provided bindings and reports
-    // them as missing. Disable the pass (DI is still validated at runtime by Koin).
-    compileSafety = false
 }
 
 dependencies {
