@@ -1,25 +1,40 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.main.empty
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dsankovsky.kmpclientplanner.ui.extensions.edgeToEdgeBottomPadding
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.client_add_client
+import kmpclientplanner.sharedui.generated.resources.clients_list_no_clients
 import kmpclientplanner.sharedui.generated.resources.clients_list_no_clients_description
-import kmpclientplanner.sharedui.generated.resources.nav_bar_clients
 import kmpclientplanner.sharedui.generated.resources.service_type_change
 import org.jetbrains.compose.resources.stringResource
 
@@ -32,37 +47,78 @@ fun NoClientsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(
-                top = 24.dp,
-                start = 16.dp,
-                end = 16.dp
-            )
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 24.dp)
             .edgeToEdgeBottomPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            text = stringResource(Res.string.nav_bar_clients),
+                .size(88.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.PersonAdd,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(44.dp)
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(Res.string.clients_list_no_clients),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(Modifier.height(12.dp))
+
         Text(
             text = stringResource(Res.string.clients_list_no_clients_description),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 340.dp)
         )
-        Spacer(modifier = Modifier.weight(1f))
-        TextButton(
+
+        Spacer(Modifier.height(28.dp))
+
+        Button(
             onClick = onAddClientCLicked,
-            modifier = Modifier.fillMaxWidth()
+            shape = CircleShape,
+            modifier = Modifier.height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
-            Text(stringResource(Res.string.client_add_client))
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(20.dp)
+            )
+            Text(
+                text = stringResource(Res.string.client_add_client),
+                fontWeight = FontWeight.SemiBold
+            )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        TextButton(
-            onClick = onChangeServiceTypeCLicked,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(Res.string.service_type_change))
+
+        Spacer(Modifier.height(8.dp))
+
+        TextButton(onClick = onChangeServiceTypeCLicked) {
+            Text(
+                text = stringResource(Res.string.service_type_change),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

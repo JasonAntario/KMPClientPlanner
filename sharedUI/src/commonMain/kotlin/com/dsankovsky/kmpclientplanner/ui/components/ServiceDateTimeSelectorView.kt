@@ -2,7 +2,6 @@
 
 package com.dsankovsky.kmpclientplanner.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -10,21 +9,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -35,7 +38,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -73,50 +78,79 @@ fun ServiceDateTimeSelectorView(
     var showTimePicker by remember { mutableStateOf(false) }
     val days = remember { DayOfWeek.entries }
 
-    Card(modifier = modifier) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier
+    ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ExposedDropdownMenuBox(
-                expanded = isDayDropdownExpanded,
-                onExpandedChange = { isDayDropdownExpanded = !isDayDropdownExpanded },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OutlinedTextField(
-                    value = serviceDateTime.dayOfWeek.displayName(),
-                    readOnly = true,
-                    onValueChange = {},
-                    trailingIcon = {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                )
-
-                ExposedDropdownMenu(
+                ExposedDropdownMenuBox(
                     expanded = isDayDropdownExpanded,
-                    onDismissRequest = { isDayDropdownExpanded = false }
+                    onExpandedChange = { isDayDropdownExpanded = !isDayDropdownExpanded }
                 ) {
-                    days.forEach { day ->
-                        DropdownMenuItem(
-                            text = { Text(day.displayName()) },
-                            onClick = {
-                                onDayOfWeekChanged(day)
-                                isDayDropdownExpanded = false
-                            },
-                            trailingIcon = {
-                                if (day == serviceDateTime.dayOfWeek) {
-                                    Icon(
-                                        Icons.Default.Done,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        )
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = serviceDateTime.dayOfWeek.displayName(),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Icon(
+                                imageVector = Icons.Rounded.ArrowDropDown,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
+
+                    ExposedDropdownMenu(
+                        expanded = isDayDropdownExpanded,
+                        onDismissRequest = { isDayDropdownExpanded = false }
+                    ) {
+                        days.forEach { day ->
+                            DropdownMenuItem(
+                                text = { Text(day.displayName()) },
+                                onClick = {
+                                    onDayOfWeekChanged(day)
+                                    isDayDropdownExpanded = false
+                                },
+                                trailingIcon = {
+                                    if (day == serviceDateTime.dayOfWeek) {
+                                        Icon(
+                                            Icons.Rounded.Check,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                IconButton(onClick = onDeleteClicked) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = deleteLabel,
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
 
@@ -137,7 +171,16 @@ fun ServiceDateTimeSelectorView(
                     value = serviceDateTime.time.toUITime(),
                     onValueChange = {},
                     readOnly = true,
+                    shape = RoundedCornerShape(8.dp),
                     label = { Text(stringResource(Res.string.service_start_time)) },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Schedule,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
                     interactionSource = timeInteractionSource,
                     modifier = Modifier.weight(1f)
                 )
@@ -145,21 +188,11 @@ fun ServiceDateTimeSelectorView(
                 OutlinedTextField(
                     value = serviceDateTime.duration,
                     onValueChange = onDurationChanged,
+                    shape = RoundedCornerShape(8.dp),
                     label = { Text(stringResource(Res.string.datetime_duration)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f)
                 )
-            }
-
-            OutlinedButton(
-                onClick = onDeleteClicked,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
-            ) {
-                Text(deleteLabel)
             }
         }
     }

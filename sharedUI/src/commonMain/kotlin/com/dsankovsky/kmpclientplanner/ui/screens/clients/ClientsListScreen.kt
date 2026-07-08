@@ -1,6 +1,7 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.clients
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,16 +9,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,14 +28,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
-import com.dsankovsky.kmpclientplanner.ui.components.CardView
-import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
+import com.dsankovsky.kmpclientplanner.ui.components.ShortNameBoxView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.toUIName
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
@@ -87,7 +88,6 @@ fun ClientsListScreenContent(
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
-    LaunchedEffect(Unit) { listState.scrollToItem(20) }
 
     Scaffold(
         floatingActionButton = {
@@ -97,7 +97,7 @@ fun ClientsListScreenContent(
                         onAction(ClientsListScreenAction.AddClientClicked)
                     }
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Rounded.Add, contentDescription = null)
                 }
             }
         }
@@ -107,15 +107,15 @@ fun ClientsListScreenContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(top = 24.dp, bottom = 100.dp).withNavBarPadding(),
+            contentPadding = PaddingValues(top = 20.dp, bottom = 100.dp).withNavBarPadding(),
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
 
             item {
-                HeaderView(
-                    stringResource(Res.string.nav_bar_clients),
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                ClientsHeader(
+                    onAddClicked = { onAction(ClientsListScreenAction.AddClientClicked) },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
             }
 
@@ -132,10 +132,44 @@ fun ClientsListScreenContent(
                     }
 
                     is ClientListItem.LetterDivider -> {
-                        LetterDividerItem(item.letter, modifier.fillMaxWidth())
+                        LetterDividerItem(item.letter, Modifier.fillMaxWidth())
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ClientsHeader(
+    onAddClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(Res.string.nav_bar_clients),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable(onClick = onAddClicked),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
@@ -146,41 +180,46 @@ fun ClientItem(
     modifier: Modifier = Modifier,
     onClientClicked: () -> Unit
 ) {
-    CardView(
-        modifier = modifier.fillMaxWidth(),
-        onClick = onClientClicked,
+    val meta = listOfNotNull(
+        client.serviceSubtype?.takeIf { it.isNotBlank() },
+        client.serviceType.toUIName()
+    ).joinToString(" · ")
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .clickable(onClick = onClientClicked)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ShortNameBoxView(
+            text = client.getShortName(),
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            textStyle = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.size(42.dp)
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = client.getShortName(),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
             Text(
                 text = client.getFullName(),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.fillMaxWidth()
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
+            if (meta.isNotEmpty()) {
+                Text(
+                    text = meta,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
-
-        val serviceName = client.serviceType.toUIName()
-
-        Text(
-            text = serviceName,
-            modifier = Modifier.padding(start = 40.dp),
-        )
     }
 }
 
@@ -192,23 +231,16 @@ fun LetterDividerItem(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp).padding(bottom = 4.dp),
+            .padding(horizontal = 16.dp)
+            .padding(top = 8.dp, bottom = 2.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(32.dp)
-        ) {
-            Text(
-                text = letter,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterStart),
-            )
-        }
-        HorizontalDivider()
+        Text(
+            text = letter,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -218,6 +250,7 @@ private fun PreviewClientsListScreen() {
     ClientPlannerTheme {
         ClientsListScreenContent(
             screenState = ClientsListScreenState(
+                isLoading = false,
                 clients = listOf(
                     ClientListItem.LetterDivider("A"),
                     ClientListItem.Client(

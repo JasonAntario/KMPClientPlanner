@@ -18,8 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.components.ToolbarView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
@@ -107,10 +109,18 @@ fun ServicesHistoryScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.background)
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 8.dp)
                     ) {
-                        Text(text = item.getUIDate())
-                        HorizontalDivider(thickness = 2.dp)
+                        Text(
+                            text = item.getUIDate(),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
                     }
                 }
 

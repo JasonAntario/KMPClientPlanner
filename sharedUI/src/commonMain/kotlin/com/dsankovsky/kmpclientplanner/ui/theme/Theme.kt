@@ -5,6 +5,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import com.dsankovsky.clientmanagement.ui.theme.onSuccessContainerDark
+import com.dsankovsky.clientmanagement.ui.theme.onSuccessContainerLight
+import com.dsankovsky.clientmanagement.ui.theme.successContainerDark
+import com.dsankovsky.clientmanagement.ui.theme.successContainerLight
+import com.dsankovsky.clientmanagement.ui.theme.successDark
+import com.dsankovsky.clientmanagement.ui.theme.successLight
 import com.dsankovsky.clientmanagement.ui.theme.backgroundDark
 import com.dsankovsky.clientmanagement.ui.theme.backgroundLight
 import com.dsankovsky.clientmanagement.ui.theme.errorContainerDark
@@ -152,6 +163,39 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+/**
+ * Custom colors that Material 3 [androidx.compose.material3.ColorScheme] has no role for.
+ * The redesign uses green "Оплачено" pills, so [success] tokens live here and are exposed
+ * through [LocalExtraColors]. Access them via [ExtraColors.current].
+ */
+@Immutable
+data class ExtraColors(
+    val success: Color,
+    val successContainer: Color,
+    val onSuccessContainer: Color,
+) {
+    companion object {
+        val current: ExtraColors
+            @Composable
+            @ReadOnlyComposable
+            get() = LocalExtraColors.current
+    }
+}
+
+private val lightExtraColors = ExtraColors(
+    success = successLight,
+    successContainer = successContainerLight,
+    onSuccessContainer = onSuccessContainerLight,
+)
+
+private val darkExtraColors = ExtraColors(
+    success = successDark,
+    successContainer = successContainerDark,
+    onSuccessContainer = onSuccessContainerDark,
+)
+
+val LocalExtraColors = staticCompositionLocalOf { lightExtraColors }
+
 @Composable
 fun ClientPlannerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -162,9 +206,13 @@ fun ClientPlannerTheme(
         else -> lightScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = MaterialTheme.typography,
-        content = content
-    )
+    CompositionLocalProvider(
+        LocalExtraColors provides if (darkTheme) darkExtraColors else lightExtraColors
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = MaterialTheme.typography,
+            content = content
+        )
+    }
 }

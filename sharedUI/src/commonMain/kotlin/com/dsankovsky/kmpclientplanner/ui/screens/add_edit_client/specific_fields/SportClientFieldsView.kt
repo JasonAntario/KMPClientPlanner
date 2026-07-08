@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -16,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
 import com.dsankovsky.kmpclientplanner.ui.components.BooleanSelectorView
-import com.dsankovsky.kmpclientplanner.ui.components.ServiceDateTimeSelectorView
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientAction
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.client_add_training
+import kmpclientplanner.sharedui.generated.resources.client_choose_format_sport
 import kmpclientplanner.sharedui.generated.resources.client_offline
 import kmpclientplanner.sharedui.generated.resources.client_online
 import kmpclientplanner.sharedui.generated.resources.client_weight
@@ -36,17 +40,30 @@ fun AddEditSportClientFieldsView(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         OutlinedTextField(
             state = weight,
+            shape = RoundedCornerShape(8.dp),
             modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.MonitorWeight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
             label = {
                 Text(stringResource(Res.string.client_weight))
             }
         )
 
+        Text(
+            text = stringResource(Res.string.client_choose_format_sport),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         BooleanSelectorView(
             value = fields.isOnline,
             falseLabel = stringResource(Res.string.client_offline),
@@ -55,34 +72,26 @@ fun AddEditSportClientFieldsView(
             onChange = { onAction(AddEditClientAction.SportClientAction.OnFormatChanged(it)) }
         )
 
-        fields.lessonDateTimeList.forEachIndexed { index, dateTime ->
-            ServiceDateTimeSelectorView(
-                serviceDateTime = dateTime,
-                deleteLabel = stringResource(Res.string.service_training_delete_training),
-                onDayOfWeekChanged = {
-                    onAction(AddEditClientAction.SportClientAction.OnDayOfWeekChanged(index, it))
-                },
-                onTimeChanged = { time ->
-                    onAction(AddEditClientAction.SportClientAction.OnTimeChanged(index, time))
-                },
-                onDurationChanged = { duration ->
-                    onAction(AddEditClientAction.SportClientAction.OnDurationChanged(index, duration))
-                },
-                onDeleteClicked = {
-                    onAction(AddEditClientAction.SportClientAction.OnDeleteTrainingClicked(index))
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        TextButton(
-            onClick = {
-                onAction(AddEditClientAction.SportClientAction.OnAddNewServiceTime)
+        ScheduleSlotsSection(
+            slots = fields.lessonDateTimeList,
+            deleteLabel = stringResource(Res.string.service_training_delete_training),
+            addLabel = stringResource(Res.string.client_add_training),
+            onDayOfWeekChanged = { index, day ->
+                onAction(AddEditClientAction.SportClientAction.OnDayOfWeekChanged(index, day))
             },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(Res.string.client_add_training))
-        }
+            onTimeChanged = { index, time ->
+                onAction(AddEditClientAction.SportClientAction.OnTimeChanged(index, time))
+            },
+            onDurationChanged = { index, duration ->
+                onAction(AddEditClientAction.SportClientAction.OnDurationChanged(index, duration))
+            },
+            onDeleteClicked = { index ->
+                onAction(AddEditClientAction.SportClientAction.OnDeleteTrainingClicked(index))
+            },
+            onAddClicked = {
+                onAction(AddEditClientAction.SportClientAction.OnAddNewServiceTime)
+            }
+        )
     }
 }
 

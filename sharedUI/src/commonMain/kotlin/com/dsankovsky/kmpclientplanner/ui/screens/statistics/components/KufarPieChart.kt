@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -50,7 +49,13 @@ fun KufarPieChart(
 
 
     val coloredAngle = 360 * percentage
-    val unfinishedTrackColor = MaterialTheme.colorScheme.onSurface
+    val unfinishedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    // Lavender/pink harmonious sweep derived from the theme (was hardcoded greens).
+    val paidGradient = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.tertiary,
+        MaterialTheme.colorScheme.secondary
+    )
 
     Box(
         modifier = modifier
@@ -71,13 +76,7 @@ fun KufarPieChart(
                     join = StrokeJoin.Round,
                     cap = StrokeCap.Butt
                 ),
-                brush = Brush.sweepGradient(
-                    listOf(
-                        Color(0xFF00AD64),
-                        Color(0xFF72D154),
-                        Color(0xFFC0F936)
-                    )
-                )
+                brush = Brush.sweepGradient(paidGradient)
             )
             drawArc(
                 startAngle = coloredAngle,

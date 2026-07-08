@@ -4,43 +4,56 @@ package com.dsankovsky.kmpclientplanner.ui.screens.services
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
-import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIDate
 import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.main_title
+import kmpclientplanner.sharedui.generated.resources.service_add_service
 import kmpclientplanner.sharedui.generated.resources.services_list_no_services_description
 import kmpclientplanner.sharedui.generated.resources.tabs_current_month
 import kmpclientplanner.sharedui.generated.resources.tabs_current_week
@@ -96,13 +109,18 @@ fun HomeScreenContent(
                 FloatingActionButton(
                     onClick = {
                         onAction(ServicesListScreenAction.OnAddServiceClicked)
-                    }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Rounded.Add, contentDescription = null)
                 }
             }
         }
     ) { paddingValues ->
+
+        val lessonsCount = state.items.count { it is ServicesListScreenItem.ServiceItem }
 
         LazyColumn(
             modifier = modifier
@@ -119,20 +137,19 @@ fun HomeScreenContent(
         ) {
 
             item {
-                HeaderView(stringResource(Res.string.main_title))
+                HomeHeader(
+                    lessonsCount = lessonsCount,
+                    showAddButton = !showFab,
+                    onAddClicked = { onAction(ServicesListScreenAction.OnAddServiceClicked) }
+                )
             }
 
             item {
-                val selectedIndex = state.filtersList.indexOf(state.currentFilter)
-                PrimaryScrollableTabRow(selectedTabIndex = selectedIndex, edgePadding = 0.dp) {
-                    state.filtersList.forEachIndexed { index, filter ->
-                        Tab(
-                            selected = index == selectedIndex,
-                            onClick = { onAction(ServicesListScreenAction.OnFilterClicked(filter)) },
-                            text = { Text(filter.toTabLabel()) }
-                        )
-                    }
-                }
+                PeriodTabRow(
+                    filters = state.filtersList,
+                    current = state.currentFilter,
+                    onFilterClicked = { onAction(ServicesListScreenAction.OnFilterClicked(it)) }
+                )
             }
 
             if (state.items.isEmpty()) {
@@ -150,18 +167,7 @@ fun HomeScreenContent(
             items(state.items) { item ->
                 when (item) {
                     is ServicesListScreenItem.DateDivider -> {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = item.getUIDate()
-                            )
-                            HorizontalDivider(thickness = 2.dp)
-                        }
+                        DateDividerRow(item.getUIDate())
                     }
 
                     is ServicesListScreenItem.ServiceItem -> {
@@ -173,6 +179,127 @@ fun HomeScreenContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HomeHeader(
+    lessonsCount: Int,
+    showAddButton: Boolean,
+    onAddClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(Res.string.main_title),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "${getCurrentDateTime().date.toUIDate()} · $lessonsCount",
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+
+        if (showAddButton) {
+            Button(
+                onClick = onAddClicked,
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = stringResource(Res.string.service_add_service),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PeriodTabRow(
+    filters: List<ServicesFilter>,
+    current: ServicesFilter,
+    onFilterClicked: (ServicesFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        filters.forEach { filter ->
+            val selected = filter == current
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { onFilterClicked(filter) }
+            ) {
+                Text(
+                    text = filter.toTabLabel(),
+                    fontSize = 14.sp,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .width(28.dp)
+                        .height(3.dp)
+                        .background(
+                            color = if (selected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                            },
+                            shape = RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)
+                        )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DateDividerRow(text: String, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
     }
 }
 
