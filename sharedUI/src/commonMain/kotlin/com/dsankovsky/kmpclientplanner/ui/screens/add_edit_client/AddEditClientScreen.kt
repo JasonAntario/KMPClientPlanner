@@ -236,10 +236,28 @@ fun AddEditClientScreenContent(
     LaunchedEffect(screenState.phone) { phone.edit { replace(0, length, screenState.phone) } }
     LaunchedEffect(screenState.price) { price.edit { replace(0, length, screenState.price) } }
 
-    val educationFields = screenState.clientSpecificFields as? ClientSpecificFields.EducationClientSpecificFields
-    val sportFields = screenState.clientSpecificFields as? ClientSpecificFields.SportClientSpecificFields
-    LaunchedEffect(educationFields?.level) { level.edit { replace(0, length, educationFields?.level.orEmpty()) } }
-    LaunchedEffect(sportFields?.weight) { weight.edit { replace(0, length, sportFields?.weight.orEmpty()) } }
+    val educationFields =
+        screenState.clientSpecificFields as? ClientSpecificFields.EducationClientSpecificFields
+    val sportFields =
+        screenState.clientSpecificFields as? ClientSpecificFields.SportClientSpecificFields
+    LaunchedEffect(educationFields?.level) {
+        level.edit {
+            replace(
+                0,
+                length,
+                educationFields?.level.orEmpty()
+            )
+        }
+    }
+    LaunchedEffect(sportFields?.weight) {
+        weight.edit {
+            replace(
+                0,
+                length,
+                sportFields?.weight.orEmpty()
+            )
+        }
+    }
 
     val clientShortName by remember {
         derivedStateOf {

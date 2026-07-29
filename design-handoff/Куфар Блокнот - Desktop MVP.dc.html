@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/organic-1063190d-2184-47b1-a3e7-958619a1501b/styles.css">
+<script src="_ds/organic-1063190d-2184-47b1-a3e7-958619a1501b/_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--color-neutral-200); }
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+</style>
+</helmet>
+
+<section style="display:flex;flex-direction:column;gap:56px;padding:64px;width:1488px;font-family:var(--font-body);color:var(--color-text);background:var(--color-neutral-200)">
+
+  <div id="1a" style="display:flex;flex-direction:column;gap:56px">
+    <header style="display:flex;flex-direction:column;gap:12px;max-width:900px">
+      <span class="tag tag-accent" style="align-self:flex-start">1a</span>
+      <h1 style="font-size:52px;margin:0">Куфар Блокнот — десктоп</h1>
+      <p style="font-size:17px;max-width:760px;margin:0" class="text-muted">Учёт клиентов, услуг и оплат. Объём — только пункты MVP. Десктопный приоритет: нижний Navigation Bar заменён боковой панелью, свайп по строке — hover-действиями, полноэкранные формы — модальными окнами.</p>
+    </header>
+
+    <h2 style="font-size:34px;margin:0">Цвета, типографика, компоненты</h2>
+
+    <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+      <div class="card elev-sm" style="width:560px;gap:18px">
+        <span class="card-kicker">Палитра</span>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:16px;background:var(--color-bg);border:1px solid var(--color-divider)"></div><span style="font-size:11px">Фон<br>#f5ead8</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:16px;background:var(--color-surface)"></div><span style="font-size:11px">Поверхность<br>#ebddc5</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:16px;background:var(--color-accent)"></div><span style="font-size:11px">Акцент<br>#c67139</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:16px;background:var(--color-accent-2)"></div><span style="font-size:11px">Акцент 2<br>#7a8a5e</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:16px;background:var(--color-text)"></div><span style="font-size:11px">Текст<br>#201e1d</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase" class="text-muted">Смысловые роли</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <span class="tag tag-accent-2">Оплачено — sage 100/800</span>
+            <span class="tag tag-accent">Не оплачено — terracotta 100/800</span>
+            <span class="tag tag-neutral">Проведено — neutral 100/800</span>
+            <span class="tag tag-outline">Предоплата</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card elev-sm" style="width:420px;gap:14px">
+        <span class="card-kicker">Типографика</span>
+        <div style="font-family:var(--font-heading);font-size:38px;line-height:1.1">Caprasimo 38 / 25</div>
+        <div style="font-size:15px">Figtree 15 — основной текст интерфейса, строки списков, значения полей.</div>
+        <div style="font-size:12px" class="text-muted">Figtree 12 — подписи полей, метаданные, вторичные строки.</div>
+        <div style="display:flex;gap:14px;font-variant-numeric:tabular-nums">
+          <span style="font-family:var(--font-heading);font-size:28px">1 240,00 BYN</span>
+          <span style="font-family:var(--font-heading);font-size:28px;color:var(--color-accent-700)">78%</span>
+        </div>
+      </div>
+
+      <div class="card elev-sm" style="width:420px;gap:16px">
+        <span class="card-kicker">Кнопки и действия</span>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <button class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Добавить услугу</button>
+          <button class="btn btn-secondary">Отмена</button>
+          <button class="btn btn-ghost">Удалить</button>
+          <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l12-12-4-4L4 16v4Z"/></svg></button>
+          <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg></button>
+          <button class="btn btn-primary" disabled>Оплатить</button>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="seg">
+            <label class="seg-opt"><input type="radio" name="kitseg" defaultChecked="{{ true }}">Сегодня</label>
+            <label class="seg-opt"><input type="radio" name="kitseg">Завтра</label>
+            <label class="seg-opt"><input type="radio" name="kitseg">Неделя</label>
+            <label class="seg-opt"><input type="radio" name="kitseg">Месяц</label>
+          </span>
+        </div>
+      </div>
+
+      <div class="card elev-sm" style="width:420px;gap:14px">
+        <span class="card-kicker">Поля</span>
+        <div class="field"><label>Имя клиента</label><input class="input" value="Анна Ковалёва"></div>
+        <div class="field"><label>Адрес</label>
+          <div style="display:flex;gap:8px">
+            <select class="input" style="appearance:none"><option>Зал «Атлет», Немига 12</option></select>
+            <button class="btn btn-secondary btn-icon" title="Новый адрес"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </div>
+        <div class="field"><label>Комментарий</label><textarea class="input" style="min-height:64px">Приходит с подругой</textarea></div>
+      </div>
+
+      <div class="card elev-sm" style="width:560px;gap:12px">
+        <span class="card-kicker">Строка услуги — базовый компонент ленты</span>
+        <div style="display:grid;grid-template-columns:96px 1fr 132px 128px;align-items:center;gap:12px;padding:14px 18px;border-radius:22px;background:var(--color-bg);box-shadow:var(--shadow-sm)">
+          <span style="font-family:var(--font-heading);font-size:19px">18:00</span>
+          <span style="display:flex;flex-direction:column"><span style="font-size:15px">Анна Ковалёва</span><span style="font-size:12px" class="text-muted">Английский · 60 мин</span></span>
+          <span style="font-size:15px;font-variant-numeric:tabular-nums">40,00 BYN</span>
+          <span style="display:flex;gap:6px"><span class="tag tag-accent-2">Оплачено</span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:96px 1fr 132px 128px;align-items:center;gap:12px;padding:14px 18px;border-radius:22px;background:var(--color-bg);box-shadow:var(--shadow-md);outline:2px solid var(--color-accent);position:relative">
+          <span style="font-family:var(--font-heading);font-size:19px">19:30</span>
+          <span style="display:flex;flex-direction:column"><span style="font-size:15px">Дмитрий Лис</span><span style="font-size:12px" class="text-muted">Математика · 90 мин</span></span>
+          <span style="font-size:15px;font-variant-numeric:tabular-nums">60,00 BYN</span>
+          <span style="display:flex;gap:6px;justify-content:flex-end">
+            <button class="btn btn-secondary btn-icon" title="Оплачено" style="background:var(--color-accent-2-100)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></button>
+            <button class="btn btn-secondary btn-icon" title="Проведено"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.5 2"/></svg></button>
+            <button class="btn btn-secondary btn-icon" title="Удалить" style="background:var(--color-accent-100)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg></button>
+          </span>
+        </div>
+        <span style="font-size:12px" class="text-muted">На десктопе действия появляются при наведении на строку (мобильная версия — свайп справа налево).</span>
+      </div>
+
+      <div class="card elev-sm" style="width:420px;gap:12px">
+        <span class="card-kicker">Клиент в списке</span>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:22px;background:var(--color-bg)">
+          <span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--color-accent-200);color:var(--color-accent-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:16px">АК</span>
+          <span style="display:flex;flex-direction:column;flex:1"><span style="font-size:15px">Анна Ковалёва</span><span style="font-size:12px" class="text-muted">Английский · 4 занятия</span></span>
+          <span class="tag tag-outline">2 предоплаты</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:22px;background:var(--color-bg)">
+          <span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:16px">ДЛ</span>
+          <span style="display:flex;flex-direction:column;flex:1"><span style="font-size:15px">Дмитрий Лис</span><span style="font-size:12px" class="text-muted">Математика · 8 занятий</span></span>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="font-size:34px;margin:0">Экраны</h2>
+
+    <div style="display:flex;flex-direction:column;gap:48px">
+
+      <div data-screen-label="01 Приветственный экран" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">01 · Приветственный экран — выбор типа услуг (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот</span>
+          </div>
+          <div style="height:760px;display:flex;flex-direction:column;justify-content:center;gap:36px;padding:0 120px">
+            <div style="display:flex;flex-direction:column;gap:10px;max-width:640px">
+              <span style="width:64px;height:64px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-size:28px">КБ</span>
+              <h1 style="font-size:48px;margin:10px 0 0">Чем вы занимаетесь?</h1>
+              <p style="font-size:17px;margin:0" class="text-muted">От выбора зависят подсказки и дополнительные поля. Изменить можно позже в настройках.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;max-width:1120px">
+              <div class="card elev-sm" style="gap:12px;background:var(--color-accent-100);outline:2px solid var(--color-accent)">
+                <span style="width:48px;height:48px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5h18v11H3z"/><path d="M8 20h8"/></svg></span>
+                <span class="card-title">Репетитор</span>
+                <p class="card-body">Домашние задания, автозаполнение расписания на месяц</p>
+              </div>
+              <div class="card elev-sm" style="gap:12px">
+                <span style="width:48px;height:48px;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M6.5 8.5v7M17.5 8.5v7"/></svg></span>
+                <span class="card-title">Тренер</span>
+                <p class="card-body">Упражнения, адреса залов, расписание на месяц</p>
+              </div>
+              <div class="card elev-sm" style="gap:12px">
+                <span style="width:48px;height:48px;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20 18 8l-2-2L4 18v2h2Z"/><path d="M14 4l6 6"/></svg></span>
+                <span class="card-title">Тату-мастер</span>
+                <p class="card-body">Эскизы и результаты работ, проекты, адреса студий</p>
+              </div>
+              <div class="card elev-sm" style="gap:12px">
+                <span style="width:48px;height:48px;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M9 14l-2 6 5-2.5L17 20l-2-6"/></svg></span>
+                <span class="card-title">Бьюти-мастер</span>
+                <p class="card-body">Референсы и результаты, текущий проект клиента</p>
+              </div>
+              <div class="card elev-sm" style="gap:12px">
+                <span style="width:48px;height:48px;border-radius:50%;background:var(--color-neutral-300);color:var(--color-neutral-800);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span>
+                <span class="card-title">Другое</span>
+                <p class="card-body">Базовая услуга — клиенты, оплаты, статистика</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center">
+              <button class="btn btn-primary" style="padding:12px 26px;font-size:16px">Продолжить</button>
+              <span style="font-size:13px" class="text-muted">Вход через Apple ID и Google — в следующей итерации</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="02 Главная — нет клиентов" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">02 · Главная — пустое состояние без клиентов</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Главная</span>
+          </div>
+          <div style="display:flex;height:660px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+              <span style="margin-top:auto;font-size:11px;padding:0 14px" class="text-muted">Репетитор · v1.0.0</span>
+            </nav>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:40px"><div style="display:flex;flex-direction:column;align-items:center;gap:18px;max-width:520px">
+              <span style="width:132px;height:132px;border-radius:50%;background:var(--color-accent-2-200);display:grid;place-items:center;color:var(--color-accent-2-800)"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/><path d="M19 18h4M21 16v4"/></svg></span>
+              <h2 style="margin:0;font-size:32px">Начнём с первого клиента</h2>
+              <p style="margin:0;font-size:16px" class="text-muted">Пока нет ни клиентов, ни занятий. Добавьте клиента — сразу можно указать день и время первого занятия.</p>
+              <button class="btn btn-primary" style="padding:12px 26px;font-size:16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Добавить клиента</button>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="03 Главная — нет услуг" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">03 · Главная — клиенты есть, занятий нет (навигация видна)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Главная</span>
+          </div>
+          <div style="display:flex;height:660px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+              <span style="margin-top:auto;font-size:11px;padding:0 14px" class="text-muted">Репетитор · v1.0.0</span>
+            </nav>
+            <div style="flex:1;display:grid;place-items:center;padding:40px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:480px">
+                <span style="width:132px;height:132px;border-radius:50%;background:var(--color-accent-200);display:grid;place-items:center;color:var(--color-accent-800)"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5h18v14H3z"/><path d="M3 11h18M8 3.5v4M16 3.5v4"/></svg></span>
+                <h2 style="margin:0;font-size:32px">Занятий пока нет</h2>
+                <p style="margin:0;font-size:16px" class="text-muted">6 клиентов уже добавлены. Запланируйте первое занятие — оно появится в ленте.</p>
+                <button class="btn btn-primary" style="padding:12px 26px;font-size:16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Добавить услугу</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="04 Главная — лента услуг" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">04 · Главная — лента занятий, фильтр по периоду (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Главная</span>
+          </div>
+          <div style="display:flex;height:1000px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+              <span style="margin-top:auto;font-size:11px;padding:0 14px" class="text-muted">Репетитор · v1.0.0</span>
+            </nav>
+            <div style="flex:1;padding:32px 40px;display:flex;flex-direction:column;gap:22px;min-width:0">
+              <div style="display:flex;align-items:flex-end;gap:20px">
+                <div style="display:flex;flex-direction:column;flex:1">
+                  <h2 style="margin:0;font-size:34px">Занятия</h2>
+                  <span style="font-size:13px" class="text-muted">Среда, 29 июля · 5 занятий, 2 не оплачены</span>
+                </div>
+                <span class="seg">
+                  <label class="seg-opt"><input type="radio" name="feedseg">Сегодня</label>
+                  <label class="seg-opt"><input type="radio" name="feedseg">Завтра</label>
+                  <label class="seg-opt" style="background:var(--color-accent);color:var(--color-bg)"><input type="radio" name="feedseg" defaultChecked="{{ true }}">Неделя</label>
+                  <label class="seg-opt"><input type="radio" name="feedseg">Месяц</label>
+                </span>
+                <button class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Добавить услугу</button>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase" class="text-muted">Сегодня, 29 июля</span>
+                <div style="display:grid;grid-template-columns:124px 1fr 176px 352px;align-items:center;gap:18px;padding:24px 28px;border-radius:26px;background:var(--color-surface)">
+                  <span style="font-family:var(--font-heading);font-size:26px">09:00</span>
+                  <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px">Мария Сак</span><span style="font-size:12px" class="text-muted">Английский · 60 мин · онлайн</span></span>
+                  <span style="font-size:17px;font-variant-numeric:tabular-nums">40,00 BYN</span>
+                  <span style="display:flex;gap:8px">
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-800);border-color:var(--color-accent-2-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Оплачено</button>
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-800);border-color:var(--color-accent-2-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Проведено</button>
+                  </span>
+                </div>
+                <div style="display:grid;grid-template-columns:124px 1fr 176px 352px;align-items:center;gap:18px;padding:24px 28px;border-radius:26px;background:var(--color-surface)">
+                  <span style="font-family:var(--font-heading);font-size:26px">11:30</span>
+                  <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px">Олег Тарасов</span><span style="font-size:12px" class="text-muted">Математика · 90 мин · Немига 12</span></span>
+                  <span style="font-size:17px;font-variant-numeric:tabular-nums">60,00 BYN</span>
+                  <span style="display:flex;gap:8px">
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-800);border-color:var(--color-accent-2-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Оплачено</button>
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-2-100);color:var(--color-accent-2-800);border-color:var(--color-accent-2-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Проведено</button>
+                  </span>
+                </div>
+                <div style="display:grid;grid-template-columns:124px 1fr 176px 352px;align-items:center;gap:18px;padding:24px 28px;border-radius:26px;background:var(--color-surface);box-shadow:var(--shadow-md);outline:2px solid var(--color-accent)">
+                  <span style="font-family:var(--font-heading);font-size:26px">15:00</span>
+                  <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px">Анна Ковалёва</span><span style="font-size:12px" class="text-muted">Английский · 60 мин · онлайн</span></span>
+                  <span style="font-size:17px;font-variant-numeric:tabular-nums">40,00 BYN</span>
+                  <span style="display:flex;gap:8px">
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</button>
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</button>
+                  </span>
+                </div>
+                <div style="display:grid;grid-template-columns:124px 1fr 176px 352px;align-items:center;gap:18px;padding:24px 28px;border-radius:26px;background:var(--color-surface)">
+                  <span style="font-family:var(--font-heading);font-size:26px">17:00</span>
+                  <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px">Ирина Мороз</span><span style="font-size:12px" class="text-muted">Немецкий · 60 мин · онлайн</span></span>
+                  <span style="font-size:17px;font-variant-numeric:tabular-nums">25,00 USD</span>
+                  <span style="display:flex;gap:8px">
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</button>
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</button>
+                  </span>
+                </div>
+                <div style="display:grid;grid-template-columns:124px 1fr 176px 352px;align-items:center;gap:18px;padding:24px 28px;border-radius:26px;background:var(--color-surface)">
+                  <span style="font-family:var(--font-heading);font-size:26px">19:30</span>
+                  <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px">Дмитрий Лис</span><span style="font-size:12px" class="text-muted">Математика · 90 мин · Немига 12</span></span>
+                  <span style="font-size:17px;font-variant-numeric:tabular-nums">60,00 BYN</span>
+                  <span style="display:flex;gap:8px">
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</button>
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</button>
+                  </span>
+                </div>
+                <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:12px" class="text-muted">Четверг, 30 июля</span>
+                <div style="display:grid;grid-template-columns:124px 1fr 176px 352px;align-items:center;gap:18px;padding:24px 28px;border-radius:26px;background:var(--color-surface);opacity:.75">
+                  <span style="font-family:var(--font-heading);font-size:26px">10:00</span>
+                  <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px">Полина Юркевич</span><span style="font-size:12px" class="text-muted">Английский · 60 мин · онлайн</span></span>
+                  <span style="font-size:17px;font-variant-numeric:tabular-nums">40,00 BYN</span>
+                  <span style="display:flex;gap:8px">
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</button>
+                    <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="05 Детали услуги — репетитор" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">05 · Детали услуги — репетитор: домашнее задание (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Занятие 29 июля, 15:00</span>
+          </div>
+          <div style="display:flex;height:720px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+            </nav>
+            <div style="width:400px;flex:none;padding:26px 20px;display:flex;flex-direction:column;gap:10px;background:color-mix(in srgb, var(--color-surface) 45%, transparent)">
+              <div style="display:flex;align-items:center;gap:10px;padding-bottom:4px">
+                <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1" class="text-muted">Неделя · 29 июля</span>
+                <span class="seg" style="font-size:12px"><label class="seg-opt" style="padding:5px 10px;font-size:12px;background:var(--color-accent);color:var(--color-bg)">Неделя</label></span>
+              </div>
+              <div style="display:grid;grid-template-columns:70px 1fr;gap:6px 14px;align-items:center;padding:16px 18px;border-radius:24px">
+                <span style="font-family:var(--font-heading);font-size:22px">09:00</span>
+                <span style="font-size:16px">Мария Сак</span>
+                <span style="grid-column:2;display:flex;gap:6px">
+                  <span class="tag" style="background:var(--color-accent-2-100);color:var(--color-accent-2-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Оплачено</span>
+                  <span class="tag" style="background:var(--color-accent-2-100);color:var(--color-accent-2-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Проведено</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:70px 1fr;gap:6px 14px;align-items:center;padding:16px 18px;border-radius:24px">
+                <span style="font-family:var(--font-heading);font-size:22px">11:30</span>
+                <span style="font-size:16px">Олег Тарасов</span>
+                <span style="grid-column:2;display:flex;gap:6px">
+                  <span class="tag" style="background:var(--color-accent-2-100);color:var(--color-accent-2-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Оплачено</span>
+                  <span class="tag" style="background:var(--color-accent-2-100);color:var(--color-accent-2-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Проведено</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:70px 1fr;gap:6px 14px;align-items:center;padding:16px 18px;border-radius:24px;background:var(--color-surface);box-shadow:var(--shadow-md);outline:2px solid var(--color-accent)">
+                <span style="font-family:var(--font-heading);font-size:22px">15:00</span>
+                <span style="font-size:16px">Анна Ковалёва</span>
+                <span style="grid-column:2;display:flex;gap:6px">
+                  <span class="tag" style="background:var(--color-accent-100);color:var(--color-accent-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</span>
+                  <span class="tag" style="background:var(--color-accent-2-100);color:var(--color-accent-2-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Проведено</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:70px 1fr;gap:6px 14px;align-items:center;padding:16px 18px;border-radius:24px">
+                <span style="font-family:var(--font-heading);font-size:22px">17:00</span>
+                <span style="font-size:16px">Ирина Мороз</span>
+                <span style="grid-column:2;display:flex;gap:6px">
+                  <span class="tag" style="background:var(--color-accent-100);color:var(--color-accent-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</span>
+                  <span class="tag" style="background:var(--color-accent-100);color:var(--color-accent-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:70px 1fr;gap:6px 14px;align-items:center;padding:16px 18px;border-radius:24px">
+                <span style="font-family:var(--font-heading);font-size:22px">19:30</span>
+                <span style="font-size:16px">Дмитрий Лис</span>
+                <span style="grid-column:2;display:flex;gap:6px">
+                  <span class="tag" style="background:var(--color-accent-100);color:var(--color-accent-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</span>
+                  <span class="tag" style="background:var(--color-accent-100);color:var(--color-accent-800);gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</span>
+                </span>
+              </div>
+            </div>
+            <div style="flex:1;padding:30px 36px;display:flex;flex-direction:column;gap:22px;min-width:0;background:var(--color-bg)">
+              <div style="display:flex;align-items:flex-start;gap:16px">
+                <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                  <span class="card-kicker">Английский · 60 минут</span>
+                  <h2 style="margin:0;font-size:32px">Анна Ковалёва</h2>
+                  <span style="font-size:14px" class="text-muted">29 июля 2026, 15:00 – 16:00 · онлайн · 40,00 BYN</span>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-secondary btn-icon" title="Редактировать"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l12-12-4-4L4 16v4Z"/></svg></button>
+                  <button class="btn btn-secondary btn-icon" title="Удалить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg></button>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px">
+                <button class="btn btn-secondary" style="font-size:15px;padding:12px 20px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</button>
+                <button class="btn btn-secondary" style="font-size:15px;padding:12px 20px;background:var(--color-accent-2-100);color:var(--color-accent-2-800);border-color:var(--color-accent-2-400)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Проведено</button>
+              </div>
+              <div class="card elev-sm" style="gap:14px">
+                <span class="card-kicker">Домашнее задание</span>
+                <div class="field"><textarea class="input" style="min-height:120px;background:var(--color-bg);font-size:15px;border-radius:var(--radius-md);padding:12px 14px">Unit 4, упр. 3–7 письменно. Эссе 180 слов «My summer» — к 5 августа.</textarea></div>
+              </div>
+              <div class="card elev-sm" style="gap:10px">
+                <span class="card-kicker">Заметка о занятии</span>
+                <p style="margin:0;font-size:14px">Прошли Present Perfect, слабое место — вопросительная форма. В следующий раз начать с разговорной практики.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="06 Детали услуги — тренер" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">06 · Детали услуги — тренер: упражнения с весами и повторами (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Тренировка 29 июля, 18:00</span>
+          </div>
+          <div style="padding:32px 40px;display:flex;flex-direction:column;gap:22px;height:700px">
+            <div style="display:flex;align-items:flex-start;gap:16px">
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <span class="card-kicker">Персональная тренировка · 60 минут</span>
+                <h2 style="margin:0;font-size:32px">Олег Тарасов</h2>
+                <span style="font-size:14px" class="text-muted">29 июля 2026, 18:00 · Зал «Атлет», Немига 12 · 55,00 BYN</span>
+              </div>
+              <span class="tag tag-accent-2">Оплачено</span>
+              <span class="tag tag-neutral">Проведено</span>
+              <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l12-12-4-4L4 16v4Z"/></svg></button>
+            </div>
+            <div class="card elev-sm" style="gap:14px;flex:1">
+              <div style="display:flex;align-items:center;gap:12px">
+                <span class="card-kicker" style="flex:1">Тренировка</span>
+                <button class="btn btn-secondary" style="font-size:13px">Выбрать из созданных</button>
+                <button class="btn btn-primary" style="font-size:13px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Новое упражнение</button>
+              </div>
+              <table class="table">
+                <thead><tr><th>Упражнение</th><th>Подходы</th><th>Повторы</th><th>Вес</th><th>Прошлый раз</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td>Приседания со штангой</td><td>4</td><td>10</td><td>60 кг</td><td class="text-muted">4 × 10 · 55 кг</td><td style="text-align:right"><span class="tag tag-accent-2">+5 кг</span></td></tr>
+                  <tr><td>Жим лёжа</td><td>4</td><td>8</td><td>50 кг</td><td class="text-muted">4 × 8 · 50 кг</td><td></td></tr>
+                  <tr><td>Тяга верхнего блока</td><td>3</td><td>12</td><td>35 кг</td><td class="text-muted">3 × 12 · 32,5 кг</td><td style="text-align:right"><span class="tag tag-accent-2">+2,5 кг</span></td></tr>
+                  <tr><td>Планка</td><td>3</td><td>60 сек</td><td>—</td><td class="text-muted">3 × 45 сек</td><td></td></tr>
+                </tbody>
+              </table>
+              <span style="font-size:12px" class="text-muted">Веса и повторы подставлены из последнего выполнения упражнения по временной метке.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="07 Детали услуги — тату-мастер" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">07 · Детали услуги — тату/бьюти-мастер: эскизы, результат, текущий проект (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Сеанс 29 июля, 13:00</span>
+          </div>
+          <div style="padding:32px 40px;display:flex;flex-direction:column;gap:22px;height:740px">
+            <div style="display:flex;align-items:flex-start;gap:16px">
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <span class="card-kicker">Тату · сеанс 2 из 3 · 240 минут</span>
+                <h2 style="margin:0;font-size:32px">Ирина Мороз</h2>
+                <span style="font-size:14px" class="text-muted">29 июля 2026, 13:00 · Студия «Игла», Октябрьская 5 · 450,00 BYN</span>
+              </div>
+              <span class="tag tag-outline">Проект: рукав, графика</span>
+              <span class="tag tag-accent">Не оплачено</span>
+              <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l12-12-4-4L4 16v4Z"/></svg></button>
+            </div>
+            <div style="display:flex;gap:20px;flex:1;min-height:0">
+              <div class="card elev-sm" style="flex:1;gap:14px">
+                <div style="display:flex;align-items:center"><span class="card-kicker" style="flex:1">Референсы и эскизы · 4</span><button class="btn btn-ghost">Добавить фото</button></div>
+                <div style="display:flex;gap:12px;align-items:center">
+                  <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+                  <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                    <div style="aspect-ratio:3/4;border-radius:20px;background:var(--color-neutral-300);display:grid;place-items:center;font-size:12px;text-align:center;padding:8px;color:var(--color-neutral-700)">Эскиз<br>рукав.jpg</div>
+                    <div style="aspect-ratio:3/4;border-radius:20px;background:var(--color-neutral-300);display:grid;place-items:center;font-size:12px;text-align:center;padding:8px;color:var(--color-neutral-700)">Референс<br>линии.jpg</div>
+                    <div style="aspect-ratio:3/4;border-radius:20px;background:var(--color-neutral-300);display:grid;place-items:center;font-size:12px;text-align:center;padding:8px;color:var(--color-neutral-700)">Референс<br>тени.png</div>
+                  </div>
+                  <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+                </div>
+                <div style="display:flex;gap:6px;justify-content:center">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--color-accent)"></span>
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--color-neutral-400)"></span>
+                </div>
+                <span style="font-size:12px" class="text-muted">Клик по фото — просмотр на весь экран с увеличением. Изображения из активного проекта клиента подставляются автоматически.</span>
+              </div>
+              <div class="card elev-sm" style="flex:1;gap:14px">
+                <div style="display:flex;align-items:center"><span class="card-kicker" style="flex:1">Результат работы · 2</span><button class="btn btn-ghost">Добавить фото</button></div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+                  <div style="aspect-ratio:3/4;border-radius:20px;background:var(--color-neutral-300);display:grid;place-items:center;font-size:12px;text-align:center;padding:8px;color:var(--color-neutral-700)">Сеанс 1<br>контур.jpg</div>
+                  <div style="aspect-ratio:3/4;border-radius:20px;background:var(--color-neutral-300);display:grid;place-items:center;font-size:12px;text-align:center;padding:8px;color:var(--color-neutral-700)">Сеанс 2<br>заливка.jpg</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;margin-top:auto">
+                  <span class="card-kicker">Заметка</span>
+                  <p style="margin:0;font-size:14px">Осталась проработка теней в верхней части. Третий сеанс — через 3 недели.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="08 Клиенты" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">08 · Клиенты — список по алфавиту и карточка клиента (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Клиенты</span>
+          </div>
+          <div style="display:flex;height:760px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+            </nav>
+            <div style="width:404px;flex:none;padding:28px 22px;display:flex;flex-direction:column;gap:14px;background:color-mix(in srgb, var(--color-surface) 45%, transparent)">
+              <div style="display:flex;align-items:center;gap:12px">
+                <h3 style="margin:0;flex:1">Клиенты · 6</h3>
+                <button class="btn btn-primary" style="font-size:13px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Добавить</button>
+              </div>
+              <input class="input" placeholder="Поиск по имени">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <span style="font-size:11px;letter-spacing:.08em;padding-left:14px" class="text-muted">А</span>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:22px;background:var(--color-surface);box-shadow:var(--shadow-sm)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--color-accent-200);color:var(--color-accent-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:15px">АК</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Анна Ковалёва</span></span></div>
+                <span style="font-size:11px;letter-spacing:.08em;padding-left:14px" class="text-muted">Д</span>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:22px"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:15px">ДЛ</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Дмитрий Лис</span></span></div>
+                <span style="font-size:11px;letter-spacing:.08em;padding-left:14px" class="text-muted">И</span>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:22px"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--color-neutral-300);color:var(--color-neutral-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:15px">ИМ</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Ирина Мороз</span></span></div>
+                <span style="font-size:11px;letter-spacing:.08em;padding-left:14px" class="text-muted">М</span>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:22px"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--color-accent-200);color:var(--color-accent-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:15px">МС</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Мария Сак</span></span></div>
+                <span style="font-size:11px;letter-spacing:.08em;padding-left:14px" class="text-muted">О</span>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:22px"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:15px">ОТ</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Олег Тарасов</span></span></div>
+                <span style="font-size:11px;letter-spacing:.08em;padding-left:14px" class="text-muted">П</span>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:22px"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--color-neutral-300);color:var(--color-neutral-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:15px">ПЮ</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Полина Юркевич</span></span></div>
+              </div>
+            </div>
+            <div style="flex:1;padding:30px 36px;display:flex;flex-direction:column;gap:20px;min-width:0">
+              <div style="display:flex;align-items:flex-start;gap:16px">
+                <span style="width:76px;height:76px;flex:none;border-radius:50%;background:var(--color-accent-200);color:var(--color-accent-800);display:grid;place-items:center;font-family:var(--font-heading);font-size:28px">АК</span>
+                <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                  <h2 style="margin:0;font-size:30px">Анна Ковалёва</h2>
+                  <span style="font-size:14px" class="text-muted">Английский, уровень B1 · клиент с 12 марта 2026</span>
+                  <div style="display:flex;gap:8px;margin-top:6px"><span class="tag tag-accent-2">2 предоплаченных занятия</span><span class="tag tag-neutral">Пн, Ср 15:00</span></div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l12-12-4-4L4 16v4Z"/></svg></button>
+                  <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg></button>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:520px">
+                <div class="card elev-sm" style="gap:4px"><span class="card-kicker">Не оплачено</span><span style="font-family:var(--font-heading);font-size:24px;color:var(--color-accent-700)">40,00 BYN</span></div>
+                <div class="card elev-sm" style="gap:4px"><span class="card-kicker">Цена занятия</span><span style="font-family:var(--font-heading);font-size:24px">40,00 BYN</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;max-width:520px">
+                <div class="card elev-sm" style="width:100%;gap:10px">
+                  <span class="card-kicker">Контакты</span>
+                  <div style="display:flex;flex-direction:column;gap:10px;font-size:14px">
+                    <span style="display:flex;justify-content:space-between;gap:12px"><span class="text-muted">Телефон</span><span>+375 29 123-45-67</span></span>
+                    <span style="display:flex;justify-content:space-between;gap:12px"><span class="text-muted">Telegram</span><span>@anna_k</span></span>
+                    <span style="display:flex;justify-content:space-between;gap:12px"><span class="text-muted">Формат</span><span>Онлайн, Zoom</span></span>
+                    <span style="display:flex;justify-content:space-between;gap:12px"><span class="text-muted">Валюта</span><span>BYN</span></span>
+                  </div>
+                  <span class="card-kicker" style="margin-top:8px">Комментарий</span>
+                  <p style="margin:0;font-size:14px">Готовится к экзамену в декабре. Просит присылать домашние задания в Telegram.</p>
+                </div>
+                <button class="btn btn-secondary">Все занятия клиента</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="09 Статистика" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">09 · Статистика доходов, кнопка «Предоплатить» (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Статистика</span>
+          </div>
+          <div style="display:flex;height:760px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+            </nav>
+            <div style="flex:1;padding:32px 40px;display:flex;flex-direction:column;gap:22px;min-width:0">
+              <div style="display:flex;align-items:flex-end;gap:20px">
+                <div style="flex:1;display:flex;flex-direction:column">
+                  <h2 style="margin:0;font-size:34px">Статистика</h2>
+                  <span style="font-size:13px" class="text-muted">1 – 29 июля 2026 · 34 занятия</span>
+                </div>
+                <span class="seg">
+                  <label class="seg-opt"><input type="radio" name="statseg">День</label>
+                  <label class="seg-opt"><input type="radio" name="statseg">Неделя</label>
+                  <label class="seg-opt"><input type="radio" name="statseg" defaultChecked="{{ true }}">Месяц</label>
+                  <label class="seg-opt"><input type="radio" name="statseg">Всё время</label>
+                </span>
+                <button class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h17v11h-17z"/><path d="M3.5 8.5 17 5v3.5"/><circle cx="16.5" cy="14" r="1.3"/></svg>Предоплатить</button>
+              </div>
+              <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px">
+                <div class="card elev-sm" style="gap:6px">
+                  <span class="card-kicker">Получено за период</span>
+                  <span style="font-family:var(--font-heading);font-size:38px;line-height:1.1">1 240,00 BYN</span>
+                  <span style="font-family:var(--font-heading);font-size:24px" class="text-muted">+ 275,00 USD</span>
+                </div>
+                <div class="card elev-sm" style="gap:8px">
+                  <span class="card-kicker">Процент оплаты</span>
+                  <span style="font-family:var(--font-heading);font-size:38px;line-height:1.1;color:var(--color-accent-700)">78%</span>
+                  <span style="height:10px;border-radius:999px;background:var(--color-neutral-300);overflow:hidden;display:block"><span style="display:block;width:78%;height:100%;background:var(--color-accent);border-radius:999px"></span></span>
+                  <span style="font-size:12px" class="text-muted">26 из 34 занятий оплачены</span>
+                </div>
+                <div class="card elev-sm" style="gap:6px">
+                  <span class="card-kicker">Ожидает оплаты</span>
+                  <span style="font-family:var(--font-heading);font-size:38px;line-height:1.1">320,00 BYN</span>
+                  <span style="font-size:12px" class="text-muted">8 занятий · 4 клиента</span>
+                </div>
+              </div>
+              <div class="card elev-sm" style="gap:12px;flex:1">
+                <span class="card-kicker">Клиенты по сумме выплат</span>
+                <table class="table">
+                  <thead><tr><th>Клиент</th><th>Занятий оплачено</th><th style="text-align:right">BYN</th><th style="text-align:right">USD</th></tr></thead>
+                  <tbody>
+                    <tr><td>Ирина Мороз</td><td>10</td><td style="text-align:right;font-variant-numeric:tabular-nums">—</td><td style="text-align:right;font-variant-numeric:tabular-nums">250,00</td></tr>
+                    <tr><td>Олег Тарасов</td><td>8</td><td style="text-align:right;font-variant-numeric:tabular-nums">480,00</td><td style="text-align:right;font-variant-numeric:tabular-nums">—</td></tr>
+                    <tr><td>Дмитрий Лис</td><td>6</td><td style="text-align:right;font-variant-numeric:tabular-nums">360,00</td><td style="text-align:right;font-variant-numeric:tabular-nums">—</td></tr>
+                    <tr><td>Анна Ковалёва</td><td>7</td><td style="text-align:right;font-variant-numeric:tabular-nums">280,00</td><td style="text-align:right;font-variant-numeric:tabular-nums">—</td></tr>
+                    <tr><td>Мария Сак</td><td>3</td><td style="text-align:right;font-variant-numeric:tabular-nums">120,00</td><td style="text-align:right;font-variant-numeric:tabular-nums">25,00</td></tr>
+                    <tr><td>Полина Юркевич</td><td>0</td><td style="text-align:right;font-variant-numeric:tabular-nums">—</td><td style="text-align:right;font-variant-numeric:tabular-nums">—</td></tr>
+                  </tbody>
+                </table>
+                <span style="font-size:12px" class="text-muted">Суммы сгруппированы по валютам, сортировка — по убыванию суммарных выплат.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-screen-label="10 Настройки" style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">10 · Настройки (MVP)</h4>
+        <div style="width:1360px;border-radius:28px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-lg)">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--color-surface)">
+            <span style="width:11px;height:11px;border-radius:50%;background:var(--color-accent-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span><span style="width:11px;height:11px;border-radius:50%;background:var(--color-neutral-400)"></span>
+            <span style="margin-left:16px;font-size:12px" class="text-muted">Куфар Блокнот — Настройки</span>
+          </div>
+          <div style="display:flex;height:600px">
+            <nav style="width:248px;flex:none;background:var(--color-surface);padding:24px 16px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:var(--font-heading);font-size:19px;padding:0 12px 14px">Куфар Блокнот</span>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Главная</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M16 5.5a3.2 3.2 0 0 1 0 5"/></svg>Клиенты</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;color:var(--color-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/></svg>Статистика</a>
+              <a href="#1a" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:14px;background:var(--color-accent);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>Настройки</a>
+            </nav>
+            <div style="flex:1;padding:32px 40px;display:flex;flex-direction:column;gap:20px;max-width:820px">
+              <h2 style="margin:0;font-size:34px">Настройки</h2>
+              <div class="card elev-sm" style="gap:14px">
+                <span class="card-kicker">Профиль</span>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <span style="width:48px;height:48px;border-radius:50%;background:var(--color-neutral-300);color:var(--color-neutral-700);display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5"/></svg></span>
+                  <span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Вы не вошли в аккаунт</span><span style="font-size:12px" class="text-muted">Данные хранятся только на этом устройстве</span></span>
+                  <button class="btn btn-primary">Войти</button>
+                </div>
+              </div>
+              <div class="card elev-sm" style="gap:14px">
+                <span class="card-kicker">Приложение</span>
+                <div style="display:flex;align-items:center;gap:14px;font-size:15px"><span style="flex:1">Категория услуг</span><span class="text-muted">Репетитор</span></div>
+                <hr class="hr" style="margin:0">
+                <div style="display:flex;align-items:center;gap:14px;font-size:15px"><span style="flex:1">Версия</span><span class="text-muted">1.0.0 (MVP · desktop)</span></div>
+              </div>
+              <div class="card elev-sm" style="gap:12px;background:var(--color-accent-100)">
+                <span class="card-kicker">Опасная зона</span>
+                <div style="display:flex;align-items:center;gap:16px">
+                  <span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px">Сбросить приложение</span><span style="font-size:12px" class="text-muted">Удалит всех клиентов, занятия и оплаты без возможности восстановления</span></span>
+                  <button class="btn btn-secondary" style="border-color:var(--color-accent-600);color:var(--color-accent-800)">Сбросить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="font-size:34px;margin:0">Модальные окна</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(672px,1fr));gap:28px;width:1360px">
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М1 · Услуга — создание и редактирование</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:600px">
+            <div style="display:flex;align-items:flex-start;gap:12px">
+              <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="dialog-title">Услуга</span><span style="font-size:12px" class="text-muted">Создание и редактирование — одна форма. При редактировании появляется «Удалить услугу»</span></span>
+              <button class="btn btn-secondary btn-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="field" style="grid-column:1 / -1"><label>Клиент</label><select class="input" style="appearance:none"><option>Анна Ковалёва</option></select></div>
+              <div class="field"><label>Дата</label><input class="input" value="29.07.2026"></div>
+              <div class="field"><label>Время</label><input class="input" value="15:00"></div>
+              <div class="field"><label>Длительность</label><input class="input" value="60 мин"></div>
+              <div class="field"><label>Услуга</label><input class="input" value="Английский язык"></div>
+              <div class="field"><label>Стоимость</label><input class="input" value="40,00"></div>
+              <div class="field"><label>Валюта</label><select class="input" style="appearance:none"><option>BYN</option></select></div>
+              <div class="field" style="grid-column:1 / -1"><label>Адрес</label>
+                <div style="display:flex;gap:8px">
+                  <select class="input" style="appearance:none"><option>Онлайн, Zoom</option></select>
+                  <button class="btn btn-secondary btn-icon" title="Новый адрес"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+                </div>
+              </div>
+              <div class="field" style="grid-column:1 / -1"><label>Комментарий</label><textarea class="input" style="min-height:64px" placeholder="Необязательно"></textarea></div>
+              <div style="grid-column:1 / -1;display:flex;gap:10px">
+                <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h19v9h-19z"/><circle cx="12" cy="12" r="2.6"/></svg>Не оплачено</button>
+                <button class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100);color:var(--color-accent-800);border-color:var(--color-accent-400)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5.5h17v15h-17z"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Запланировано</button>
+              </div>
+              <hr class="hr" style="grid-column:1 / -1;margin:2px 0">
+              <span class="card-kicker" style="grid-column:1 / -1">Поля категории — репетитор</span>
+              <div class="field" style="grid-column:1 / -1"><label>Домашнее задание</label><textarea class="input" style="min-height:70px;border-radius:var(--radius-md);padding:12px 14px" placeholder="Что задано к следующему занятию"></textarea></div>
+              <span style="grid-column:1 / -1;font-size:12px" class="text-muted">Для тренера здесь список упражнений и адрес зала, для тату- и бьюти-мастера — текущий проект, референсы и результаты работы.</span>
+            </div>
+            <div class="dialog-actions" style="justify-content:space-between">
+              <button class="btn btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg>Удалить услугу</button>
+              <span style="display:flex;gap:10px"><button class="btn btn-secondary">Отмена</button><button class="btn btn-primary">Сохранить</button></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М3 · Клиент — создание и редактирование</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:600px">
+            <div style="display:flex;align-items:flex-start;gap:12px">
+              <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="dialog-title">Клиент</span><span style="font-size:12px" class="text-muted">Создание и редактирование — одна форма. При редактировании появляется «Удалить клиента»</span></span>
+              <button class="btn btn-secondary btn-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="field" style="grid-column:1 / -1"><label>Имя и фамилия</label><input class="input" placeholder="Анна Ковалёва"></div>
+              <div class="field"><label>Телефон</label><input class="input" placeholder="+375 __ ___-__-__"></div>
+              <div class="field"><label>Telegram</label><input class="input" placeholder="@nickname"></div>
+              <div class="field"><label>Услуга по умолчанию</label><input class="input" placeholder="Английский язык"></div>
+              <div class="field"><label>Цена занятия</label><input class="input" placeholder="40,00 BYN"></div>
+              <div class="field"><label>Первое занятие — дата</label><input class="input" placeholder="03.08.2026"></div>
+              <div class="field"><label>Время</label><input class="input" placeholder="15:00"></div>
+              <div class="field" style="grid-column:1 / -1"><label>Комментарий</label><textarea class="input" style="min-height:64px;border-radius:var(--radius-md);padding:12px 14px" placeholder="Уровень, цели, пожелания"></textarea></div>
+              <hr class="hr" style="grid-column:1 / -1;margin:2px 0">
+              <span class="card-kicker" style="grid-column:1 / -1">Поля категории — репетитор</span>
+              <div class="field"><label>Предмет</label><input class="input" placeholder="Английский язык"></div>
+              <div class="field"><label>Уровень</label><input class="input" placeholder="B1"></div>
+              <span style="grid-column:1 / -1;font-size:12px" class="text-muted">Для тренера — цель и ограничения по здоровью, для тату-мастера — текущий проект и зона, для бьюти-мастера — тип услуги и аллергии.</span>
+            </div>
+            <div class="dialog-actions" style="justify-content:space-between">
+              <button class="btn btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg>Удалить клиента</button>
+              <span style="display:flex;gap:10px"><button class="btn btn-secondary">Отмена</button><button class="btn btn-primary">Сохранить</button></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М5 · Предоплата</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:520px">
+            <div style="display:flex;align-items:flex-start;gap:12px">
+              <span class="dialog-title" style="flex:1">Предоплата</span>
+              <button class="btn btn-secondary btn-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div class="field"><label>Клиент</label><select class="input" style="appearance:none"><option>Дмитрий Лис — 4 неоплаченных занятия</option></select></div>
+            <div class="field"><label>Количество оплаченных занятий</label>
+              <div style="display:flex;align-items:center;gap:14px">
+                <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+                <span style="font-family:var(--font-heading);font-size:30px;min-width:44px;text-align:center">3</span>
+                <button class="btn btn-secondary btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+                <span style="font-size:12px;flex:1" class="text-muted">от 1 до 4 — по числу неоплаченных занятий клиента</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:22px;background:var(--color-bg)">
+              <span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase" class="text-muted">Будут отмечены оплаченными</span>
+              <span style="display:flex;justify-content:space-between;font-size:14px"><span>20 июля, 19:30</span><span>60,00 BYN</span></span>
+              <span style="display:flex;justify-content:space-between;font-size:14px"><span>22 июля, 19:30</span><span>60,00 BYN</span></span>
+              <span style="display:flex;justify-content:space-between;font-size:14px"><span>27 июля, 19:30</span><span>60,00 BYN</span></span>
+              <span style="display:flex;justify-content:space-between;font-family:var(--font-heading);font-size:18px;margin-top:6px"><span>Итого</span><span>180,00 BYN</span></span>
+            </div>
+            <span style="font-size:12px" class="text-muted">Выбираются самые ранние занятия со статусом «Не оплачено».</span>
+            <div class="dialog-actions"><button class="btn btn-secondary">Отмена</button><button class="btn btn-primary">Оплатить</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М6 · Пересечение по времени</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:520px">
+            <span class="dialog-title">Это время уже занято</span>
+            <p class="dialog-body" style="margin:0">29 июля с 15:00 до 16:00 запланировано занятие с Марией Сак. Выберите другое время или сохраните как есть.</p>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:22px;background:var(--color-bg)">
+              <span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase" class="text-muted">Свободные слоты рядом</span>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-secondary" style="font-size:13px">14:00</button>
+                <button class="btn btn-secondary" style="font-size:13px">16:15</button>
+                <button class="btn btn-secondary" style="font-size:13px">17:30</button>
+              </div>
+            </div>
+            <div class="dialog-actions"><button class="btn btn-secondary">Оставить 15:00</button><button class="btn btn-primary">Изменить время</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М7 · Автозаполнение на 4 недели (репетитор, тренер)</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:520px">
+            <span class="dialog-title">Заполнить расписание на месяц?</span>
+            <p class="dialog-body" style="margin:0">Клиент Анна Ковалёва сохранён с занятием в среду в 15:00. Можно сразу создать занятия на 4 недели вперёд.</p>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:22px;background:var(--color-bg);font-size:14px">
+              <span style="display:flex;justify-content:space-between"><span>5 августа, ср, 15:00</span><span class="tag tag-accent">Не оплачено</span></span>
+              <span style="display:flex;justify-content:space-between"><span>12 августа, ср, 15:00</span><span class="tag tag-accent">Не оплачено</span></span>
+              <span style="display:flex;justify-content:space-between"><span>19 августа, ср, 15:00</span><span class="tag tag-accent">Не оплачено</span></span>
+              <span style="display:flex;justify-content:space-between"><span>26 августа, ср, 15:00</span><span class="tag tag-accent">Не оплачено</span></span>
+            </div>
+            <div class="dialog-actions"><button class="btn btn-secondary">Не сейчас</button><button class="btn btn-primary">Создать 4 занятия</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М8 · Удаление</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:460px">
+            <span class="dialog-title">Удалить клиента?</span>
+            <p class="dialog-body" style="margin:0">Анна Ковалёва и все её занятия (12) будут удалены. Оплаты пропадут из статистики. Действие необратимо.</p>
+            <div class="dialog-actions"><button class="btn btn-secondary">Отмена</button><button class="btn btn-primary" style="background:var(--color-accent-700)">Удалить</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М9 · Несохранённые изменения</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:460px">
+            <span class="dialog-title">Закрыть без сохранения?</span>
+            <p class="dialog-body" style="margin:0">Введённые данные занятия не сохранятся.</p>
+            <div class="dialog-actions"><button class="btn btn-secondary">Вернуться</button><button class="btn btn-primary">Закрыть</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М10 · Сброс приложения</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:460px">
+            <span class="dialog-title">Сбросить приложение?</span>
+            <p class="dialog-body" style="margin:0">Будут удалены 6 клиентов, 34 занятия и вся статистика оплат. Восстановить данные будет невозможно.</p>
+            <div class="field"><label>Введите СБРОС для подтверждения</label><input class="input" placeholder="СБРОС"></div>
+            <div class="dialog-actions"><button class="btn btn-secondary">Отмена</button><button class="btn btn-primary" style="background:var(--color-accent-700)" disabled>Удалить всё</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М11 · Новое упражнение (тренер)</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);display:grid;place-items:center">
+          <div class="dialog" style="width:520px">
+            <span class="dialog-title">Упражнение</span>
+            <div class="field"><label>Название</label><input class="input" value="Приседания со штангой"></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+              <div class="field"><label>Подходы</label><input class="input" value="4"></div>
+              <div class="field"><label>Повторы</label><input class="input" value="10"></div>
+              <div class="field"><label>Вес, кг</label><input class="input" value="60"></div>
+            </div>
+            <span style="font-size:12px" class="text-muted">Прошлое выполнение: 4 × 10 · 55 кг, 22 июля — значения подставлены автоматически.</span>
+            <div class="dialog-actions"><button class="btn btn-secondary">Отмена</button><button class="btn btn-primary">Добавить</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h4 style="margin:0">М12 · Просмотр фото (тату, бьюти)</h4>
+        <div style="padding:36px;border-radius:28px;background:color-mix(in srgb, var(--color-neutral-900) 75%, transparent);display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px;color:var(--color-bg)">
+            <span style="flex:1;font-size:13px">Эскиз рукав.jpg · Ирина Мороз, сеанс 2</span>
+            <button class="btn btn-secondary btn-icon" style="background:var(--color-surface)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div style="height:320px;border-radius:24px;background:var(--color-neutral-400);display:grid;place-items:center;color:var(--color-neutral-800);font-size:13px">Фото на весь экран · пинч и колесо для увеличения</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:14px">
+            <button class="btn btn-secondary btn-icon" style="background:var(--color-surface)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <span style="display:flex;gap:8px">
+              <span style="width:56px;height:56px;border-radius:16px;background:var(--color-neutral-300);outline:2px solid var(--color-accent)"></span>
+              <span style="width:56px;height:56px;border-radius:16px;background:var(--color-neutral-500)"></span>
+              <span style="width:56px;height:56px;border-radius:16px;background:var(--color-neutral-500)"></span>
+              <span style="width:56px;height:56px;border-radius:16px;background:var(--color-neutral-500)"></span>
+            </span>
+            <button class="btn btn-secondary btn-icon" style="background:var(--color-surface)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+</body>
+</html>
