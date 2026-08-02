@@ -1,60 +1,56 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.dsankovsky.kmpclientplanner.ui.screens.services
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
-import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
+import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
+import com.dsankovsky.kmpclientplanner.ui.design.OrganicTheme
+import com.dsankovsky.kmpclientplanner.ui.design.components.EmptyState
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButton
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
+import com.dsankovsky.kmpclientplanner.ui.design.components.SegmentedControl
+import com.dsankovsky.kmpclientplanner.ui.design.icons.OrganicIcons
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
-import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIWeekdayAndDate
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
-import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.main_title
+import kmpclientplanner.sharedui.generated.resources.service_add_service
+import kmpclientplanner.sharedui.generated.resources.services_list_no_services
 import kmpclientplanner.sharedui.generated.resources.services_list_no_services_description
+import kmpclientplanner.sharedui.generated.resources.services_list_subtitle
+import kmpclientplanner.sharedui.generated.resources.services_list_subtitle_unpaid
 import kmpclientplanner.sharedui.generated.resources.tabs_current_month
 import kmpclientplanner.sharedui.generated.resources.tabs_current_week
 import kmpclientplanner.sharedui.generated.resources.tabs_next_month
 import kmpclientplanner.sharedui.generated.resources.tabs_next_week
 import kmpclientplanner.sharedui.generated.resources.tabs_today
 import kmpclientplanner.sharedui.generated.resources.tabs_tomorrow
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
     onEvent: (ServicesListScreenEvent) -> Unit,
-    showFab: Boolean = true,
     modifier: Modifier = Modifier
 ) {
 
@@ -75,104 +71,124 @@ fun HomeScreen(
             HomeScreenContent(
                 state = state,
                 onAction = viewModel::handleAction,
-                showFab = showFab,
                 modifier = modifier
             )
         }
     }
 }
 
+/**
+ * Экран 04 — лента занятий.
+ *
+ * Шапка: «Занятия», подзаголовок с сегодняшней датой и счётчиками, сегмент-контрол периода
+ * и primary-кнопка добавления. Кнопка теперь в шапке, а не FAB'ом поверх ленты — так в макете.
+ */
 @Composable
 fun HomeScreenContent(
     state: ServicesListScreenState,
     onAction: (ServicesListScreenAction) -> Unit,
-    showFab: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    val spacing = OrganicTheme.spacing
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(OrganicTheme.colors.bg)
+            .padding(horizontal = 40.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(22.dp),
+    ) {
+        FeedHeader(state = state, onAction = onAction)
 
-    Scaffold(
-        floatingActionButton = {
-            if (showFab) {
-                FloatingActionButton(
-                    onClick = {
-                        onAction(ServicesListScreenAction.OnAddServiceClicked)
-                    }
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                }
-            }
-        }
-    ) { paddingValues ->
-
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
-            contentPadding = PaddingValues(
-                top = 24.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 100.dp
-            ).withNavBarPadding(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            item {
-                HeaderView(stringResource(Res.string.main_title))
-            }
-
-            item {
-                val selectedIndex = state.filtersList.indexOf(state.currentFilter)
-                PrimaryScrollableTabRow(selectedTabIndex = selectedIndex, edgePadding = 0.dp) {
-                    state.filtersList.forEachIndexed { index, filter ->
-                        Tab(
-                            selected = index == selectedIndex,
-                            onClick = { onAction(ServicesListScreenAction.OnFilterClicked(filter)) },
-                            text = { Text(filter.toTabLabel()) }
-                        )
-                    }
-                }
-            }
-
-            if (state.items.isEmpty()) {
-                item {
-                    Text(
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                        text = stringResource(Res.string.services_list_no_services_description),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            items(state.items) { item ->
-                when (item) {
-                    is ServicesListScreenItem.DateDivider -> {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = item.getUIDate()
+        if (state.items.isEmpty()) {
+            EmptyState(
+                icon = OrganicIcons.CalendarDays,
+                title = stringResource(Res.string.services_list_no_services),
+                description = stringResource(Res.string.services_list_no_services_description),
+                actionText = stringResource(Res.string.service_add_service),
+                onAction = { onAction(ServicesListScreenAction.OnAddServiceClicked) },
+                circleColor = OrganicTheme.colors.accentRamp.s200,
+                iconColor = OrganicTheme.colors.accentRamp.s800,
+            )
+        } else {
+            // Первая группа — ближайший день, остальные приглушены (см. `dimmed`).
+            var groupIndex = -1
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(spacing.space2),
+                contentPadding = PaddingValues(bottom = spacing.space6),
+            ) {
+                items(state.items) { item ->
+                    when (item) {
+                        is ServicesListScreenItem.DateDivider -> {
+                            groupIndex++
+                            OrganicText(
+                                text = item.date.toUIWeekdayAndDate().uppercase(),
+                                style = OrganicTheme.typography.tableHeader,
+                                color = OrganicTheme.colors.muted,
+                                modifier = Modifier.padding(
+                                    top = if (groupIndex == 0) 0.dp else spacing.space3,
+                                    bottom = 2.dp,
+                                ),
                             )
-                            HorizontalDivider(thickness = 2.dp)
                         }
-                    }
 
-                    is ServicesListScreenItem.ServiceItem -> {
-                        ServiceItemView(
+                        is ServicesListScreenItem.ServiceItem -> ServiceItemView(
                             serviceItem = item,
-                            onAction = onAction
+                            onAction = onAction,
+                            dimmed = groupIndex > 0,
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FeedHeader(
+    state: ServicesListScreenState,
+    onAction: (ServicesListScreenAction) -> Unit,
+) {
+    val services = state.items.filterIsInstance<ServicesListScreenItem.ServiceItem>()
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            OrganicText(
+                text = stringResource(Res.string.main_title),
+                style = OrganicTheme.typography.h2.copy(fontSize = 34.sp, lineHeight = 38.sp),
+            )
+            OrganicText(
+                text = feedSubtitle(services),
+                style = OrganicTheme.typography.bodyXs,
+                color = OrganicTheme.colors.muted,
+            )
+        }
+        SegmentedControl(
+            options = state.filtersList,
+            selected = state.currentFilter,
+            onSelect = { onAction(ServicesListScreenAction.OnFilterClicked(it)) },
+            optionLabel = { it.toTabLabel() },
+        )
+        OrganicButton(
+            text = stringResource(Res.string.service_add_service),
+            onClick = { onAction(ServicesListScreenAction.OnAddServiceClicked) },
+            icon = OrganicIcons.Plus,
+        )
+    }
+}
+
+/** «Среда, 29 июля · 5 занятий, 2 не оплачены». */
+@Composable
+private fun feedSubtitle(services: List<ServicesListScreenItem.ServiceItem>): String {
+    val today = getCurrentDateTime().date.toUIWeekdayAndDate()
+    val total = pluralStringResource(Res.plurals.services_list_subtitle, services.size, services.size)
+    val unpaid = services.count { !it.isPaid }
+    return if (unpaid > 0) {
+        val unpaidText = pluralStringResource(Res.plurals.services_list_subtitle_unpaid, unpaid, unpaid)
+        "$today · $total, $unpaidText"
+    } else {
+        "$today · $total"
     }
 }
 
@@ -187,51 +203,38 @@ private fun ServicesFilter.toTabLabel(): String = when (this) {
     ServicesFilter.CUSTOM_INTERVAL -> name
 }
 
-@PreviewLightDark
+@Preview
 @Composable
-private fun PreviewHomeScreen() {
-    ClientPlannerTheme {
+private fun HomeScreenContentPreview() {
+    OrganicTheme {
         HomeScreenContent(
-            ServicesListScreenState(
+            state = ServicesListScreenState(
+                isLoading = false,
                 items = listOf(
-                    ServicesListScreenItem.DateDivider(
-                        date = getCurrentDateTime().date
-                    ),
+                    ServicesListScreenItem.DateDivider(date = getCurrentDateTime().date),
                     ServicesListScreenItem.ServiceItem(
-                        title = "Playing videogames",
-                        client = BaseClient(
-                            name = "Otis",
-                            surname = "Pes",
-                            address = "Kolasa street"
-                        ),
-                        isFinished = true,
+                        title = "Английский",
+                        client = BaseClient(name = "Мария", surname = "Сак"),
+                        service = BaseService(price = 40f, address = "онлайн"),
                         isPaid = true,
-                        comment = "Помыть собаку",
-                        timeInterval = "12:00 - 13:30"
+                        isFinished = true,
                     ),
                     ServicesListScreenItem.ServiceItem(
-                        title = "Playing videogames",
-                        client = BaseClient(
-                            name = "Otis",
-                            surname = "Pes",
-                            address = "Kolasa street"
-                        ),
-                        timeInterval = "12:00 - 13:30"
+                        title = "Математика",
+                        client = BaseClient(name = "Олег", surname = "Тарасов"),
+                        service = BaseService(price = 60f, address = "Немига 12"),
                     ),
-                    ServicesListScreenItem.DateDivider(
-                        date = getCurrentDateTime().date
-                    ),
-                    ServicesListScreenItem.ServiceItem(
-                        title = "Playing videogames",
-                        client = BaseClient(name = "Otis", surname = "Pes"),
-                        timeInterval = "12:00 - 13:30"
-                    ),
-                    ServicesListScreenItem.ServiceItem(
-                        title = "Playing videogames",
-                        client = BaseClient(name = "Otis", surname = "Pes"),
-                        timeInterval = "12:00 - 13:30"
-                    )
-                )
-            ), {})
+                ),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenEmptyPreview() {
+    OrganicTheme {
+        HomeScreenContent(state = ServicesListScreenState(isLoading = false), onAction = {})
     }
 }

@@ -3,10 +3,11 @@ package com.dsankovsky.kmpclientplanner.navigation
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
+/**
+ * Экраны в backstack. Формы клиента и услуги и предоплата сюда не входят: по новому
+ * дизайну это модальные окна поверх экрана — см. `ModalState`.
+ */
 sealed class Screen : NavKey {
-
-    @Serializable
-    data object WelcomeScreen : Screen()
 
     @Serializable
     data object LoadingScreen : Screen()
@@ -37,13 +38,4 @@ sealed class Screen : NavKey {
 
     @Serializable
     data class ServiceDetailsScreen(val serviceId: Long) : Screen()
-
-    @Serializable
-    data class AddEditClientScreen(val clientId: Long? = null) : Screen()
-
-    @Serializable
-    data class AddEditServiceScreen(val serviceId: Long? = null) : Screen()
-
-    @Serializable
-    data object PayServicesScreen : Screen()
 }

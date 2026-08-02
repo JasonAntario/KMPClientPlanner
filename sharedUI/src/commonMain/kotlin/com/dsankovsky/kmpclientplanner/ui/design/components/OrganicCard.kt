@@ -32,6 +32,8 @@ fun OrganicCard(
     background: Color = OrganicTheme.colors.surface,
     shape: Shape = OrganicTheme.shapes.card,
     border: Color = Color.Unspecified,
+    /** 2 dp — выбранная карточка категории на экране 01 и выбранная строка в списках. */
+    borderWidth: Dp = 1.dp,
     shadow: Shadow? = null,
     contentPadding: Dp = OrganicTheme.spacing.space3,
     verticalGap: Dp = OrganicTheme.spacing.space2,
@@ -41,7 +43,7 @@ fun OrganicCard(
         modifier = modifier
             .then(if (shadow != null) Modifier.dropShadow(shape, shadow) else Modifier)
             .background(background, shape)
-            .then(if (border.isSpecified) Modifier.border(1.dp, border, shape) else Modifier)
+            .then(if (border.isSpecified) Modifier.border(borderWidth, border, shape) else Modifier)
             .padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalGap),
     ) {

@@ -6,6 +6,7 @@
     <string name="ok">ОК</string>
     <string name="cancel">Отмена</string>
     <string name="day_of_week">День недели</string>
+    <string name="modal_close">Закрыть окно</string>
 
     <!--DATETIME-->
     <string name="datetime_monday">Понедельник</string>
@@ -97,13 +98,25 @@
     <string name="service_subtype_beauty">Маникюр, брови, ресницы</string>
 
     <!--CLIENTS LIST-->
-    <string name="clients_list_no_clients">Список клиентов пуст</string>
-    <string name="clients_list_no_clients_description">Здесь пока никого нет.\nЧтобы начать, добавьте своего первого клиента</string>
+    <string name="clients_list_no_clients">Начнём с первого клиента</string>
+    <string name="clients_list_no_clients_description">Пока нет ни клиентов, ни занятий. Добавьте клиента — сразу можно указать день и время первого занятия.</string>
 
     <!--SERVICES LIST-->
-    <string name="services_list_no_services">Список услуг пуст</string>
-    <string name="services_list_no_services_description">Здесь пока ничего нет\nДобавьте свою первую услугу или измените фильтр</string>
+    <string name="services_list_no_services">Занятий пока нет</string>
+    <string name="services_list_no_services_description">Клиенты уже добавлены. Запланируйте первое занятие — оно появится в ленте.</string>
     <string name="services_list_history">История услуг</string>
+    <plurals name="services_list_subtitle">
+        <item quantity="one">%1$d занятие</item>
+        <item quantity="few">%1$d занятия</item>
+        <item quantity="many">%1$d занятий</item>
+        <item quantity="other">%1$d занятий</item>
+    </plurals>
+    <plurals name="services_list_subtitle_unpaid">
+        <item quantity="one">%1$d не оплачено</item>
+        <item quantity="few">%1$d не оплачены</item>
+        <item quantity="many">%1$d не оплачены</item>
+        <item quantity="other">%1$d не оплачены</item>
+    </plurals>
 
     <!--ADD EDIT SERVICE-->
     <string name="service_choose_format_lession">Формат занятия</string>
@@ -150,18 +163,26 @@
     <string name="clients_no_client">Добавьте своего первого клиента</string>
 
     <!--MAIN SCREEN-->
-    <string name="main_title">Записи</string>
+    <string name="main_title">Занятия</string>
 
     <!--SERVICE TYPE SELECTION SCREEN-->
-    <string name="service_type_selection_title">Выберите тип услуг</string>
-    <string name="service_type_selection_description">Это позволит нам правильно настроить приложение и упростить Вам работу с ним</string>
+    <string name="service_type_selection_title">Чем вы занимаетесь?</string>
+    <string name="service_type_selection_description">От выбора зависят подсказки и дополнительные поля. Изменить можно позже в настройках.</string>
+    <string name="service_type_selection_continue">Продолжить</string>
+    <string name="service_type_selection_auth_hint">Вход через Apple ID и Google — в следующей итерации</string>
+    <string name="service_type_selection_logo">КБ</string>
 
     <!--SERVICE TYPE-->
     <string name="service_type_base">Другое</string>
-    <string name="service_type_education">Образование</string>
-    <string name="service_type_beauty">Красота и уход</string>
-    <string name="service_type_tattoo">Тату</string>
-    <string name="service_type_sport">Спорт</string>
+    <string name="service_type_education">Репетитор</string>
+    <string name="service_type_beauty">Бьюти-мастер</string>
+    <string name="service_type_tattoo">Тату-мастер</string>
+    <string name="service_type_sport">Тренер</string>
+    <string name="service_type_base_hint">Базовая услуга — клиенты, оплаты, статистика</string>
+    <string name="service_type_education_hint">Домашние задания, автозаполнение расписания на месяц</string>
+    <string name="service_type_beauty_hint">Референсы и результаты, текущий проект клиента</string>
+    <string name="service_type_tattoo_hint">Эскизы и результаты работ, проекты, адреса студий</string>
+    <string name="service_type_sport_hint">Упражнения, адреса залов, расписание на месяц</string>
     <string name="service_type_change">Сменить тип услуг</string>
 
     <!--SETTINGS SCREEN-->
@@ -171,21 +192,47 @@
     <string name="settings_version">Версия приложения</string>
     <string name="settings_notification">Уведомления</string>
     <string name="settings_feedback">Поделитесь мнением</string>
+    <string name="settings_feedback_action">Написать</string>
+    <string name="settings_profile">Профиль</string>
+    <string name="settings_not_signed_in">Вы не вошли в аккаунт</string>
+    <string name="settings_local_only">Данные хранятся только на этом устройстве</string>
+    <string name="settings_sign_in">Войти</string>
+    <string name="settings_app">Приложение</string>
+    <string name="settings_category">Категория услуг</string>
+    <string name="settings_danger_zone">Опасная зона</string>
+    <string name="settings_reset_row">Сбросить приложение</string>
+    <string name="settings_reset_row_description">Удалит всех клиентов, занятия и оплаты без возможности восстановления</string>
+    <string name="settings_reset_action">Сбросить</string>
+    <string name="settings_reset_title">Сбросить приложение?</string>
+    <string name="settings_reset_description">Будут удалены все клиенты, занятия и вся статистика оплат. Восстановить данные будет невозможно.</string>
+    <string name="settings_reset_label">Введите %1$s для подтверждения</string>
+    <string name="settings_reset_word">СБРОС</string>
+    <string name="settings_reset_confirm">Удалить всё</string>
 
     <!--STATISTICS SCREEN-->
-    <string name="statistics_title">Моя статистика</string>
-    <string name="statistics_by_client">Статистика по клиентам</string>
+    <string name="statistics_title">Статистика</string>
+    <string name="statistics_by_client">Клиенты по сумме выплат</string>
+    <string name="statistics_received">Получено за период</string>
+    <string name="statistics_paid_percentage">Процент оплаты</string>
+    <string name="statistics_awaiting">Ожидает оплаты</string>
+    <string name="statistics_paid_of_total">%1$d из %2$d занятий оплачены</string>
+    <string name="statistics_debt_summary">%1$d занятий · %2$d клиентов</string>
+    <string name="statistics_table_client">Клиент</string>
+    <string name="statistics_table_paid_count">Занятий оплачено</string>
+    <string name="statistics_table_note">Суммы сгруппированы по валютам, сортировка — по убыванию суммарных выплат.</string>
+    <string name="statistics_empty_value">—</string>
+    <string name="statistics_prepay">Предоплатить</string>
     <string name="statistics_client">Клиент</string>
     <string name="statistics_paid">Оплачено</string>
     <string name="statistics_expected">Ожидается</string>
 
-    <string name="tabs_today">сегодня</string>
-    <string name="tabs_tomorrow">завтра</string>
-    <string name="tabs_current_week">текущая неделя</string>
-    <string name="tabs_next_week">следующая неделя</string>
-    <string name="tabs_current_month">текущий месяц</string>
-    <string name="tabs_next_month">следующий месяц</string>
-    <string name="tabs_custom_interval">период</string>
+    <string name="tabs_today">Сегодня</string>
+    <string name="tabs_tomorrow">Завтра</string>
+    <string name="tabs_current_week">Неделя</string>
+    <string name="tabs_next_week">След. неделя</string>
+    <string name="tabs_current_month">Месяц</string>
+    <string name="tabs_next_month">След. месяц</string>
+    <string name="tabs_custom_interval">Период</string>
     <string name="date_picker_confirm">ОК</string>
     <string name="date_picker_cancel">Отмена</string>
 

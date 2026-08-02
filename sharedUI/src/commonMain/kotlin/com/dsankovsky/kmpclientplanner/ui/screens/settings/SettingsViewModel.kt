@@ -26,6 +26,12 @@ class SettingsViewModel(
         when (action) {
             SettingsScreenAction.LoadData -> loadData()
             is SettingsScreenAction.OnServiceTypeSelected -> changeServiceType(action.serviceTypeIndex)
+            SettingsScreenAction.OnResetClicked -> {
+                viewModelScope.launch {
+                    event.emit(SettingsScreenEvent.ResetRequested)
+                }
+            }
+
             SettingsScreenAction.DeleteAllData -> deleteAllData()
         }
     }

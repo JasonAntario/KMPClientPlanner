@@ -7,7 +7,11 @@ import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientsUseCase
 import com.dsankovsky.kmpclientplanner.navigation.Screen
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
@@ -16,6 +20,9 @@ class MainScreenViewModel(
 ) : ViewModel() {
 
     val event = MutableSharedFlow<MainScreenEvent>()
+
+    private val _state = MutableStateFlow(MainScreenState())
+    val state: StateFlow<MainScreenState> = _state.asStateFlow()
 
     fun handleActions(actions: MainScreenActions) {
         when (actions) {
@@ -28,9 +35,10 @@ class MainScreenViewModel(
     private fun getStartDestination() {
         viewModelScope.launch {
             val serviceType = appSettings.getServiceType()
+            _state.update { it.copy(serviceType = serviceType) }
             val clients = clientsUseCase.getAllClients().firstOrNull() ?: emptyList()
             val startDestination = when {
-                serviceType == null -> Screen.WelcomeScreen
+                serviceType == null -> Screen.ServiceTypeSelectionScreen
                 clients.isEmpty() -> Screen.NoClientsScreen
                 else -> Screen.HomeScreen
             }

@@ -15,6 +15,11 @@ data class StatisticsScreenState(
     val receivedTotalByCurrency: List<StatisticsClientItem.StatisticsPaymentItem> = emptyList(),
     val expectedTotalByCurrency: List<StatisticsClientItem.StatisticsPaymentItem> = emptyList(),
     val itemsByClients: List<StatisticsClientItem> = emptyList(),
+    /** Счётчики для карточек экрана 09: «26 из 34 занятий оплачены», «8 занятий · 4 клиента». */
+    val servicesTotal: Int = 0,
+    val servicesPaid: Int = 0,
+    val servicesUnpaid: Int = 0,
+    val clientsWithDebt: Int = 0,
     val filters: List<ServicesFilter> = getStatisticsScreenFilters(),
     val currentFilter: ServicesFilter = ServicesFilter.TODAY,
     val showDatePicker: Boolean = false,

@@ -28,8 +28,8 @@ fun LocalDateTime.toEpochMilliseconds() =
     this.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
 fun LocalDateTime.toTime(): String {
-    val formattedMinutes = minute.toTwoNumberString()
-    return "$hour:$formattedMinutes"
+    // Часы тоже с ведущим нулём: в ленте время стоит в колонке и не должно «плясать».
+    return "${hour.toTwoNumberString()}:${minute.toTwoNumberString()}"
 }
 
 fun getCurrentDateTime(): LocalDateTime {

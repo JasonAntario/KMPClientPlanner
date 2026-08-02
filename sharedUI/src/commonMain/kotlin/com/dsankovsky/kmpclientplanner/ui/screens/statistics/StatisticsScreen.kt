@@ -4,28 +4,18 @@ package com.dsankovsky.kmpclientplanner.ui.screens.statistics
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Payments
-import androidx.compose.material3.Card
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
@@ -34,30 +24,44 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
-import com.dsankovsky.kmpclientplanner.ui.components.HeaderView
-import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
+import com.dsankovsky.kmpclientplanner.ui.design.OrganicTheme
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButton
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicCard
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicProgressBar
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableCell
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableHeader
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableHeaderCell
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableRow
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
+import com.dsankovsky.kmpclientplanner.ui.design.components.SegmentedControl
+import com.dsankovsky.kmpclientplanner.ui.design.elevationSm
+import com.dsankovsky.kmpclientplanner.ui.design.icons.OrganicIcons
 import com.dsankovsky.kmpclientplanner.ui.extensions.toUIDate
-import com.dsankovsky.kmpclientplanner.ui.extensions.withNavBarPadding
-import com.dsankovsky.kmpclientplanner.ui.screens.statistics.components.KufarPieChart
-import com.dsankovsky.kmpclientplanner.ui.screens.statistics.components.StatisticsCurrencyCardView
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIAmount
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIMoney
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.model.StatisticsClientItem
-import com.dsankovsky.kmpclientplanner.ui.theme.ClientPlannerTheme
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.date_picker_cancel
 import kmpclientplanner.sharedui.generated.resources.date_picker_confirm
-import kmpclientplanner.sharedui.generated.resources.pay_services_title
+import kmpclientplanner.sharedui.generated.resources.statistics_awaiting
 import kmpclientplanner.sharedui.generated.resources.statistics_by_client
-import kmpclientplanner.sharedui.generated.resources.statistics_expected
-import kmpclientplanner.sharedui.generated.resources.statistics_expected_in_period
-import kmpclientplanner.sharedui.generated.resources.statistics_income_in_period
-import kmpclientplanner.sharedui.generated.resources.statistics_paid
+import kmpclientplanner.sharedui.generated.resources.statistics_debt_summary
+import kmpclientplanner.sharedui.generated.resources.statistics_empty_value
+import kmpclientplanner.sharedui.generated.resources.statistics_paid_of_total
+import kmpclientplanner.sharedui.generated.resources.statistics_paid_percentage
+import kmpclientplanner.sharedui.generated.resources.statistics_prepay
+import kmpclientplanner.sharedui.generated.resources.statistics_received
+import kmpclientplanner.sharedui.generated.resources.statistics_table_client
+import kmpclientplanner.sharedui.generated.resources.statistics_table_note
+import kmpclientplanner.sharedui.generated.resources.statistics_table_paid_count
 import kmpclientplanner.sharedui.generated.resources.statistics_title
 import kmpclientplanner.sharedui.generated.resources.tabs_current_month
 import kmpclientplanner.sharedui.generated.resources.tabs_current_week
@@ -66,10 +70,9 @@ import kmpclientplanner.sharedui.generated.resources.tabs_next_month
 import kmpclientplanner.sharedui.generated.resources.tabs_next_week
 import kmpclientplanner.sharedui.generated.resources.tabs_today
 import kmpclientplanner.sharedui.generated.resources.tabs_tomorrow
-import kotlinx.datetime.DatePeriod
+import kotlin.math.roundToInt
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -95,7 +98,12 @@ fun StatisticsScreen(
     )
 }
 
-
+/**
+ * Экран 09 — статистика: три карточки-метрики и таблица клиентов по сумме выплат.
+ *
+ * Круговой диаграммы (`KufarPieChart`) в новом дизайне нет — процент оплаты показывает
+ * полоса прогресса, а суммы разложены по валютам.
+ */
 @Composable
 fun StatisticsScreenContent(
     state: StatisticsScreenState,
@@ -104,190 +112,223 @@ fun StatisticsScreenContent(
     modifier: Modifier = Modifier
 ) {
     if (state.showDatePicker) {
-        val dateRangePickerState = rememberDateRangePickerState()
-        DatePickerDialog(
-            onDismissRequest = { onAction(StatisticsScreenAction.CloseDatePickerClicked) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val startMillis = dateRangePickerState.selectedStartDateMillis
-                        val endMillis = dateRangePickerState.selectedEndDateMillis
-                        if (startMillis != null && endMillis != null) {
-                            onAction(
-                                StatisticsScreenAction.SetCustomInterval(
-                                    startDate = Instant.fromEpochMilliseconds(startMillis)
-                                        .toLocalDateTime(TimeZone.UTC).date,
-                                    endDate = Instant.fromEpochMilliseconds(endMillis)
-                                        .toLocalDateTime(TimeZone.UTC).date
-                                )
-                            )
-                        }
-                    }
-                ) {
-                    Text(stringResource(Res.string.date_picker_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { onAction(StatisticsScreenAction.CloseDatePickerClicked) }) {
-                    Text(stringResource(Res.string.date_picker_cancel))
+        CustomIntervalPicker(onAction)
+    }
+
+    val spacing = OrganicTheme.spacing
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(OrganicTheme.colors.bg)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 40.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(22.dp),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Column(Modifier.weight(1f)) {
+                OrganicText(
+                    text = stringResource(Res.string.statistics_title),
+                    style = OrganicTheme.typography.h2.copy(fontSize = 34.sp, lineHeight = 38.sp),
+                )
+                state.dateInterval?.let { (start, end) ->
+                    OrganicText(
+                        text = "${start.toUIDate()} — ${end.toUIDate()}",
+                        style = OrganicTheme.typography.bodyXs,
+                        color = OrganicTheme.colors.muted,
+                    )
                 }
             }
+            SegmentedControl(
+                options = state.filters,
+                selected = state.currentFilter,
+                onSelect = { onAction(StatisticsScreenAction.OnFilterClicked(it)) },
+                optionLabel = { it.toTabLabel() },
+            )
+            OrganicButton(
+                text = stringResource(Res.string.statistics_prepay),
+                onClick = onOpenPayServices,
+                icon = OrganicIcons.Wallet,
+            )
+        }
+
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(spacing.space4),
         ) {
-            DateRangePicker(
-                state = dateRangePickerState,
-                modifier = Modifier.weight(1f)
+            MoneyCard(
+                title = stringResource(Res.string.statistics_received),
+                amounts = state.receivedTotalByCurrency,
+                modifier = Modifier.weight(1.4f).fillMaxHeight(),
+            )
+            PaidPercentageCard(state, Modifier.weight(1f).fillMaxHeight())
+            MoneyCard(
+                title = stringResource(Res.string.statistics_awaiting),
+                amounts = state.expectedTotalByCurrency,
+                footer = stringResource(
+                    Res.string.statistics_debt_summary,
+                    state.servicesUnpaid,
+                    state.clientsWithDebt,
+                ),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+            )
+        }
+
+        ClientsTableCard(state)
+    }
+}
+
+/** Карточка с суммой: первая валюта крупно, остальные — строкой ниже. */
+@Composable
+private fun MoneyCard(
+    title: String,
+    amounts: List<StatisticsClientItem.StatisticsPaymentItem>,
+    modifier: Modifier = Modifier,
+    footer: String? = null,
+) {
+    OrganicCard(
+        modifier = modifier.elevationSm(OrganicTheme.shapes.card, OrganicTheme.elevation),
+        kicker = title,
+        verticalGap = 6.dp,
+    ) {
+        val nonEmpty = amounts.filter { it.money > 0f }
+        if (nonEmpty.isEmpty()) {
+            OrganicText(
+                text = 0f.toUIMoney(CurrencyItem.BYN),
+                style = OrganicTheme.typography.numericLarge,
+            )
+        } else {
+            OrganicText(
+                text = nonEmpty.first().money.toUIMoney(nonEmpty.first().currency),
+                style = OrganicTheme.typography.numericLarge,
+            )
+            nonEmpty.drop(1).forEach { item ->
+                OrganicText(
+                    text = "+ ${item.money.toUIMoney(item.currency)}",
+                    style = OrganicTheme.typography.h3.copy(fontSize = 24.sp),
+                    color = OrganicTheme.colors.muted,
+                )
+            }
+        }
+        if (footer != null) {
+            OrganicText(
+                text = footer,
+                style = OrganicTheme.typography.label,
+                color = OrganicTheme.colors.muted,
             )
         }
     }
+}
 
-    Box(
-        modifier = modifier.fillMaxSize()
+@Composable
+private fun PaidPercentageCard(state: StatisticsScreenState, modifier: Modifier = Modifier) {
+    OrganicCard(
+        modifier = modifier.elevationSm(OrganicTheme.shapes.card, OrganicTheme.elevation),
+        kicker = stringResource(Res.string.statistics_paid_percentage),
+        verticalGap = OrganicTheme.spacing.space2,
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                top = 24.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 100.dp
-            ).withNavBarPadding(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        OrganicText(
+            text = "${(state.paidPercentage * 100).roundToInt()}%",
+            style = OrganicTheme.typography.numericLarge,
+            color = OrganicTheme.colors.accentText,
+        )
+        OrganicProgressBar(progress = state.paidPercentage)
+        OrganicText(
+            text = stringResource(
+                Res.string.statistics_paid_of_total,
+                state.servicesPaid,
+                state.servicesTotal,
+            ),
+            style = OrganicTheme.typography.label,
+            color = OrganicTheme.colors.muted,
+        )
+    }
+}
 
-            item {
-                HeaderView(
-                    stringResource(Res.string.statistics_title),
-                    modifier = Modifier.padding(horizontal = 16.dp)
+/** Таблица «Клиенты по сумме выплат»: колонка на каждую встреченную валюту. */
+@Composable
+private fun ClientsTableCard(state: StatisticsScreenState) {
+    val currencies = state.itemsByClients
+        .flatMap { it.income }
+        .filter { it.money > 0f }
+        .map { it.currency }
+        .distinct()
+        .ifEmpty { listOf(CurrencyItem.BYN) }
+    val dash = stringResource(Res.string.statistics_empty_value)
+
+    OrganicCard(
+        modifier = Modifier.elevationSm(OrganicTheme.shapes.card, OrganicTheme.elevation),
+        kicker = stringResource(Res.string.statistics_by_client),
+        verticalGap = OrganicTheme.spacing.space3,
+    ) {
+        OrganicTableHeader {
+            OrganicTableHeaderCell(stringResource(Res.string.statistics_table_client), Modifier.weight(1.6f))
+            OrganicTableHeaderCell(stringResource(Res.string.statistics_table_paid_count), Modifier.weight(1f))
+            currencies.forEach { currency ->
+                OrganicTableHeaderCell(currency.code, Modifier.weight(0.8f))
+            }
+        }
+        state.itemsByClients.forEach { item ->
+            OrganicTableRow {
+                OrganicTableCell(item.client.getFullName(), Modifier.weight(1.6f))
+                OrganicTableCell(
+                    text = item.paidServicesCount.toString(),
+                    modifier = Modifier.weight(1f),
+                    numeric = true,
                 )
-            }
-
-            item {
-                val selectedIndex = state.filters.indexOf(state.currentFilter)
-                PrimaryScrollableTabRow(
-                    selectedTabIndex = selectedIndex,
-                    edgePadding = 0.dp
-                ) {
-                    state.filters.forEachIndexed { index, filter ->
-                        Tab(
-                            selected = index == selectedIndex,
-                            onClick = { onAction(StatisticsScreenAction.OnFilterClicked(filter)) },
-                            text = {
-                                Text(
-                                    text = filter.toTabLabel(),
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-
-            state.dateInterval?.let { (start, end) ->
-                item {
-                    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.CalendarMonth,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Column {
-                                Text(
-                                    text = "${start.toUIDate()} — ${end.toUIDate()}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            item {
-                KufarPieChart(
-                    paidAmount = state.receivedTotal,
-                    expectedAmount = state.expectedTotal,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                )
-            }
-
-            if (state.receivedTotalByCurrency.isNotEmpty()) {
-                item {
-                    StatisticsCurrencyCardView(
-                        title = stringResource(Res.string.statistics_income_in_period),
-                        items = state.receivedTotalByCurrency,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            if (state.expectedTotalByCurrency.isNotEmpty()) {
-                item {
-                    StatisticsCurrencyCardView(
-                        title = stringResource(Res.string.statistics_expected_in_period),
-                        items = state.expectedTotalByCurrency,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            if (state.itemsByClients.isNotEmpty()) {
-                item {
-                    Text(
-                        text = stringResource(Res.string.statistics_by_client),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                    )
-                }
-            }
-
-            items(state.itemsByClients) { item ->
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = item.client.getFullName(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    StatisticsCurrencyCardView(
-                        title = stringResource(Res.string.statistics_paid),
-                        items = item.income,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    StatisticsCurrencyCardView(
-                        title = stringResource(Res.string.statistics_expected),
-                        items = item.mustBePaid,
-                        modifier = Modifier.fillMaxWidth()
+                currencies.forEach { currency ->
+                    val money = item.income.firstOrNull { it.currency == currency }?.money ?: 0f
+                    OrganicTableCell(
+                        text = if (money > 0f) money.toUIAmount() else dash,
+                        modifier = Modifier.weight(0.8f),
+                        numeric = true,
                     )
                 }
             }
         }
-
-        ExtendedFloatingActionButton(
-            onClick = onOpenPayServices,
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Payments,
-                    contentDescription = null
-                )
-            },
-            text = { Text(stringResource(Res.string.pay_services_title)) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .navigationBarsPadding()
-                .padding(end = 16.dp, bottom = 16.dp)
+        OrganicText(
+            text = stringResource(Res.string.statistics_table_note),
+            style = OrganicTheme.typography.label,
+            color = OrganicTheme.colors.muted,
+            textAlign = TextAlign.Start,
         )
+    }
+}
+
+@Composable
+private fun CustomIntervalPicker(onAction: (StatisticsScreenAction) -> Unit) {
+    val dateRangePickerState = rememberDateRangePickerState()
+    DatePickerDialog(
+        onDismissRequest = { onAction(StatisticsScreenAction.CloseDatePickerClicked) },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val startMillis = dateRangePickerState.selectedStartDateMillis
+                    val endMillis = dateRangePickerState.selectedEndDateMillis
+                    if (startMillis != null && endMillis != null) {
+                        onAction(
+                            StatisticsScreenAction.SetCustomInterval(
+                                startDate = Instant.fromEpochMilliseconds(startMillis)
+                                    .toLocalDateTime(TimeZone.UTC).date,
+                                endDate = Instant.fromEpochMilliseconds(endMillis)
+                                    .toLocalDateTime(TimeZone.UTC).date
+                            )
+                        )
+                    }
+                }
+            ) {
+                Text(stringResource(Res.string.date_picker_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onAction(StatisticsScreenAction.CloseDatePickerClicked) }) {
+                Text(stringResource(Res.string.date_picker_cancel))
+            }
+        }
+    ) {
+        DateRangePicker(state = dateRangePickerState, modifier = Modifier.weight(1f))
     }
 }
 
@@ -302,72 +343,43 @@ private fun ServicesFilter.toTabLabel(): String = when (this) {
     ServicesFilter.CUSTOM_INTERVAL -> stringResource(Res.string.tabs_custom_interval)
 }
 
-@PreviewLightDark
+@Preview
 @Composable
-private fun PreviewStatisticsScreen() {
-    ClientPlannerTheme {
+private fun StatisticsScreenContentPreview() {
+    OrganicTheme {
         StatisticsScreenContent(
-            StatisticsScreenState(
-                paidPercentage = 1f,
-                receivedTotal = 11f,
-                expectedTotal = 34f,
-                dateInterval = Pair(
-                    getCurrentDateTime().date, getCurrentDateTime().date.plus(
-                        DatePeriod(months = 2)
-                    )
-                ),
+            state = StatisticsScreenState(
+                isLoading = false,
+                paidPercentage = 0.78f,
+                servicesTotal = 34,
+                servicesPaid = 26,
+                servicesUnpaid = 8,
+                clientsWithDebt = 4,
                 receivedTotalByCurrency = listOf(
-                    StatisticsClientItem.StatisticsPaymentItem(100f, CurrencyItem.BYN),
-                    StatisticsClientItem.StatisticsPaymentItem(200f, CurrencyItem.EUR)
+                    StatisticsClientItem.StatisticsPaymentItem(1240f, CurrencyItem.BYN),
+                    StatisticsClientItem.StatisticsPaymentItem(275f, CurrencyItem.USD),
                 ),
                 expectedTotalByCurrency = listOf(
-                    StatisticsClientItem.StatisticsPaymentItem(1000f, CurrencyItem.BYN),
-                    StatisticsClientItem.StatisticsPaymentItem(2000f, CurrencyItem.EUR)
+                    StatisticsClientItem.StatisticsPaymentItem(320f, CurrencyItem.BYN),
                 ),
                 itemsByClients = listOf(
                     StatisticsClientItem(
-                        client = BaseClient(
-                            name = "Otis",
-                            surname = "Pes"
-                        ),
+                        client = BaseClient(name = "Ирина", surname = "Мороз"),
                         income = listOf(
-                            StatisticsClientItem.StatisticsPaymentItem(100f, CurrencyItem.BYN),
-                            StatisticsClientItem.StatisticsPaymentItem(200f, CurrencyItem.EUR)
+                            StatisticsClientItem.StatisticsPaymentItem(250f, CurrencyItem.USD),
                         ),
-                        mustBePaid = listOf(
-                            StatisticsClientItem.StatisticsPaymentItem(300f, CurrencyItem.BYN),
-                            StatisticsClientItem.StatisticsPaymentItem(400f, CurrencyItem.EUR)
-                        )
+                        mustBePaid = emptyList(),
                     ),
                     StatisticsClientItem(
-                        client = BaseClient(
-                            name = "Marshall",
-                            surname = "Woof"
-                        ),
+                        client = BaseClient(name = "Олег", surname = "Тарасов"),
                         income = listOf(
-                            StatisticsClientItem.StatisticsPaymentItem(100f, CurrencyItem.BYN),
-                            StatisticsClientItem.StatisticsPaymentItem(200f, CurrencyItem.USD)
+                            StatisticsClientItem.StatisticsPaymentItem(480f, CurrencyItem.BYN),
                         ),
-                        mustBePaid = listOf(
-                            StatisticsClientItem.StatisticsPaymentItem(300f, CurrencyItem.USD),
-                            StatisticsClientItem.StatisticsPaymentItem(400f, CurrencyItem.EUR)
-                        )
+                        mustBePaid = emptyList(),
                     ),
-                    StatisticsClientItem(
-                        client = BaseClient(
-                            name = "Lloyd",
-                            surname = "Banks"
-                        ),
-                        income = listOf(
-                            StatisticsClientItem.StatisticsPaymentItem(100f, CurrencyItem.BYN),
-                            StatisticsClientItem.StatisticsPaymentItem(200f, CurrencyItem.USD)
-                        ),
-                        mustBePaid = listOf(
-                            StatisticsClientItem.StatisticsPaymentItem(300f, CurrencyItem.USD),
-                            StatisticsClientItem.StatisticsPaymentItem(400f, CurrencyItem.EUR)
-                        )
-                    )
-                )
-            ), {})
+                ),
+            ),
+            onAction = {},
+        )
     }
 }

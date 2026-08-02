@@ -1,192 +1,141 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.services
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isSecondaryPressed
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
+import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
+import com.dsankovsky.kmpclientplanner.ui.design.OrganicTheme
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
+import com.dsankovsky.kmpclientplanner.ui.design.components.PaymentStatusButton
+import com.dsankovsky.kmpclientplanner.ui.design.components.PreviewSurface
+import com.dsankovsky.kmpclientplanner.ui.design.components.SessionStatusButton
+import com.dsankovsky.kmpclientplanner.ui.extensions.toUIMoney
+import com.dsankovsky.kmpclientplanner.ui.extensions.toTime
+import kotlinx.datetime.LocalDateTime
 
+/**
+ * Строка занятия из ленты (экран 04): сетка «время · клиент · сумма · статусы»,
+ * radius 26, паддинг 24/28.
+ *
+ * Контекстного меню по правому клику больше нет — статусы стали кнопками прямо в строке,
+ * а удаление живёт в форме услуги.
+ *
+ * @param dimmed строки следующих дней в макете приглушены, чтобы сегодняшний читался первым
+ * @param selected выбранная строка: тень и обводка акцентом
+ */
 @Composable
 fun ServiceItemView(
     serviceItem: ServicesListScreenItem.ServiceItem,
     onAction: (ServicesListScreenAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dimmed: Boolean = false,
+    selected: Boolean = false,
 ) {
-    var showContextMenu by remember { mutableStateOf(false) }
-
-    Box(
+    val colors = OrganicTheme.colors
+    val shape = OrganicTheme.shapes.row
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .pointerInput(serviceItem) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                            showContextMenu = true
-                        }
-                    }
-                }
-            }
+            .alpha(if (dimmed) DimmedAlpha else 1f)
+            .then(if (selected) Modifier.dropShadow(shape, OrganicTheme.elevation.md) else Modifier)
+            .background(colors.surface, shape)
+            .then(if (selected) Modifier.border(2.dp, colors.accent, shape) else Modifier)
+            .clickable(
+                interactionSource = null,
+                indication = null,
+                onClick = { onAction(ServicesListScreenAction.OnServiceClicked(serviceItem)) },
+            )
+            .padding(horizontal = 28.dp, vertical = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = { onAction(ServicesListScreenAction.OnServiceClicked(serviceItem)) }
+        OrganicText(
+            text = serviceItem.startDate.toTime(),
+            style = OrganicTheme.typography.numeric,
+            modifier = Modifier.width(TimeColumn),
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = serviceItem.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    if (serviceItem.isFinished) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = null
-                        )
-                    }
-                    if (serviceItem.isPaid) {
-                        Icon(
-                            imageVector = Icons.Default.AttachMoney,
-                            modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = null
-                        )
-                    }
-                }
-
-                serviceItem.comment?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .padding(vertical = 2.dp, horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.AccessTime,
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = serviceItem.timeInterval,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Person, modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = serviceItem.client.getFullName(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                serviceItem.client.address?.let {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-        }
-
-        DropdownMenu(
-            expanded = showContextMenu,
-            onDismissRequest = { showContextMenu = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(if (serviceItem.isPaid) "Не оплачено" else "Оплачено") },
-                onClick = {
-                    onAction(ServicesListScreenAction.OnPaidStatusChanged(serviceItem))
-                    showContextMenu = false
-                }
+            OrganicText(
+                text = serviceItem.client.getFullName(),
+                style = OrganicTheme.typography.body.copy(fontSize = 18.sp, lineHeight = 24.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
-            DropdownMenuItem(
-                text = { Text(if (serviceItem.isFinished) "Запланировано" else "Проведено") },
-                onClick = {
-                    onAction(ServicesListScreenAction.OnFinishStatusChanged(serviceItem))
-                    showContextMenu = false
-                }
-            )
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text("Удалить", color = MaterialTheme.colorScheme.error) },
-                onClick = {
-                    onAction(ServicesListScreenAction.OnDeleteService(serviceItem))
-                    showContextMenu = false
-                }
+            OrganicText(
+                text = serviceItem.subtitle(),
+                style = OrganicTheme.typography.label,
+                color = colors.muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
+        OrganicText(
+            text = serviceItem.service.price.toUIMoney(serviceItem.service.currency),
+            style = OrganicTheme.typography.body.copy(fontSize = 17.sp),
+            modifier = Modifier.width(PriceColumn),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2)) {
+            PaymentStatusButton(
+                isPaid = serviceItem.isPaid,
+                onClick = { onAction(ServicesListScreenAction.OnPaidStatusChanged(serviceItem)) },
+            )
+            SessionStatusButton(
+                isDone = serviceItem.isFinished,
+                onClick = { onAction(ServicesListScreenAction.OnFinishStatusChanged(serviceItem)) },
+            )
+        }
+    }
+}
+
+/** «Английский · 60 мин · онлайн» — название услуги, длительность и адрес через точку. */
+private fun ServicesListScreenItem.ServiceItem.subtitle(): String = buildList {
+    if (title.isNotBlank()) add(title)
+    val minutes = startDate.minutesUntil(endDate)
+    if (minutes > 0) add("$minutes мин")
+    service.address?.takeIf { it.isNotBlank() }?.let(::add)
+}.joinToString(" · ")
+
+private fun LocalDateTime.minutesUntil(other: LocalDateTime): Int {
+    val start = date.toEpochDays() * MinutesInDay + hour * 60 + minute
+    val end = other.date.toEpochDays() * MinutesInDay + other.hour * 60 + other.minute
+    return (end - start).toInt()
+}
+
+private const val MinutesInDay = 24 * 60
+private const val DimmedAlpha = 0.75f
+private val TimeColumn = 124.dp
+private val PriceColumn = 176.dp
+
+@Preview
+@Composable
+private fun ServiceItemViewPreview() {
+    PreviewSurface(width = 1000.dp) {
+        val item = ServicesListScreenItem.ServiceItem(
+            title = "Английский",
+            client = BaseClient(name = "Анна", surname = "Ковалёва"),
+            service = BaseService(price = 40f, address = "онлайн"),
+        )
+        ServiceItemView(item.copy(isPaid = true, isFinished = true), {})
+        ServiceItemView(item, {}, selected = true)
+        ServiceItemView(item, {}, dimmed = true)
     }
 }

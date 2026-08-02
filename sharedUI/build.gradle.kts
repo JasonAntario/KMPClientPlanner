@@ -50,7 +50,12 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.coil3.compose)
             implementation(libs.coil3.network.okhttp)
-            implementation(libs.compose.navsuitscaffold)
+            // Adaptive от Google: window size class + ListDetailPaneScaffold.
+            // NavigationSuiteScaffold не подошёл — рейл в макете шире и с футером,
+            // а его API ни ширину, ни слот снизу не параметризует.
+            implementation(libs.compose.adaptive)
+            implementation(libs.compose.adaptive.layout)
+            implementation(libs.compose.adaptive.navigation)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

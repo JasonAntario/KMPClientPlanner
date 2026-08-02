@@ -1,14 +1,11 @@
 package com.dsankovsky.kmpclientplanner.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PeopleAlt
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.dsankovsky.kmpclientplanner.ui.design.icons.OrganicIcons
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.nav_bar_clients
 import kmpclientplanner.sharedui.generated.resources.nav_bar_main
+import kmpclientplanner.sharedui.generated.resources.nav_bar_settings
 import kmpclientplanner.sharedui.generated.resources.nav_bar_statistycs
 import org.jetbrains.compose.resources.StringResource
 
@@ -19,30 +16,30 @@ sealed class NavigationItem(
 ) {
     data object Home :
         NavigationItem(
-            icon = Icons.Default.Home,
+            icon = OrganicIcons.Home,
             screen = Screen.HomeScreen,
             title = Res.string.nav_bar_main
         )
 
     data object ClientsList :
         NavigationItem(
-            icon = Icons.Default.PeopleAlt,
+            icon = OrganicIcons.Users,
             screen = Screen.ClientsScreen,
             title = Res.string.nav_bar_clients
         )
 
     data object Statistics :
         NavigationItem(
-            icon = Icons.Default.BarChart,
+            icon = OrganicIcons.BarChart,
             screen = Screen.StatisticsScreen,
             title = Res.string.nav_bar_statistycs
         )
 
     data object Settings :
         NavigationItem(
-            icon = Icons.Default.Settings,
+            icon = OrganicIcons.Settings,
             screen = Screen.SettingsScreen,
-            title = Res.string.nav_bar_statistycs
+            title = Res.string.nav_bar_settings
         )
 
     companion object {

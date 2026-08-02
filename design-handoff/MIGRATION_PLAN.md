@@ -187,34 +187,47 @@ sharedUI/licenses/OFL-Nunito.txt
 
 ---
 
-## 4. Этап 4 — адаптивный каркас (Adaptive от Google)
+## 4. Этап 4 — адаптивный каркас (Adaptive от Google) — сделано
 
-Зависимости в `gradle/libs.versions.toml` (версия `1.2.0` — та же линия, что уже тянется транзитивно):
+Зависимости (`gradle/libs.versions.toml`, `composeAdaptive = "1.2.0"` — та же линия, что уже
+тянулась транзитивно) в `commonMain` `sharedUI`, то есть сразу на все таргеты:
+`adaptive`, `adaptive-layout`, `adaptive-navigation`. `compose-navsuitscaffold` удалён —
+он нигде не использовался, а рейл всё равно свой (см. 4.2).
 
-```toml
-[versions]
-composeAdaptive = "1.2.0"
-
-[libraries]
-compose-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "composeAdaptive" }
-compose-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "composeAdaptive" }
-compose-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "composeAdaptive" }
-```
-→ в `commonMain` `sharedUI` (все таргеты сразу, как требует CLAUDE.md).
-
-**4.1 Window size class вместо `BoxWithConstraints`.** Сейчас в `MainScreen.kt` порог зашит как `maxWidth >= 600.dp`. Заменяем на гайдлайновый:
+**4.1 Window size class вместо `BoxWithConstraints`.** Порог `maxWidth >= 600.dp` заменён на
+гайдлайновый — `isWideWindow()` в `ui/screens/main/AppScaffold.kt`:
 ```kotlin
-val windowSize = currentWindowAdaptiveInfo().windowSizeClass
-val expanded = windowSize.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) // 900dp
+currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
 ```
+Порог — **medium (600 dp)**, а не expanded (840): по Material шире medium уже показывают
+боковую навигацию, и численно это совпадает с прежним поведением. Expanded понадобится
+отдельным флагом на этапе 6 — там он решает, показывать ли две панели.
 
-**4.2 Навигация.** Дизайн требует рейл 248 dp с pill-заливкой, брендом Caprasimo 19 сверху и подписью «<категория> · v1.0.0» снизу. Ни `NavigationRail`, ни `WideNavigationRail`, ни `NavigationSuiteScaffold` такое не параметризуют (у `NavigationSuiteItemColors` нет ни ширины, ни footer-слота). Поэтому:
-- свой `OrganicNavigationRail` (248 dp, `surface`, padding 24/16, item = иконка 18 + текст 14, padding 11/14, radius 999, активный — `accent` + `bg`);
-- свой `OrganicNavigationBar` для compact (мобильный таргет, 4 вкладки снизу);
-- выбор — по window size class в `AppScaffold`. `compose-navsuitscaffold` после этого можно убрать из зависимостей.
+**4.2 Навигация.** Дизайн требует рейл 248 dp с pill-заливкой, брендом 19 сверху и подписью
+«<категория> · v1.0.0» снизу. Ни `NavigationRail`, ни `WideNavigationRail`, ни
+`NavigationSuiteScaffold` такое не параметризуют (у `NavigationSuiteItemColors` нет ни ширины,
+ни footer-слота), поэтому в DS появились свои:
 
-**4.3 Master-detail.** Экраны 05–08 — `ListDetailPaneScaffold` из `adaptive-layout` + `rememberListDetailPaneScaffoldNavigator<Long>()` (ключ — id выбранной сущности) из `adaptive-navigation`. Это даёт бесплатно то, что README описывает как platform mapping: на expanded — две панели, на compact — одна с переходом «список → детали» и обработкой back.
+| Компонент | Что делает |
+|---|---|
+| `OrganicNavigationRail` | 248 dp, `surface`, padding 24/16, gap 8, бренд сверху, футер прижат к низу |
+| `OrganicNavigationRailItem` | pill во всю ширину, иконка 18 + текст 14, padding 11/14; активный — `accent` + контент `bg` |
+| `OrganicNavigationBar` / `…BarItem` | compact-раскладка: `surface`, hairline сверху, те же pill-пункты иконкой над подписью |
 
+- `AppScaffold` (`ui/screens/main/AppScaffold.kt`) выбирает рейл или нижнюю панель по
+  `isWideWindow()`, держит `SnackbarHost` и оконные вставки. `MainScreen` теперь только
+  backstack + `entryProvider`.
+- `NavigationItem` переехал с `Icons.Default.*` на `OrganicIcons`; заодно у «Настроек»
+  исправлена подпись — она указывала на `nav_bar_statistycs`.
+- Футер рейла берёт категорию из нового `MainScreenState.serviceType` (`MainScreenViewModel`
+  и раньше читал её из `AppSettings`, теперь просто отдаёт наружу) и версию из `AppInfo.VERSION`.
+  Общего для таргетов источника версии нет — у Android `versionName`, у десктопа
+  `packageVersion`, — поэтому строка в `AppInfo` синхронизируется руками.
+- Кнопка «Добавить» временно живёт в рейле (`onAddClick`): в макете действие в шапке экрана,
+  но шапки переедут только на этапе 6, а M3-шный FAB из рейла уже убран.
+
+**4.3 Master-detail — на этапе 6.** Зависимости `adaptive-layout` / `adaptive-navigation`
+подключены заранее, но `ListDetailPaneScaffold` ставится вместе с экранами 05–08:
 ```kotlin
 val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
 ListDetailPaneScaffold(
@@ -224,58 +237,98 @@ ListDetailPaneScaffold(
     detailPane = { AnimatedPane { ClientDetailPane(...) } },
 )
 ```
-Ширины панелей из макета: занятия — 400, клиенты — 404, рейл — 248. Рейл живёт **вне** scaffold'а (`Row { rail; scaffold }`).
+Ширины панелей из макета: занятия — 400, клиенты — 404, рейл — 248. Рейл живёт **вне**
+scaffold'а (`Row { rail; scaffold }`) — он уже так и стоит в `AppScaffold`.
 
-**4.4 Окно десктопа.** `desktopApp/src/main/kotlin/.../main.kt`: `rememberWindowState(width = 1360.dp, height = 900.dp)` + `window.minimumSize`. Титульную полоску из макета не реализуем (это имитация окна ОС).
+**4.4 Окно десктопа.** `rememberWindowState(width = 1360.dp, height = 900.dp)` и
+`window.minimumSize = 940×640` (ниже рейл 248 + контент перестают помещаться). Титульную
+полоску из макета не реализуем — это имитация окна ОС.
 
----
-
-## 5. Этап 5 — модальный слой (М1–М12)
-
-Сейчас формы — это destination'ы в backstack (`Screen.AddEditClientScreen`, `Screen.AddEditServiceScreen`, `Screen.PayServicesScreen`). По новому дизайну на десктопе это **модальные окна**, на мобильном — по-прежнему полноэкранные формы.
-
-Решение: `OrganicModalHost` — корневой слой над контентом (`Box` в `AppScaffold`), а не `androidx.compose.ui.window.Dialog`. Причины: нужен точный скрим (`neutral-900 @50%`), radius 32, `shadow-lg`, деструктивное действие слева, и одинаковое поведение на всех таргетах без платформенных окон.
-
-```kotlin
-sealed interface ModalState {                       // ← в MainScreenState (см. dialogState в README §State)
-    data class ServiceForm(val serviceId: Long?) : ModalState        // М1, 600dp
-    data class ClientForm(val clientId: Long?) : ModalState          // М3, 600dp
-    data object Prepay : ModalState                                  // М5, 520dp
-    data class TimeConflict(val conflict: BaseService, val slots: List<LocalTime>) : ModalState  // М6
-    data class Autofill(val services: List<BaseService>) : ModalState // М7, 520dp
-    data class ConfirmDelete(val target: DeleteTarget, val linked: Int) : ModalState // М8, 460dp
-    data object UnsavedChanges : ModalState                          // М9, 460dp
-    data object ResetApp : ModalState                                // М10, 460dp
-    data class NewExercise(val serviceId: Long) : ModalState         // М11, 520dp
-    data class PhotoViewer(val photos: List<String>, val index: Int) : ModalState // М12, fullscreen
-}
-```
-- `Esc` / клик по скриму → закрытие (для форм с изменениями → М9);
-- ширина панели — параметр `OrganicModal(width = 600.dp)`;
-- на compact `OrganicModal` рендерится как полноэкранный лист (одна ветка `if (expanded)`).
-
-`Screen.AddEditClientScreen` / `AddEditServiceScreen` / `PayServicesScreen` уходят из `Screen`; их VM (`AddEditClientViewModel`, `AddEditServiceViewModel`, `PayServicesScreenViewModel`) переиспользуются **как есть** — просто получают `koinViewModel()` внутри модалки. `М6`/`М7` уже поддержаны логикой (`CheckServiceCrossingUseCase`, `AutofillServiceUseCase`), `М10` — `ClearDatabaseUseCase`.
+Проверка — `OrganicNavigationRenderTest` рендерит обе раскладки (десктопный кадр 1360×660
+как на экране 02 и compact с нижней панелью) в `sharedUI/build/design/organic-navigation.png`
+и проверяет, что полоса рейла залита `--color-surface`, а контент лежит на `--color-bg`.
 
 ---
 
-## 6. Этап 6 — экраны
+## 5. Этап 5 — модальный слой — сделано
 
-Порядок выбран так, чтобы приложение оставалось запускаемым после каждого шага. Ветка одна, коммит на экран.
+Формы больше не destination'ы: `Screen.AddEditClientScreen`, `Screen.AddEditServiceScreen`
+и `Screen.PayServicesScreen` удалены из `Screen`, вместо них — `ModalState`
+(`ui/screens/main/ModalState.kt`), который держит `MainScreen` и раскрывает `AppModal`.
 
-| # | Экран макета | Файлы сейчас | VM | Что нового в UI |
-|---|---|---|---|---|
-| 01 | Приветственный / выбор категории | `welcome/WelcomeScreen.kt`, `service_type_selection/ServiceTypeSelectionScreen.kt` | `MainScreenViewModel` | Объединить в один экран: h1 48 + сетка 5 карточек-категорий (выбранная — `accent-100` + обводка 2 accent) + primary «Продолжить» |
-| 02 | Нет клиентов | `main/empty/NoClientsScreen.kt` | `MainScreenViewModel` | `EmptyState` (кружок 132 `accent-2-200`), рейл виден, активна вкладка «Клиенты» |
-| 03 | Клиенты есть, занятий нет | новый (ветка пустого состояния в `ServicesListScreen`) | `ServicesScreenViewModel` | `EmptyState` (кружок 132 `accent-200`) |
-| 04 | Лента занятий | `services/ServicesListScreen.kt`, `services/ServiceItemView.kt` | `ServicesScreenViewModel` | `ServiceRow` (grid 124/1fr/176/352, radius 26, два `StatusButton` в строке); группы по датам; следующий день — `alpha 0.75`; `SegmentedControl` периода. **Контекстное меню по правому клику из `ServiceItemView` уходит** — статусы теперь кнопки в строке |
-| 05–07 | Детали услуги (репетитор / тренер / тату-бьюти) | `service_details/ServiceDetailsScreen.kt` + `specific_fields/*` | `ServiceDetailsScreenViewModel` | 3 колонки: рейл 248 · список 400 (`surface@45%`, компактные строки, выбранная — `surface` + `shadow-md` + обводка accent) · детали. Специфика: репетитор — textarea «Домашнее задание»; тренер — таблица упражнений с колонкой «Прошлый раз» + дельта-тег; тату/бьюти — карусель референсов + сетка результата |
-| 08 | Клиенты | `clients/ClientsListScreen.kt`, `client_details/ClientDetailScreen.kt` | `ClientsScreenViewModel`, `ClientDetailsViewModel` | `ListDetailPaneScaffold`: список 404 (поиск, `ClientRow` с секциями по первой букве — под `ClientListItem.LetterDivider` уже есть) · детали (аватар 76, 2 карточки-метрики max-width 520, карточка «Контакты», secondary «Все занятия клиента») |
-| 09 | Статистика | `statistics/StatisticsScreen.kt`, `components/KufarPieChart.kt`, `StatisticsCurrencyCardView.kt` | `StatisticsScreenViewModel` | 3 карточки-метрики (38 Caprasimo, `ProgressBar` процента оплаты) + `OrganicTable` «Клиенты по сумме выплат». **`KufarPieChart` в новом дизайне не используется — удалить** |
-| 10 | Настройки | `settings/SettingsScreen.kt` | `SettingsViewModel` | Колонка max-width 820: «Профиль» (заглушка входа), «Приложение», «Опасная зона» (`accent-100`, кнопка с бордером `accent-600`) |
-| — | История занятий клиента | `services_history/ServicesHistoryScreen.kt` | `ServicesHistoryScreenViewModel` | В макете отдельного экрана нет, но кнопка «Все занятия клиента» на 08 на него ведёт — оформить как `ListDetailPaneScaffold`-detail или модалку; **уточнить** |
-| — | Загрузка | `loading/LoadingScreen.kt` | — | Перекрасить: `bg` + свой индикатор (M3 `CircularProgressIndicator` заменить) |
+**5.1 Слой в DS** (`ui/design/components/OrganicModal.kt`) — не
+`androidx.compose.ui.window.Dialog`: нужен точный скрим (`neutral-900 @50%`) и одинаковое
+поведение на всех таргетах, а платформенное окно на десктопе приносит свою рамку.
 
-Удаляются после миграции: `ui/components/CardView.kt`, `SelectorView.kt`, `DropDownMenuView.kt`, `ToolbarView.kt`, `HeaderView.kt`, `ShortNameBoxView.kt` (заменяются атомами из §3); `DateTimeViewWithPicker.kt` и `ServiceDateTimeSelectorView.kt` — переписываются на `OrganicSelect` + M3-пикеры, стилизованные токенами.
+| Компонент | Что делает |
+|---|---|
+| `OrganicModalHost` | скрим на весь экран, панель по центру, закрытие по Esc и клику мимо |
+| `OrganicModal` | `.dialog`: surface, radius 32, `shadow-lg`, паддинг 17.6, gap 13.2; клики не пропускает, содержимое клипается по скруглению |
+| `OrganicModalHeader` | заголовок 20 + пояснение 12 + крестик |
+| `OrganicModalActions` | кнопки справа; деструктивное действие уходит влево (`justify-content: space-between` в макете) |
+| `OrganicModalPanel` | кремовая плашка внутри модалки (списки в М5–М7), radius 22 |
+| `ConfirmModal` | «вопрос — два действия» для М8/М9/М10 |
+
+Ширины — `OrganicModalWidth`: `Form` 600 (М1, М3), `Medium` 520 (М5–М7, М11),
+`Small` 460 (М8–М10). На compact окно `fullScreen = true` растягивает панель на весь экран.
+
+**5.2 Что уже ходит через слой.** М1, М3, М5 и М10. Формы М1/М3/М5 показывают **ещё не
+переписанные экраны**: они приходят со своим `Scaffold` и тулбаром, поэтому кладутся
+в панель без паддинга и без шапки DS (`LegacyFormModal`). На этапе 6 содержимое меняется
+на форму по макету, а слой остаётся как есть. VM переиспользуются целиком, включая
+логику сохранения, удаления и снекбаров.
+
+**5.3 М10 — сброс приложения.** Появилась защита, которой не было: раньше «Удалить все
+данные» стирало базу по одному нажатию, теперь `ResetAppModal` разблокирует кнопку только
+после ввода слова «СБРОС». Модалка берёт собственный `SettingsViewModel` — она живёт вне
+`NavDisplay` и до экземпляра с экрана настроек не дотягивается; из VM ей нужна только
+очистка базы.
+
+**5.4 Что осталось на этап 6.** М6 (пересечение по времени), М7 (автозаполнение) и М8
+(удаление) сейчас — состояния форм (`ClientScreenDialog`, `ServiceScreenDialog`),
+нарисованные `AlertDialog` из M3; они переедут на `ConfirmModal`/`OrganicModalPanel` вместе
+с формами. М9 (несохранённые изменения) требует признака «форма изменена», которого у
+текущих VM нет. М11 (упражнение) и М12 (просмотр фото) принадлежат экранам деталей.
+
+Проверка — `OrganicModalRenderTest` рендерит М5 и М10 в
+`sharedUI/build/design/organic-modals.png` и проверяет, что скрим действительно перекрывает
+кадр.
+
+---
+
+## 6. Этап 6 — экраны — в работе
+
+Порядок выбран так, чтобы приложение оставалось запускаемым после каждого шага.
+
+### Сделано
+
+| # | Экран | Что получилось |
+|---|---|---|
+| 01 | Выбор категории | Приветственный экран **удалён** (`WelcomeScreen.kt`, `Screen.WelcomeScreen`): в макете это один экран. Логотип 64, h1 48, пять карточек в `FlowRow` (равная высота через `IntrinsicSize.Max`, выбранная — `accent-100` + обводка 2 accent), «Продолжить». Категория теперь применяется кнопкой, а не кликом по строке. Названия категорий переписаны под макет: EDUCATION → «Репетитор», SPORT → «Тренер», TATTOO → «Тату-мастер», BEAUTY → «Бьюти-мастер»; у каждой появилась подпись-подсказка |
+| 02 | Нет клиентов | `EmptyState` с кружком `accent-2-200`. У `EmptyState` добавлено второстепенное действие — «Сменить тип услуг» больше некуда деть |
+| 03 | Занятий нет | Ветка пустого состояния в `HomeScreenContent`, кружок `accent-200` |
+| 04 | Лента занятий | Шапка «Занятия» + подзаголовок «Среда, 29 июля · 5 занятий, 3 не оплачены» (счётчики считаются в UI, плюрализация через `plurals`), `SegmentedControl` периода, primary «Добавить услугу» вместо FAB. `ServiceItemView` — строка 124 / 1fr / 176 / статусы, radius 26; **контекстное меню по правому клику убрано**, статусы стали кнопками. Группы дней — киккером, следующие дни `alpha 0.75` |
+| 09 | Статистика | Три карточки-метрики (получено / процент оплаты с `ProgressBar` / ожидает оплаты) и `OrganicTable` «Клиенты по сумме выплат» с колонкой на каждую валюту. `KufarPieChart` и `StatisticsCurrencyCardView` **удалены**. В VM добавлены счётчики (`servicesTotal/Paid/Unpaid`, `clientsWithDebt`, `paidServicesCount` у клиента) и сортировка клиентов по убыванию выплат — `paidPercentage` до этого вообще никогда не заполнялся |
+| 10 | Настройки | Колонка 820: «Профиль» (кнопка «Войти» выключена — входа ещё нет), «Приложение» (категория селектом, версия, обратная связь), «Опасная зона» на `accent-100` с кнопкой в М10 |
+| — | Загрузка | Свой индикатор на `Canvas` вместо `CircularProgressIndicator` |
+
+Попутно: `LocalDateTime.toTime()` печатает часы с ведущим нулём (в колонке времени «9:00» прыгало), появились `DayOfWeek.toUIName()` (раньше в шапке дня печаталось `WEDNESDAY`), `LocalDate.toUIWeekdayAndDate()` и `Float?.toUIMoney()`; подписи периодов сокращены до макетных.
+
+Проверка — `OrganicScreensRenderTest` рендерит 01, 02, 03, 04, 09, 10 в кадре 1360×860
+(`sharedUI/build/design/organic-screen-*.png`). Экраны, которым нужен Koin, офскрин-сцена
+не поднимает — они проверяются только компиляцией.
+
+### Осталось
+
+| # | Экран | Что нужно |
+|---|---|---|
+| 05–07 | Детали услуги (репетитор / тренер / тату-бьюти) | 3 колонки: рейл 248 · список 400 (`surface@45%`, выбранная строка — `surface` + `shadow-md` + обводка accent) · детали. Специфика: репетитор — textarea «Домашнее задание»; тренер — таблица упражнений с колонкой «Прошлый раз» и дельта-тегом (+ М11); тату/бьюти — карусель референсов и сетка результата (+ М12) |
+| 08 | Клиенты | `ListDetailPaneScaffold`: список 404 (поиск, секции по первой букве — `ClientListItem.LetterDivider` уже есть) · детали (аватар 76, две карточки-метрики, «Контакты», «Все занятия клиента») |
+| М1/М3 | Формы услуги и клиента | Сейчас в модалке лежит старый экран со своим `Scaffold` (`LegacyFormModal`). Нужна форма по макету: сетка 1fr/1fr, статусные кнопки, разделитель и блок «Поля категории», деструктивное действие слева. Вместе с ней переезжают М6/М7/М8 (сейчас `AlertDialog` внутри форм) и появляется М9 |
+| М5 | Предоплата | Та же история: содержимое модалки — старый `PayServicesScreen`. По макету это селект клиента, степпер, плашка со списком занятий и итогом |
+| — | История занятий клиента | В макете экрана нет, кнопка «Все занятия клиента» на 08 есть; **всё ещё нужно решить** — модалка, detail-панель или экран |
+
+Удаляются после миграции: `ui/components/CardView.kt`, `SelectorView.kt`, `DropDownMenuView.kt`, `ToolbarView.kt`, `HeaderView.kt`, `ShortNameBoxView.kt` (заменяются атомами из §3); `DateTimeViewWithPicker.kt` и `ServiceDateTimeSelectorView.kt` — переписываются на `OrganicSelect` + M3-пикеры, стилизованные токенами. Пока живы: их держат ещё не переписанные формы и детали.
 
 ---
 

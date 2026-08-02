@@ -33,6 +33,9 @@ fun EmptyState(
     description: String? = null,
     actionText: String? = null,
     onAction: (() -> Unit)? = null,
+    /** Второстепенное действие под основным; в макете его нет, но «сменить тип услуг» больше некуда деть. */
+    secondaryActionText: String? = null,
+    onSecondaryAction: (() -> Unit)? = null,
     circleColor: Color = OrganicTheme.colors.accent2Ramp.s200,
     iconColor: Color = OrganicTheme.colors.accent2Ramp.s800,
 ) {
@@ -60,6 +63,13 @@ fun EmptyState(
             }
             if (actionText != null && onAction != null) {
                 OrganicButton(text = actionText, onClick = onAction)
+            }
+            if (secondaryActionText != null && onSecondaryAction != null) {
+                OrganicButton(
+                    text = secondaryActionText,
+                    onClick = onSecondaryAction,
+                    colors = OrganicButtonDefaults.ghost(),
+                )
             }
         }
     }

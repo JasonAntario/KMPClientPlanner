@@ -8,7 +8,9 @@ import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 data class StatisticsClientItem(
     val client: BaseClient,
     val income: List<StatisticsPaymentItem>,
-    val mustBePaid: List<StatisticsPaymentItem>
+    val mustBePaid: List<StatisticsPaymentItem>,
+    /** Сколько занятий клиента оплачено — колонка «Занятий оплачено» на экране 09. */
+    val paidServicesCount: Int = 0
 ) {
     @Immutable
     data class StatisticsPaymentItem(

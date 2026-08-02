@@ -110,7 +110,8 @@ class StatisticsScreenViewModel(
                 StatisticsClientItem(
                     client = client,
                     income = income,
-                    mustBePaid = mustBePaid
+                    mustBePaid = mustBePaid,
+                    paidServicesCount = servicesForClient.values.flatten().count { it.isPaid }
                 )
             }
 
@@ -141,6 +142,10 @@ class StatisticsScreenViewModel(
                     )
                 }
 
+            // Счётчики для карточек: процент оплаты и «сколько ещё ждём».
+            val paidCount = services.count { it.isPaid }
+            val unpaidFinishedServices = services.filter { it.isFinished && !it.isPaid }
+
             val displayInterval = when {
                 filter == ServicesFilter.CUSTOM_INTERVAL && customStart != null && customEnd != null ->
                     Pair(customStart, customEnd)
@@ -155,7 +160,13 @@ class StatisticsScreenViewModel(
                     expectedTotalByCurrency = expectedTotalByCurrency,
                     receivedTotal = revivedTotal.toFloat(),
                     expectedTotal = expectedTotal.toFloat(),
-                    itemsByClients = clientItemList,
+                    itemsByClients = clientItemList
+                        .sortedByDescending { client -> client.income.sumOf { it.money.toDouble() } },
+                    servicesTotal = services.size,
+                    servicesPaid = paidCount,
+                    servicesUnpaid = unpaidFinishedServices.size,
+                    clientsWithDebt = unpaidFinishedServices.map { it.clientId }.distinct().size,
+                    paidPercentage = if (services.isEmpty()) 0f else paidCount.toFloat() / services.size,
                     dateInterval = displayInterval,
                     currentFilter = filter
                 )

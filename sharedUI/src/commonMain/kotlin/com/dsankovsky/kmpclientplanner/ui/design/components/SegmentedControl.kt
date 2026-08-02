@@ -38,7 +38,8 @@ fun <T> SegmentedControl(
     options: List<T>,
     selected: T,
     onSelect: (T) -> Unit,
-    optionLabel: (T) -> String,
+    // Композабл: подписи периодов приходят из ресурсов.
+    optionLabel: @Composable (T) -> String,
     modifier: Modifier = Modifier,
 ) {
     val colors = OrganicTheme.colors
