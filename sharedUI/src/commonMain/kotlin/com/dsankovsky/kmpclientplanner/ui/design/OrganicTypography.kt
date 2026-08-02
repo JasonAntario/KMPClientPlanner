@@ -56,16 +56,19 @@ data class OrganicTypography(
 )
 
 /**
- * Собирает шкалу на переданных семействах. На этапе 2 сюда придут
- * `Res.font.caprasimo_regular` / `Res.font.figtree_*`.
+ * Собирает шкалу на переданных семействах.
+ *
+ * Дисплейная роль в макете отыгрывалась отдельной гарнитурой (Caprasimo); у нас это одна
+ * Nunito, поэтому контраст держится весом — отсюда [headingWeight].
  */
 fun organicTypography(
     heading: FontFamily = FontFamily.Default,
     body: FontFamily = FontFamily.Default,
+    headingWeight: FontWeight = FontWeight.Black,
 ): OrganicTypography {
     val display = TextStyle(
         fontFamily = heading,
-        fontWeight = FontWeight.Normal,
+        fontWeight = headingWeight,
         letterSpacing = (-0.015).em,
     )
     val text = TextStyle(fontFamily = body, fontWeight = FontWeight.Normal)

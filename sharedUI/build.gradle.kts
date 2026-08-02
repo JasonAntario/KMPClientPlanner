@@ -55,6 +55,10 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        jvmTest.dependencies {
+            // Нативный рантайм skiko — нужен офскрин-рендеру листа дизайн-токенов.
+            implementation(compose.desktop.currentOs)
+        }
     }
 }
 

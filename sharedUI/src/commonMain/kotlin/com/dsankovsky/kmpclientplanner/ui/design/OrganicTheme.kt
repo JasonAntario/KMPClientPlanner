@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -13,6 +14,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.font.FontWeight
 
 val LocalOrganicColors: ProvidableCompositionLocal<OrganicColors> =
     staticCompositionLocalOf { OrganicColors() }
@@ -64,13 +66,14 @@ fun OrganicTheme(
     spacing: OrganicSpacing = OrganicSpacing(),
     shapes: OrganicShapes = OrganicShapes(),
     elevation: OrganicElevation = OrganicElevation(),
-    typography: OrganicTypography = LocalOrganicTypography.current,
+    typography: OrganicTypography = rememberOrganicTypography(),
     content: @Composable () -> Unit,
 ) {
     val selectionColors = remember(colors) {
         TextSelectionColors(handleColor = colors.accent, backgroundColor = colors.selection)
     }
     val materialScheme = remember(colors) { colors.toMaterialColorScheme() }
+    val materialTypography = remember(typography) { typography.toMaterialTypography() }
 
     CompositionLocalProvider(
         LocalOrganicColors provides colors,
@@ -82,7 +85,7 @@ fun OrganicTheme(
         LocalTextSelectionColors provides selectionColors,
         LocalIndication provides OrganicIndication,
     ) {
-        MaterialTheme(colorScheme = materialScheme) {
+        MaterialTheme(colorScheme = materialScheme, typography = materialTypography) {
             // MaterialTheme перекрывает LocalContentColor/LocalTextStyle своими значениями,
             // поэтому Organic-дефолты ставим уже внутри него.
             CompositionLocalProvider(
@@ -93,6 +96,28 @@ fun OrganicTheme(
         }
     }
 }
+
+/**
+ * Маппинг Organic → M3 `Typography`: пока экраны не переписаны, они всё равно читают
+ * `MaterialTheme.typography`, и без этого приложение осталось бы на Roboto.
+ */
+private fun OrganicTypography.toMaterialTypography() = Typography(
+    displayLarge = h1,
+    displayMedium = h1,
+    displaySmall = h2,
+    headlineLarge = h2,
+    headlineMedium = h3,
+    headlineSmall = h3,
+    titleLarge = h4,
+    titleMedium = cardTitle,
+    titleSmall = bodySm.copy(fontWeight = FontWeight.SemiBold),
+    bodyLarge = body,
+    bodyMedium = bodySm,
+    bodySmall = bodyXs,
+    labelLarge = button,
+    labelMedium = label,
+    labelSmall = meta,
+)
 
 /**
  * Маппинг Organic → M3 `ColorScheme`. Роли M3 не выражают систему (две девятишаговые

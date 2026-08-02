@@ -103,16 +103,23 @@ fun Modifier.elevationMd(shape: Shape) = dropShadow(
 
 ## 2. Этап 2 — шрифты и иконки
 
-**Шрифты.** Caprasimo 400, Figtree 400/600/700 (Google Fonts, OFL) → `sharedUI/src/commonMain/composeResources/font/`:
+**Шрифты — сделано, но не так, как в хендоффе.** В Caprasimo и Figtree нет кириллицы
+(проверено: `canDisplayUpTo("Привет") == 0` у обеих), а интерфейс русский — фирменными
+остались бы только латиница и цифры. Поэтому одна гарнитура на всё — **Nunito**
+(Google Fonts, OFL-1.1, кириллица родная, пластика та же скруглённая):
 ```
-caprasimo_regular.ttf, figtree_regular.ttf, figtree_semibold.ttf, figtree_bold.ttf
+sharedUI/src/commonMain/composeResources/font/nunito_variable.ttf   // 277 КБ, ось wght 200..1000
+sharedUI/licenses/OFL-Nunito.txt
 ```
+Дисплейная роль отыгрывается весом `Black`, текстовая — 400/600/700; все веса берутся из
+одного вариативного файла (`Font(...)` в Compose Resources 1.11 сам передаёт ось `wght`
+из `FontWeight`):
 ```kotlin
-@Composable fun heading() = FontFamily(Font(Res.font.caprasimo_regular, FontWeight.Normal))
-@Composable fun body() = FontFamily(
-    Font(Res.font.figtree_regular, FontWeight.Normal),
-    Font(Res.font.figtree_semibold, FontWeight.SemiBold),
-    Font(Res.font.figtree_bold, FontWeight.Bold),
+@Composable fun organicFontFamily() = FontFamily(
+    Font(Res.font.nunito_variable, FontWeight.Normal),
+    Font(Res.font.nunito_variable, FontWeight.SemiBold),
+    Font(Res.font.nunito_variable, FontWeight.Bold),
+    Font(Res.font.nunito_variable, FontWeight.Black),
 )
 ```
 Шкала (`OrganicTypography`), lineHeight/letterSpacing из `styles.css`:
@@ -132,8 +139,14 @@ caprasimo_regular.ttf, figtree_regular.ttf, figtree_semibold.ttf, figtree_bold.t
 
 Денежные суммы — `tabular-nums`: `TextStyle(fontFeatureSettings = "tnum")`.
 
-**Иконки.** Сейчас `compose.materialIconsExtended`, нужен Lucide, stroke-width 2.75. Берём только реально используемый набор (~25–30 иконок: `calendar`, `banknote`, `user-plus`, `users`, `bar-chart-3`, `settings`, `home`, `pencil`, `trash-2`, `plus`, `minus`, `chevron-left/right`, `search`, `x`, `check`, `phone`, `send`, `map-pin`, `clock`, `image`, `dumbbell`, `log-in`, `alert-triangle`, `rotate-ccw`).
-Рекомендация: сконвертировать SVG в Kotlin `ImageVector` (одноразовый скрипт / IDE «SVG to Compose»), в пакет `ui/design/icons/LucideIcons.kt`, со `strokeLineWidth = 2.75f`, `strokeLineCap = Round`, `strokeLineJoin = Round`, `defaultWidth/Height = 24.dp`. Плюсы против SVG-ресурсов: нет парсинга в рантайме, `tint` работает, размер задаётся модификатором.
+**Иконки — сделано.** Набор взят не из библиотеки Lucide, а из самого макета: в
+`Куфар Блокнот - Desktop MVP.dc.html` иконки нарисованы инлайн-SVG (94 использования,
+**23 уникальных глифа**) в стиле Lucide на сетке 24×24 со stroke-width 2.75. Контуры
+перенесены дословно в `ui/design/icons/OrganicIcons.kt` как `ImageVector` (строки путей
+парсятся один раз на глиф, зато сверяются с макетом построчно), плюс `OrganicIcon`
+и размеры 16/18/24. Глифов, которых в макете нет (поиск, телефон, Telegram), там и не
+рисуется — если экрану понадобится, добавляем в той же манере.
+
 После миграции `compose.materialIconsExtended` из `sharedUI/build.gradle.kts` удаляем.
 
 ---
