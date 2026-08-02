@@ -15,6 +15,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
 import com.dsankovsky.kmpclientplanner.ui.design.OrganicTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
+import com.dsankovsky.kmpclientplanner.ui.design.components.PreviewSurface
 
 /**
  * Иконки Organic — ровно тот набор, что нарисован инлайн-SVG в макете
@@ -202,3 +211,55 @@ private fun icon(name: String, vararg pathData: String): ImageVector =
 /** `<circle>` из макета в виде пути: две полуокружности. */
 private fun circle(cx: Float, cy: Float, r: Float): String =
     "M${cx - r} $cy a$r $r 0 1 0 ${r * 2} 0 a$r $r 0 1 0 ${-r * 2} 0"
+
+@OptIn(ExperimentalLayoutApi::class)
+@Preview
+@Composable
+private fun OrganicIconsPreview() {
+    PreviewSurface(width = 620.dp) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space3),
+            verticalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space3),
+        ) {
+            listOf(
+                "Plus" to OrganicIcons.Plus,
+                "Minus" to OrganicIcons.Minus,
+                "Pencil" to OrganicIcons.Pencil,
+                "Trash" to OrganicIcons.Trash,
+                "Check" to OrganicIcons.Check,
+                "X" to OrganicIcons.X,
+                "Clock" to OrganicIcons.Clock,
+                "Monitor" to OrganicIcons.Monitor,
+                "Dumbbell" to OrganicIcons.Dumbbell,
+                "PenTool" to OrganicIcons.PenTool,
+                "Award" to OrganicIcons.Award,
+                "Home" to OrganicIcons.Home,
+                "Users" to OrganicIcons.Users,
+                "BarChart" to OrganicIcons.BarChart,
+                "Settings" to OrganicIcons.Settings,
+                "UserPlus" to OrganicIcons.UserPlus,
+                "User" to OrganicIcons.User,
+                "Calendar" to OrganicIcons.Calendar,
+                "CalendarDays" to OrganicIcons.CalendarDays,
+                "Banknote" to OrganicIcons.Banknote,
+                "Wallet" to OrganicIcons.Wallet,
+                "ChevronLeft" to OrganicIcons.ChevronLeft,
+                "ChevronRight" to OrganicIcons.ChevronRight,
+            ).forEach { (name, icon) ->
+                Column(
+                    modifier = Modifier.width(84.dp),
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    OrganicIcon(icon, contentDescription = name, size = OrganicIconSize.Large)
+                    OrganicText(
+                        text = name,
+                        style = OrganicTheme.typography.meta,
+                        color = OrganicTheme.colors.muted,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+        }
+    }
+}

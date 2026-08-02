@@ -14,6 +14,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 
 val LocalOrganicColors: ProvidableCompositionLocal<OrganicColors> =
@@ -30,6 +31,14 @@ val LocalOrganicElevation: ProvidableCompositionLocal<OrganicElevation> =
 
 val LocalOrganicTypography: ProvidableCompositionLocal<OrganicTypography> =
     staticCompositionLocalOf { organicTypography() }
+
+/**
+ * Цвет контента для атомов DS. Свой, а не `material3.LocalContentColor`: атомы построены
+ * на foundation и не должны зависеть от material3, который после миграции останется
+ * только под пикерами даты и времени.
+ */
+val LocalOrganicContentColor: ProvidableCompositionLocal<Color> =
+    staticCompositionLocalOf { OrganicColors().text }
 
 /** Доступ к токенам: `OrganicTheme.colors.accent`, `OrganicTheme.spacing.space3` и т.д. */
 object OrganicTheme {
@@ -81,6 +90,7 @@ fun OrganicTheme(
         LocalOrganicShapes provides shapes,
         LocalOrganicElevation provides elevation,
         LocalOrganicTypography provides typography,
+        LocalOrganicContentColor provides colors.text,
         LocalContentColor provides colors.text,
         LocalTextSelectionColors provides selectionColors,
         LocalIndication provides OrganicIndication,

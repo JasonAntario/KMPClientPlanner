@@ -151,30 +151,39 @@ sharedUI/licenses/OFL-Nunito.txt
 
 ---
 
-## 3. Этап 3 — атомы DS на базовых компонентах Compose
+## 3. Этап 3 — атомы DS на базовых компонентах Compose — сделано
 
-Пакет `ui/design/components/`. Всё — на `foundation`, **без** M3-обёрток (по требованию: `BasicTextField` вместо `OutlinedTextField` и т.д.).
+Пакет `ui/design/components/`. Всё на `foundation`, без M3-обёрток.
 
-| Компонент | Базис | Заметки |
-|---|---|---|
-| `OrganicButton` (primary / secondary / ghost / icon 36×36) | `Box` + `Modifier.clickable` + `indication` | pill 999; hover `accent-600`, pressed `accent-700`; текст — **heading**-семейство 14 (как в `.btn`) |
-| `OrganicTextField` | **`BasicTextField`** | pill 999, `minHeight 36`, padding 6/14, `background = surface`, border `divider` → hover `text@45%` → focus `accent`; `cursorBrush = SolidColor(accent)` |
-| `OrganicTextArea` | **`BasicTextField`** (multiline) | radius **16**, padding 12/14, `minHeight 90` (120 для «Домашнего задания»), фон `bg` внутри карточки |
-| `FieldLabel` + `Field` | `Column` + `BasicText` | подпись 12 / `label`, отступ 5 |
-| `OrganicSelect` | `OrganicTextField(readOnly)` + `Popup` + `LazyColumn` | своя реализация вместо `ExposedDropdownMenuBox`; используется для клиента/услуги/валюты/адреса |
-| `SegmentedControl` | `Row` в pill-контейнере с `divider`-бордером | опции 13, padding 7/12; выбранная — `accent` + `bg`-текст |
-| `StatusButton` | `OrganicButton` + `StatusColors` | 2 вида: `PaymentStatus` (иконка banknote) → Оплачено/Не оплачено; `SessionStatus` (calendar) → Проведено/Запланировано. **Вид не зависит от выделения строки** |
-| `Tag` (accent / accent-2 / neutral / outline) | `Box` + `BasicText` | 11, padding 3/10, radius 12 |
-| `OrganicCard` | `Column` + `dropShadow` | `surface`, radius 32, padding 13.2, gap 8.8; слоты `kicker` / `title` / `content` |
-| `Avatar` | `Box(CircleShape)` + инициалы | 38–40 в списке, 48 в настройках, 76 в деталях; фон по хешу: `accent-200` / `accent-2-200` / `neutral-300`; берёт `BaseClient.getShortName()` |
-| `OrganicTable` | `Column` + `Row` (не `LazyColumn` — таблицы короткие) | header 11 uppercase `muted` + линия `divider`; строки — линия `rowLine`, hover `hoverSubtle` |
-| `ProgressBar` | `Canvas` / `Box` | высота 10, фон `neutral-300`, заполнение `accent`, radius 999 (экран 09) |
-| `Stepper` | `Row` из двух `icon`-кнопок + `BasicText` | М5 |
-| `PhotoTile` / `PhotoCarousel` / `PhotoViewer` | `Image` (Coil) + `Modifier.graphicsLayer` для зума | 3:4 плитки radius 20; заглушки `neutral-300/400`; `.washed` → `ColorFilter.colorMatrix(saturation 0.6)` + `alpha 0.94` |
-| `EmptyState` | `Column` | кружок 132 (`accent-200` / `accent-2-200`) + `h2` + текст 16 `muted` + primary-кнопка |
-| `OrganicModal` | см. §5 | |
+| Файл | Что внутри |
+|---|---|
+| `OrganicText.kt` | `OrganicText` (BasicText + шкала + `LocalOrganicContentColor`), `OrganicDivider` |
+| `OrganicButton.kt` | `OrganicButtonColors` + фабрики `primary/secondary/ghost/destructive/status/dangerOutlined`, `OrganicButton`, `OrganicIconButton` 36×36, общая `OrganicClickableSurface` |
+| `OrganicTextField.kt` | `OrganicField` (подпись 12/отступ 5), `OrganicTextField` (**BasicTextField**, pill, 36, 6/14), `OrganicTextArea` (radius 16, 12/14, min 90) |
+| `OrganicSelect.kt` | поле в оформлении `.input` + `Popup` + `LazyColumn` |
+| `SegmentedControl.kt` | pill-контейнер с бордером и разделителями, опции 13/паддинг 7/12 |
+| `StatusButton.kt` | `PaymentStatusButton`, `SessionStatusButton` |
+| `Tag.kt` | `TagColors` + `accent/accent2/neutral/outline` |
+| `OrganicCard.kt` | surface, radius 32, паддинг 13.2, gap 8.8, слоты kicker/title |
+| `Avatar.kt` | кружок с инициалами, цвет детерминирован хешем имени |
+| `OrganicTable.kt` | `OrganicTableHeader/Row/HeaderCell/Cell` — примитивы, колонки задаёт вызывающий |
+| `ProgressBar.kt`, `Stepper.kt` | полоса 10px и «− значение +» |
+| `Photo.kt` | `WashedColorFilter` (`.washed` как `ColorMatrix`), `PhotoTile` 3:4/20, `PhotoCarousel`, `PhotoCarouselDots`, `PhotoThumbnail` 56 |
+| `EmptyState.kt` | кружок 132 + h2 + текст 16 muted + primary |
 
-Про `BasicTextField` и MVI: у нас VM — единственный источник истины (`state.name`, `onAction(OnNameChanged(it))`), поэтому используем перегрузку `BasicTextField(value: String, onValueChange: (String) -> Unit, decorationBox = { … })`. Перегрузка с `TextFieldState` даёт лучшее поведение IME/undo, но требует локального состояния + `snapshotFlow` в VM — берём её только если на Android всплывут проблемы с курсором.
+Решения по ходу:
+- **Варианты кнопок — не enum, а фабрики цветов.** Кроме трёх из `styles.css` системе нужны деструктивная (accent-700), статусные (тройка fill/content/border) и «опасная зона» на экране настроек (бордер accent-600, текст accent-800).
+- **Состояния — на одной `OrganicClickableSurface`**: заливка по hover/pressed, бордер, фокус-ринг, `alpha 0.45` для disabled. На ней же потом соберутся строки списков.
+- У `.input` в CSS `outline-offset: 0`, поэтому кольцо фокуса поля рисуется вплотную к бордеру, а не с отступом 2, как у остальных контролов.
+- `BasicTextField` не репортит hover, а бордер поля по нему меняется — добавлен явный `Modifier.hoverable`.
+- Подпись кнопки и тега — `maxLines = 1, softWrap = false`: pill в макете всегда однострочный (без этого «Запланировано» переносилось по слогам).
+- `LocalOrganicContentColor` — свой, чтобы атомы не зависели от `material3.LocalContentColor`.
+
+У каждого компонента есть `@Preview` в том же файле (подложка — `PreviewSurface`: тема, кремовый фон, воздух):
+поля, селект, сегмент-контрол и степпер в превью с настоящим состоянием, так что их можно щёлкать в
+интерактивном режиме. Отдельное превью — сетка всех 23 иконок с именами.
+
+Проверка — `OrganicComponentsSheetRenderTest` рендерит каталог в `sharedUI/build/design/organic-components.png`.
 
 ---
 
