@@ -4,12 +4,19 @@ import androidx.compose.runtime.Composable
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.datetime_friday
+import kmpclientplanner.sharedui.generated.resources.datetime_friday_short
 import kmpclientplanner.sharedui.generated.resources.datetime_monday
+import kmpclientplanner.sharedui.generated.resources.datetime_monday_short
 import kmpclientplanner.sharedui.generated.resources.datetime_saturday
+import kmpclientplanner.sharedui.generated.resources.datetime_saturday_short
 import kmpclientplanner.sharedui.generated.resources.datetime_sunday
+import kmpclientplanner.sharedui.generated.resources.datetime_sunday_short
 import kmpclientplanner.sharedui.generated.resources.datetime_thursday
+import kmpclientplanner.sharedui.generated.resources.datetime_thursday_short
 import kmpclientplanner.sharedui.generated.resources.datetime_tuesday
+import kmpclientplanner.sharedui.generated.resources.datetime_tuesday_short
 import kmpclientplanner.sharedui.generated.resources.datetime_wednesday
+import kmpclientplanner.sharedui.generated.resources.datetime_wednesday_short
 import kmpclientplanner.sharedui.generated.resources.months_april_relative
 import kmpclientplanner.sharedui.generated.resources.months_august_relative
 import kmpclientplanner.sharedui.generated.resources.months_december_relative
@@ -39,6 +46,20 @@ fun DayOfWeek.toUIName(): String = stringResource(
         DayOfWeek.FRIDAY -> Res.string.datetime_friday
         DayOfWeek.SATURDAY -> Res.string.datetime_saturday
         else -> Res.string.datetime_sunday
+    },
+)
+
+/** «Пн» — расписание клиента в теге, где полное название не поместится. */
+@Composable
+fun DayOfWeek.toUIShortName(): String = stringResource(
+    when (this) {
+        DayOfWeek.MONDAY -> Res.string.datetime_monday_short
+        DayOfWeek.TUESDAY -> Res.string.datetime_tuesday_short
+        DayOfWeek.WEDNESDAY -> Res.string.datetime_wednesday_short
+        DayOfWeek.THURSDAY -> Res.string.datetime_thursday_short
+        DayOfWeek.FRIDAY -> Res.string.datetime_friday_short
+        DayOfWeek.SATURDAY -> Res.string.datetime_saturday_short
+        else -> Res.string.datetime_sunday_short
     },
 )
 

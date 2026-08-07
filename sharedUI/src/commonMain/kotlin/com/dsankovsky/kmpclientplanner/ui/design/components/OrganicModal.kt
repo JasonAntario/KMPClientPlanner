@@ -47,9 +47,6 @@ object OrganicModalWidth {
     val Small: Dp = 460.dp
 }
 
-/** Скруглённая плашка внутри модалки (М5–М7) — единственные 22 в системе. */
-private val PanelShape = RoundedCornerShape(22.dp)
-
 /**
  * Слой модального окна: скрим `neutral-900 @50%` на весь экран, панель по центру.
  *
@@ -81,17 +78,29 @@ fun OrganicModalHost(
                 } else {
                     false
                 }
-            }
-            .background(OrganicTheme.colors.scrim)
-            .clickable(
-                interactionSource = scrimInteraction,
-                indication = null,
-                onClick = onDismissRequest,
-            )
-            .padding(OrganicTheme.spacing.space4),
-        contentAlignment = Alignment.Center,
-        content = { content() },
-    )
+            },
+    ) {
+        // Скрим — отдельный слой ПОД панелью, а не её предок. `clickable` в Compose
+        // срабатывает ещё и на Space/Enter, а поля пробел как key-event не съедают:
+        // когда панель лежала внутри скрима, пробел в любом поле всплывал к нему
+        // и закрывал окно. Сиблингом скрим ловит только клики мимо панели —
+        // hit-path клика по панели в него уже не заходит.
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(OrganicTheme.colors.scrim)
+                .clickable(
+                    interactionSource = scrimInteraction,
+                    indication = null,
+                    onClick = onDismissRequest,
+                ),
+        )
+        Box(
+            modifier = Modifier.fillMaxSize().padding(OrganicTheme.spacing.space4),
+            contentAlignment = Alignment.Center,
+            content = { content() },
+        )
+    }
 }
 
 /**
@@ -201,7 +210,7 @@ fun OrganicModalPanel(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(OrganicTheme.colors.bg, PanelShape)
+            .background(OrganicTheme.colors.bg, OrganicTheme.shapes.rowCompact)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2),
     ) {

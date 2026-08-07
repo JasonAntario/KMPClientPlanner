@@ -23,10 +23,7 @@ import com.dsankovsky.kmpclientplanner.AppInfo
 import com.dsankovsky.kmpclientplanner.navigation.Screen
 import com.dsankovsky.kmpclientplanner.ui.extensions.collectWithLifecycle
 import com.dsankovsky.kmpclientplanner.ui.extensions.toUIName
-import com.dsankovsky.kmpclientplanner.ui.screens.client_details.ClientDetailsEvents
-import com.dsankovsky.kmpclientplanner.ui.screens.client_details.ClientDetailsScreen
-import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreen
-import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreenEvent
+import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.main.empty.NoClientsScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreen
@@ -83,12 +80,6 @@ fun MainScreen() {
     val currentScreen by remember { derivedStateOf { backStack.lastOrNull() } }
     // Формы больше не destination'ы: по новому дизайну это модальные окна поверх экрана.
     var modal by remember { mutableStateOf<ModalState?>(null) }
-    // Пока шапки экранов не переехали на новый дизайн, «Добавить» живёт в рейле.
-    val addAction: (() -> Unit)? = when (currentScreen) {
-        Screen.ClientsScreen -> ({ modal = ModalState.ClientForm(clientId = null) })
-        Screen.HomeScreen -> ({ modal = ModalState.ServiceForm(serviceId = null) })
-        else -> null
-    }
     val modalContent: (@Composable () -> Unit)? = modal?.let { current ->
         {
             AppModal(
@@ -109,7 +100,6 @@ fun MainScreen() {
         onNavigate = { backStack.add(it) },
         snackbarHostState = snackbarHostState,
         railFooter = state.serviceType?.let { "${it.toUIName()} · v${AppInfo.VERSION}" },
-        onAddClick = addAction,
         modal = modalContent,
     ) {
         NavDisplay(
@@ -129,37 +119,6 @@ fun MainScreen() {
                             viewModel.handleActions(
                                 MainScreenActions.OnServiceTypeSelected(it)
                             )
-                        }
-                    )
-                }
-
-                entry<Screen.ClientDetailsScreen>(
-                    metadata = transitionHorizontalSlideAnimation()
-                ) {
-                    ClientDetailsScreen(
-                        clientId = it.clientId,
-                        onEvent = { event ->
-                            when (event) {
-                                ClientDetailsEvents.OnCloseScreen -> backStack.removeLastOrNull()
-                                ClientDetailsEvents.OpenEditClientScreen -> {
-                                    modal = ModalState.ClientForm(it.clientId)
-                                }
-
-                                ClientDetailsEvents.AutofillCompleted -> {
-                                    scope.launch {
-                                        val message =
-                                            getString(Res.string.client_details_autofill_completed)
-                                        snackbarHostState.showSnackbar(
-                                            message = message,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                }
-
-                                ClientDetailsEvents.OpenServicesHistory -> {
-                                    backStack.add(Screen.ServicesHistory(it.clientId))
-                                }
-                            }
                         }
                     )
                 }
@@ -280,17 +239,20 @@ fun MainScreen() {
                 }
 
                 entry<Screen.ClientsScreen> {
-                    ClientsListScreen(
-                        showFab = !isWideScreen,
-                        onEvent = { event ->
-                            when (event) {
-                                is ClientsListScreenEvent.OpenClientInfo -> {
-                                    backStack.add(Screen.ClientDetailsScreen(event.clientId))
-                                }
-
-                                ClientsListScreenEvent.AddClient -> {
-                                    modal = ModalState.ClientForm(clientId = null)
-                                }
+                    ClientsScreen(
+                        onAddClient = { modal = ModalState.ClientForm(clientId = null) },
+                        onEditClient = { clientId -> modal = ModalState.ClientForm(clientId) },
+                        onOpenServicesHistory = { clientId ->
+                            backStack.add(Screen.ServicesHistory(clientId))
+                        },
+                        onAutofillCompleted = {
+                            scope.launch {
+                                val message =
+                                    getString(Res.string.client_details_autofill_completed)
+                                snackbarHostState.showSnackbar(
+                                    message = message,
+                                    duration = SnackbarDuration.Short
+                                )
                             }
                         }
                     )

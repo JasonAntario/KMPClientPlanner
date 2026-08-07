@@ -3,7 +3,6 @@ package com.dsankovsky.kmpclientplanner.ui.screens.clients
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
-import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditDeleteClientUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientsUseCase
 import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreenEvent.OpenClientInfo
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +14,6 @@ import kotlinx.coroutines.launch
 
 class ClientsScreenViewModel(
     private val getClientsUseCase: GetClientsUseCase,
-    private val addEditDeleteClientUseCase: AddEditDeleteClientUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ClientsListScreenState())
@@ -23,20 +21,29 @@ class ClientsScreenViewModel(
 
     val event = MutableSharedFlow<ClientsListScreenEvent>()
 
+    /** Весь список: поиск фильтрует его в UI-модель, не перезапрашивая базу. */
+    private var allClients: List<BaseClient> = emptyList()
+
     fun handleAction(action: ClientsListScreenAction) {
         when (action) {
             ClientsListScreenAction.LoadClientsList -> loadClients()
-            is ClientsListScreenAction.OnClientItemClicked -> {
-                viewModelScope.launch {
-                    event.emit(OpenClientInfo(action.client.id))
+
+            is ClientsListScreenAction.OnSearchQueryChanged -> {
+                _state.update {
+                    it.copy(
+                        searchQuery = action.query,
+                        clients = allClients.toListItems(action.query),
+                    )
                 }
             }
 
-            is ClientsListScreenAction.OnClientDeleteClicked -> deleteClient(action.client)
+            is ClientsListScreenAction.OnClientItemClicked -> {
+                _state.update { it.copy(selectedClientId = action.client.id) }
+                viewModelScope.launch { event.emit(OpenClientInfo(action.client.id)) }
+            }
+
             ClientsListScreenAction.AddClientClicked -> {
-                viewModelScope.launch {
-                    event.emit(ClientsListScreenEvent.AddClient)
-                }
+                viewModelScope.launch { event.emit(ClientsListScreenEvent.AddClient) }
             }
         }
     }
@@ -46,25 +53,41 @@ class ClientsScreenViewModel(
             getClientsUseCase
                 .getAllClients()
                 .collectLatest { clients ->
-                    val items = buildList {
-                        clients.groupBy { it.name.take(1) }.map {
-                            val letter = it.key
-                            val clientsList = it.value
-                            add(ClientListItem.LetterDivider(letter))
-                            addAll(clientsList.map { ClientListItem.Client(it) })
-                        }
-                    }
+                    // Секции идут по алфавиту, поэтому сортируем один раз здесь,
+                    // а не полагаемся на порядок выдачи базы.
+                    allClients = clients.sortedBy { it.getFullName().lowercase() }
 
-                    _state.update {
-                        it.copy(clients = items, isLoading = false)
+                    _state.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            clients = allClients.toListItems(state.searchQuery),
+                            clientsCount = allClients.size,
+                            // Панель деталей не должна остаться на удалённом клиенте;
+                            // на широком окне первый в списке выбирается сам.
+                            selectedClientId = state.selectedClientId
+                                ?.takeIf { id -> allClients.any { it.id == id } }
+                                ?: allClients.firstOrNull()?.id,
+                        )
                     }
                 }
         }
     }
+}
 
-    private fun deleteClient(client: BaseClient) {
-        viewModelScope.launch {
-            addEditDeleteClientUseCase.deleteClient(client.id)
-        }
+private fun List<BaseClient>.toListItems(query: String): List<ClientListItem> {
+    val trimmed = query.trim()
+    val filtered = if (trimmed.isEmpty()) {
+        this
+    } else {
+        filter { it.getFullName().contains(trimmed, ignoreCase = true) }
+    }
+
+    return buildList {
+        filtered
+            .groupBy { it.getFullName().take(1).uppercase() }
+            .forEach { (letter, clients) ->
+                add(ClientListItem.LetterDivider(letter))
+                addAll(clients.map { ClientListItem.Client(it) })
+            }
     }
 }

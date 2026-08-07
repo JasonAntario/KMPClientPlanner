@@ -38,6 +38,8 @@ import kotlinx.datetime.LocalDateTime
  *
  * @param dimmed строки следующих дней в макете приглушены, чтобы сегодняшний читался первым
  * @param selected выбранная строка: тень и обводка акцентом
+ * @param compact узкое окно: сетка макета не влезает, поэтому статусы уходят на вторую
+ *   строку — иначе колонка с именем сжимается в ноль и текст переносится по буквам
  */
 @Composable
 fun ServiceItemView(
@@ -46,63 +48,116 @@ fun ServiceItemView(
     modifier: Modifier = Modifier,
     dimmed: Boolean = false,
     selected: Boolean = false,
+    compact: Boolean = false,
 ) {
     val colors = OrganicTheme.colors
     val shape = OrganicTheme.shapes.row
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .alpha(if (dimmed) DimmedAlpha else 1f)
-            .then(if (selected) Modifier.dropShadow(shape, OrganicTheme.elevation.md) else Modifier)
-            .background(colors.surface, shape)
-            .then(if (selected) Modifier.border(2.dp, colors.accent, shape) else Modifier)
-            .clickable(
-                interactionSource = null,
-                indication = null,
-                onClick = { onAction(ServicesListScreenAction.OnServiceClicked(serviceItem)) },
-            )
-            .padding(horizontal = 28.dp, vertical = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        OrganicText(
-            text = serviceItem.startDate.toTime(),
-            style = OrganicTheme.typography.numeric,
-            modifier = Modifier.width(TimeColumn),
+    val container = modifier
+        .fillMaxWidth()
+        .alpha(if (dimmed) DimmedAlpha else 1f)
+        .then(if (selected) Modifier.dropShadow(shape, OrganicTheme.elevation.md) else Modifier)
+        .background(colors.surface, shape)
+        .then(if (selected) Modifier.border(2.dp, colors.accent, shape) else Modifier)
+        .clickable(
+            interactionSource = null,
+            indication = null,
+            onClick = { onAction(ServicesListScreenAction.OnServiceClicked(serviceItem)) },
         )
+        .padding(horizontal = 28.dp, vertical = 24.dp)
+
+    if (compact) {
         Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = container,
+            verticalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space3),
         ) {
-            OrganicText(
-                text = serviceItem.client.getFullName(),
-                style = OrganicTheme.typography.body.copy(fontSize = 18.sp, lineHeight = 24.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            OrganicText(
-                text = serviceItem.subtitle(),
-                style = OrganicTheme.typography.label,
-                color = colors.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // Сжимается только колонка с именем — у неё многоточие; время, сумма и статусы
+            // всегда получают свою ширину целиком.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Time(serviceItem)
+                ClientAndService(serviceItem, Modifier.weight(1f))
+                Price(serviceItem)
+            }
+            StatusButtons(serviceItem, onAction)
         }
+    } else {
+        Row(
+            modifier = container,
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Time(serviceItem, Modifier.width(TimeColumn))
+            ClientAndService(serviceItem, Modifier.weight(1f))
+            Price(serviceItem, Modifier.width(PriceColumn))
+            StatusButtons(serviceItem, onAction)
+        }
+    }
+}
+
+@Composable
+private fun Time(
+    serviceItem: ServicesListScreenItem.ServiceItem,
+    modifier: Modifier = Modifier,
+) {
+    OrganicText(
+        text = serviceItem.startDate.toTime(),
+        style = OrganicTheme.typography.numeric,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun ClientAndService(
+    serviceItem: ServicesListScreenItem.ServiceItem,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         OrganicText(
-            text = serviceItem.service.price.toUIMoney(serviceItem.service.currency),
-            style = OrganicTheme.typography.body.copy(fontSize = 17.sp),
-            modifier = Modifier.width(PriceColumn),
+            text = serviceItem.client.getFullName(),
+            style = OrganicTheme.typography.body.copy(fontSize = 18.sp, lineHeight = 24.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2)) {
-            PaymentStatusButton(
-                isPaid = serviceItem.isPaid,
-                onClick = { onAction(ServicesListScreenAction.OnPaidStatusChanged(serviceItem)) },
-            )
-            SessionStatusButton(
-                isDone = serviceItem.isFinished,
-                onClick = { onAction(ServicesListScreenAction.OnFinishStatusChanged(serviceItem)) },
-            )
-        }
+        OrganicText(
+            text = serviceItem.subtitle(),
+            style = OrganicTheme.typography.label,
+            color = OrganicTheme.colors.muted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+private fun Price(
+    serviceItem: ServicesListScreenItem.ServiceItem,
+    modifier: Modifier = Modifier,
+) {
+    OrganicText(
+        text = serviceItem.service.price.toUIMoney(serviceItem.service.currency),
+        style = OrganicTheme.typography.body.copy(fontSize = 17.sp),
+        maxLines = 1,
+        softWrap = false,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun StatusButtons(
+    serviceItem: ServicesListScreenItem.ServiceItem,
+    onAction: (ServicesListScreenAction) -> Unit,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2)) {
+        PaymentStatusButton(
+            isPaid = serviceItem.isPaid,
+            onClick = { onAction(ServicesListScreenAction.OnPaidStatusChanged(serviceItem)) },
+        )
+        SessionStatusButton(
+            isDone = serviceItem.isFinished,
+            onClick = { onAction(ServicesListScreenAction.OnFinishStatusChanged(serviceItem)) },
+        )
     }
 }
 

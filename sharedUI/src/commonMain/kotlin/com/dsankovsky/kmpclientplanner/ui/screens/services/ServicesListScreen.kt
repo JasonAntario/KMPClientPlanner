@@ -2,9 +2,9 @@ package com.dsankovsky.kmpclientplanner.ui.screens.services
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,11 +12,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServicesFilter
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
@@ -24,6 +22,7 @@ import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
 import com.dsankovsky.kmpclientplanner.ui.design.OrganicTheme
 import com.dsankovsky.kmpclientplanner.ui.design.components.EmptyState
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButton
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicScreenHeader
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
 import com.dsankovsky.kmpclientplanner.ui.design.components.SegmentedControl
 import com.dsankovsky.kmpclientplanner.ui.design.icons.OrganicIcons
@@ -90,52 +89,59 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier
 ) {
     val spacing = OrganicTheme.spacing
-    Column(
+    // Раскладка строк зависит от ширины контента, а не окна: рейл забирает 248,
+    // поэтому «широкое» окно ещё не значит, что строка занятия влезает в одну линию.
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(OrganicTheme.colors.bg)
-            .padding(horizontal = 40.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp),
+            .background(OrganicTheme.colors.bg),
     ) {
-        FeedHeader(state = state, onAction = onAction)
+        val compactRows = maxWidth < ServiceRowSingleLineWidth
+        Column(
+            modifier = Modifier.padding(horizontal = 40.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp),
+        ) {
+            FeedHeader(state = state, onAction = onAction)
 
-        if (state.items.isEmpty()) {
-            EmptyState(
-                icon = OrganicIcons.CalendarDays,
-                title = stringResource(Res.string.services_list_no_services),
-                description = stringResource(Res.string.services_list_no_services_description),
-                actionText = stringResource(Res.string.service_add_service),
-                onAction = { onAction(ServicesListScreenAction.OnAddServiceClicked) },
-                circleColor = OrganicTheme.colors.accentRamp.s200,
-                iconColor = OrganicTheme.colors.accentRamp.s800,
-            )
-        } else {
-            // Первая группа — ближайший день, остальные приглушены (см. `dimmed`).
-            var groupIndex = -1
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(spacing.space2),
-                contentPadding = PaddingValues(bottom = spacing.space6),
-            ) {
-                items(state.items) { item ->
-                    when (item) {
-                        is ServicesListScreenItem.DateDivider -> {
-                            groupIndex++
-                            OrganicText(
-                                text = item.date.toUIWeekdayAndDate().uppercase(),
-                                style = OrganicTheme.typography.tableHeader,
-                                color = OrganicTheme.colors.muted,
-                                modifier = Modifier.padding(
-                                    top = if (groupIndex == 0) 0.dp else spacing.space3,
-                                    bottom = 2.dp,
-                                ),
+            if (state.items.isEmpty()) {
+                EmptyState(
+                    icon = OrganicIcons.CalendarDays,
+                    title = stringResource(Res.string.services_list_no_services),
+                    description = stringResource(Res.string.services_list_no_services_description),
+                    actionText = stringResource(Res.string.service_add_service),
+                    onAction = { onAction(ServicesListScreenAction.OnAddServiceClicked) },
+                    circleColor = OrganicTheme.colors.accentRamp.s200,
+                    iconColor = OrganicTheme.colors.accentRamp.s800,
+                )
+            } else {
+                // Первая группа — ближайший день, остальные приглушены (см. `dimmed`).
+                var groupIndex = -1
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(spacing.space2),
+                    contentPadding = PaddingValues(bottom = spacing.space6),
+                ) {
+                    items(state.items) { item ->
+                        when (item) {
+                            is ServicesListScreenItem.DateDivider -> {
+                                groupIndex++
+                                OrganicText(
+                                    text = item.date.toUIWeekdayAndDate().uppercase(),
+                                    style = OrganicTheme.typography.tableHeader,
+                                    color = OrganicTheme.colors.muted,
+                                    modifier = Modifier.padding(
+                                        top = if (groupIndex == 0) 0.dp else spacing.space3,
+                                        bottom = 2.dp,
+                                    ),
+                                )
+                            }
+
+                            is ServicesListScreenItem.ServiceItem -> ServiceItemView(
+                                serviceItem = item,
+                                onAction = onAction,
+                                dimmed = groupIndex > 0,
+                                compact = compactRows,
                             )
                         }
-
-                        is ServicesListScreenItem.ServiceItem -> ServiceItemView(
-                            serviceItem = item,
-                            onAction = onAction,
-                            dimmed = groupIndex > 0,
-                        )
                     }
                 }
             }
@@ -143,39 +149,32 @@ fun HomeScreenContent(
     }
 }
 
+/** Ниже этой ширины строка занятия не влезает в одну линию и складывается в две. */
+private val ServiceRowSingleLineWidth = 760.dp
+
 @Composable
 private fun FeedHeader(
     state: ServicesListScreenState,
     onAction: (ServicesListScreenAction) -> Unit,
 ) {
     val services = state.items.filterIsInstance<ServicesListScreenItem.ServiceItem>()
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        verticalAlignment = Alignment.Bottom,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            OrganicText(
-                text = stringResource(Res.string.main_title),
-                style = OrganicTheme.typography.h2.copy(fontSize = 34.sp, lineHeight = 38.sp),
+    OrganicScreenHeader(
+        title = stringResource(Res.string.main_title),
+        subtitle = feedSubtitle(services),
+        actions = {
+            SegmentedControl(
+                options = state.filtersList,
+                selected = state.currentFilter,
+                onSelect = { onAction(ServicesListScreenAction.OnFilterClicked(it)) },
+                optionLabel = { it.toTabLabel() },
             )
-            OrganicText(
-                text = feedSubtitle(services),
-                style = OrganicTheme.typography.bodyXs,
-                color = OrganicTheme.colors.muted,
+            OrganicButton(
+                text = stringResource(Res.string.service_add_service),
+                onClick = { onAction(ServicesListScreenAction.OnAddServiceClicked) },
+                icon = OrganicIcons.Plus,
             )
-        }
-        SegmentedControl(
-            options = state.filtersList,
-            selected = state.currentFilter,
-            onSelect = { onAction(ServicesListScreenAction.OnFilterClicked(it)) },
-            optionLabel = { it.toTabLabel() },
-        )
-        OrganicButton(
-            text = stringResource(Res.string.service_add_service),
-            onClick = { onAction(ServicesListScreenAction.OnAddServiceClicked) },
-            icon = OrganicIcons.Plus,
-        )
-    }
+        },
+    )
 }
 
 /** «Среда, 29 июля · 5 занятий, 2 не оплачены». */

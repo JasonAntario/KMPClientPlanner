@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.dsankovsky.kmpclientplanner.data.datastore.AppSettings
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
+import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditClientSpecificFieldsUseCase
+import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditDeleteClientUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientSpecificFieldsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.AutofillServiceUseCase
@@ -18,10 +20,10 @@ import kmpclientplanner.sharedui.generated.resources.service_prefix_default
 import kmpclientplanner.sharedui.generated.resources.service_prefix_education
 import kmpclientplanner.sharedui.generated.resources.service_prefix_sport
 import kmpclientplanner.sharedui.generated.resources.service_prefix_tattoo
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -30,6 +32,7 @@ class ClientDetailsViewModel(
     private val getClientsUseCase: GetClientsUseCase,
     private val getClientSpecificFieldsUseCase: GetClientSpecificFieldsUseCase,
     private val addEditClientSpecificFields: AddEditClientSpecificFieldsUseCase,
+    private val addEditDeleteClientUseCase: AddEditDeleteClientUseCase,
     private val getServicesUseCase: GetServicesUseCase,
     private val autofillServiceUseCase: AutofillServiceUseCase
 ) : ViewModel() {
@@ -38,6 +41,13 @@ class ClientDetailsViewModel(
     val state = _state.asStateFlow()
 
     val event = MutableSharedFlow<ClientDetailsEvents>()
+
+    /**
+     * Подписки на текущего клиента и его занятия: одна панель деталей переиспользуется
+     * под разных клиентов, поэтому при смене id прошлые подписки надо снять.
+     */
+    private var clientJob: Job? = null
+    private var servicesJob: Job? = null
 
     fun handleActions(action: ClientDetailsActions) {
         when (action) {
@@ -179,6 +189,22 @@ class ClientDetailsViewModel(
                     event.emit(ClientDetailsEvents.OpenServicesHistory)
                 }
             }
+
+            ClientDetailsActions.OnDeleteClientClicked -> {
+                _state.update { it.copy(showDialog = ClientScreenDialog.ConfirmClientDeleting) }
+            }
+
+            ClientDetailsActions.OnDeleteClientConfirmed -> {
+                closeDialog()
+                deleteClient()
+            }
+        }
+    }
+
+    private fun deleteClient() {
+        viewModelScope.launch {
+            addEditDeleteClientUseCase.deleteClient(state.value.client.id)
+            event.emit(ClientDetailsEvents.ClientDeleted)
         }
     }
 
@@ -231,28 +257,50 @@ class ClientDetailsViewModel(
         }
     }
 
+    /**
+     * Панель деталей теперь всегда на экране, а редактирование идёт в модалке поверх неё,
+     * поэтому клиента слушаем потоком: после сохранения формы карточка обновляется сама.
+     */
     private fun loadData(clientId: Long) {
-        viewModelScope.launch {
-            val client = getClientsUseCase.getClientById(clientId).firstOrNull() ?: return@launch
-            val serviceType = client.serviceType
-            val specificFields =
-                getClientSpecificFieldsUseCase.getSpecificField(client.id, serviceType)
+        clientJob?.cancel()
+        clientJob = viewModelScope.launch {
+            getClientsUseCase.getClientById(clientId).collect { client ->
+                if (client == null) return@collect
+                val specificFields =
+                    getClientSpecificFieldsUseCase.getSpecificField(client.id, client.serviceType)
 
-            val showHistory = getServicesUseCase.getServicesForClient(clientId).isNotEmpty()
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    clientName = client.getFullName(),
-                    clientShortName = client.getShortName(),
-                    phone = client.phone?.let { AppSettings.phonePrefix + it },
-                    price = client.getFormattedPrice(),
-                    address = client.address,
-                    comment = client.comment,
-                    client = client,
-                    clientSpecificFields = specificFields,
-                    initialClientSpecificFields = specificFields,
-                    showServicesHistory = showHistory
-                )
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        clientName = client.getFullName(),
+                        clientShortName = client.getShortName(),
+                        phone = client.phone?.let { phone -> AppSettings.phonePrefix + phone },
+                        address = client.address,
+                        comment = client.comment,
+                        client = client,
+                        clientSpecificFields = specificFields,
+                        initialClientSpecificFields = specificFields,
+                    )
+                }
+            }
+        }
+        observeServices(clientId)
+    }
+
+    /** Метрики карточки: долг, предоплаты, «клиент с …» и кнопка истории занятий. */
+    private fun observeServices(clientId: Long) {
+        servicesJob?.cancel()
+        servicesJob = viewModelScope.launch {
+            getServicesUseCase.getServicesForClientFlow(clientId).collect { services ->
+                _state.update {
+                    it.copy(
+                        unpaidTotals = services.filterNot { service -> service.isPaid }.sumByCurrency(),
+                        prepaidCount = services.count { service -> service.isPaid && !service.isFinished },
+                        servicesCount = services.size,
+                        firstServiceDate = services.minOfOrNull { service -> service.startDate.date },
+                        showServicesHistory = services.isNotEmpty(),
+                    )
+                }
             }
         }
     }
@@ -261,3 +309,12 @@ class ClientDetailsViewModel(
         return state.value.clientSpecificFields as? ClientSpecificFields.TattooClientSpecificFields
     }
 }
+
+/** Занятия одного клиента могут быть в разных валютах — складываем каждую отдельно. */
+private fun List<BaseService>.sumByCurrency(): List<ClientAmount> =
+    filter { (it.price ?: 0f) > 0f }
+        .groupBy { it.currency }
+        .map { (currency, services) ->
+            ClientAmount(services.sumOf { (it.price ?: 0f).toDouble() }.toFloat(), currency)
+        }
+        .sortedByDescending { it.money }

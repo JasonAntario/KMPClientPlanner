@@ -27,4 +27,6 @@ data class OrganicShapes(
     val photo: Shape = RoundedCornerShape(20.dp),
     /** Строка списка / таблицы с выделением. */
     val row: Shape = RoundedCornerShape(26.dp),
+    /** Компактная строка (список клиентов, список занятий в деталях) и плашка внутри модалки. */
+    val rowCompact: Shape = RoundedCornerShape(22.dp),
 )

@@ -13,6 +13,14 @@ sealed interface ClientDetailsActions {
 
     data object ShowServicesHistory : ClientDetailsActions
 
+    /** Корзина в шапке карточки: сначала подтверждение (М8), потом удаление. */
+    data object OnDeleteClientClicked : ClientDetailsActions
+    data object OnDeleteClientConfirmed : ClientDetailsActions
+
+    /**
+     * Фото проектов тату-клиента. UI для них живёт на экране деталей услуги (07) —
+     * он ещё не переписан, поэтому пока эти действия только меняют состояние.
+     */
     data object TattooClientAction {
         data class OnImagesAdded(val imageUris: List<String>) : ClientDetailsActions
         data class OnImagesAddedInFinishedProject(
@@ -36,4 +44,5 @@ sealed interface ClientDetailsEvents {
     data object OpenEditClientScreen : ClientDetailsEvents
     data object AutofillCompleted : ClientDetailsEvents
     data object OpenServicesHistory : ClientDetailsEvents
+    data object ClientDeleted : ClientDetailsEvents
 }

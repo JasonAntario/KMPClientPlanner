@@ -4,11 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -126,10 +126,15 @@ fun ServiceTypeSelectionScreen(
 }
 
 /**
- * Сетка категорий. В макете это пять равных колонок; здесь `FlowRow` с минимальной шириной
- * карточки — на узком окне они переносятся, а не сжимаются в нечитаемые полоски.
+ * Сетка категорий. В макете это пять равных колонок; на узком окне карточки переносятся,
+ * а не сжимаются в нечитаемые полоски.
+ *
+ * Ряды считаются руками через [BoxWithConstraints], а не отдаются `FlowRow`: у него
+ * `Modifier.height(IntrinsicSize.Max)` с растянутыми по `weight` детьми давал нулевую
+ * высоту, и карточки просто исчезали (тем вернее, чем шире окно). У `Row` intrinsic-высота
+ * считается корректно, а равные по высоте карточки в ряду нужны — иначе «Репетитор»
+ * с длинной подписью выпирает, а остальные висят обрезками.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ServiceTypeCards(
     selected: ServiceType?,
@@ -137,24 +142,38 @@ private fun ServiceTypeCards(
     modifier: Modifier = Modifier,
 ) {
     val spacing = OrganicTheme.spacing
-    FlowRow(
-        // Карточки в ряду тянутся до самой высокой — иначе «Репетитор» с длинной
-        // подписью выпирает, а остальные висят обрезками.
-        modifier = modifier.height(IntrinsicSize.Max),
-        horizontalArrangement = Arrangement.spacedBy(spacing.space4),
-        verticalArrangement = Arrangement.spacedBy(spacing.space4),
-        maxItemsInEachRow = ServiceTypeOrder.size,
-    ) {
-        ServiceTypeOrder.forEach { type ->
-            ServiceTypeCard(
-                type = type,
-                selected = type == selected,
-                onClick = { onSelect(type) },
-                modifier = Modifier.weight(1f).widthIn(min = 180.dp).fillMaxHeight(),
-            )
+    BoxWithConstraints(modifier) {
+        val columns = ((maxWidth + spacing.space4) / (MinCardWidth + spacing.space4))
+            .toInt()
+            .coerceIn(1, ServiceTypeOrder.size)
+
+        Column(verticalArrangement = Arrangement.spacedBy(spacing.space4)) {
+            ServiceTypeOrder.chunked(columns).forEach { rowTypes ->
+                Row(
+                    modifier = Modifier.height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(spacing.space4),
+                ) {
+                    rowTypes.forEach { type ->
+                        ServiceTypeCard(
+                            type = type,
+                            selected = type == selected,
+                            onClick = { onSelect(type) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                    }
+                    // Неполный последний ряд: пустые слоты держат ширину колонок,
+                    // чтобы карточки не растягивались шире остальных.
+                    repeat(columns - rowTypes.size) {
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
         }
     }
 }
+
+/** Уже этого карточка категории становится нечитаемой — дальше сетка переносится. */
+private val MinCardWidth = 180.dp
 
 @Composable
 private fun ServiceTypeCard(

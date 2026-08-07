@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 /**
  * Экраны в backstack. Формы клиента и услуги и предоплата сюда не входят: по новому
  * дизайну это модальные окна поверх экрана — см. `ModalState`.
+ *
+ * Карточки клиента здесь тоже нет: на экране 08 это правая панель master-detail.
  */
 sealed class Screen : NavKey {
 
@@ -32,9 +34,6 @@ sealed class Screen : NavKey {
 
     @Serializable
     data object SettingsScreen : Screen()
-
-    @Serializable
-    data class ClientDetailsScreen(val clientId: Long) : Screen()
 
     @Serializable
     data class ServiceDetailsScreen(val serviceId: Long) : Screen()

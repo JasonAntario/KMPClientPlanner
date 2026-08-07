@@ -63,6 +63,11 @@ kotlin {
         jvmTest.dependencies {
             // Нативный рантайм skiko — нужен офскрин-рендеру листа дизайн-токенов.
             implementation(compose.desktop.currentOs)
+            // Клавиатурные сценарии (Esc/Space в модалке) рендером не проверить.
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+            // Тесты ViewModel'ей: свой диспетчер для viewModelScope и виртуальное время.
+            implementation(libs.kotlinx.coroutinesTest)
         }
     }
 }

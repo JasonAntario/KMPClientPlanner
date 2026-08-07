@@ -3,6 +3,7 @@ package com.dsankovsky.kmpclientplanner.ui.screens.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButton
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButtonDefaults
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicCard
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicDivider
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicScreenHeader
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicSelect
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
 import com.dsankovsky.kmpclientplanner.ui.design.elevationSm
@@ -102,10 +104,7 @@ fun SettingsScreenContent(
             modifier = Modifier.widthIn(max = 820.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            OrganicText(
-                text = stringResource(Res.string.settings_title),
-                style = OrganicTheme.typography.h2.copy(fontSize = 34.sp, lineHeight = 38.sp),
-            )
+            OrganicScreenHeader(title = stringResource(Res.string.settings_title))
 
             ProfileCard()
             AppCard(screenState, onAction)
@@ -221,16 +220,31 @@ private fun DangerZoneCard(onAction: (SettingsScreenAction) -> Unit) {
     }
 }
 
+/**
+ * Строка «подпись — контрол». На узком окне контрол уходит под подпись: иначе селект
+ * категории (260) и кнопки выдавливают текст до переноса по буквам.
+ */
 @Composable
 private fun SettingsRow(label: String, control: @Composable () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        OrganicText(label, modifier = Modifier.weight(1f))
-        control()
+    BoxWithConstraints {
+        if (maxWidth >= SettingsRowMinWidth) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OrganicText(label, modifier = Modifier.weight(1f))
+                control()
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2)) {
+                OrganicText(label)
+                control()
+            }
+        }
     }
 }
+
+private val SettingsRowMinWidth = 480.dp
 
 @Preview
 @Composable

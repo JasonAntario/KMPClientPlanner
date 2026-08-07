@@ -86,6 +86,7 @@
     <string name="client_add_lesson">Добавить занятие</string>
     <string name="client_add_training">Добавить тренировку</string>
     <string name="client_add_client">Добавить клиента</string>
+    <string name="client_add_client_short">Добавить</string>
     <string name="client_close">Закрыть</string>
     <string name="client_current_project">Текущий проект</string>
     <string name="client_finished_projects">Завершенные проекты</string>
@@ -160,6 +161,9 @@
 
     <!--CLIENTS LIST-->
     <string name="clients_title">Клиенты</string>
+    <string name="clients_title_count">Клиенты · %1$d</string>
+    <string name="clients_search_placeholder">Поиск по имени</string>
+    <string name="clients_search_empty">По этому запросу никого не нашлось</string>
     <string name="clients_no_client">Добавьте своего первого клиента</string>
 
     <!--MAIN SCREEN-->
@@ -263,6 +267,31 @@
     <string name="client_details_training">Тренировки</string>
     <string name="client_details_fill_trainings">Заполнить тренировки</string>
     <string name="client_details_services">Услуги клиента</string>
+
+    <!--CLIENT DETAILS (08)-->
+    <string name="client_details_unpaid">Не оплачено</string>
+    <string name="client_details_price">Цена занятия</string>
+    <string name="client_details_contacts">Контакты</string>
+    <string name="client_details_format">Формат</string>
+    <string name="client_details_all_services">Все занятия клиента</string>
+    <string name="client_details_since">клиент с %1$s</string>
+    <string name="client_details_level_value">уровень %1$s</string>
+    <string name="client_details_weight_value">вес %1$s кг</string>
+    <string name="client_details_edit">Редактировать клиента</string>
+    <string name="client_details_delete">Удалить клиента</string>
+    <string name="client_details_delete_title">Удалить клиента?</string>
+    <string name="client_details_delete_text">%1$s и все связанные занятия (%2$d) будут удалены. Оплаты пропадут из статистики. Действие необратимо.</string>
+    <string name="client_details_delete_confirm">Удалить</string>
+    <string name="client_details_autofill_title">Продлить занятия?</string>
+    <string name="client_details_crossing_title">Пересечение по времени</string>
+    <string name="client_details_empty_selection">Выберите клиента в списке слева</string>
+    <string name="client_details_back">Назад к списку</string>
+    <plurals name="client_details_prepaid">
+        <item quantity="one">%1$d предоплаченное занятие</item>
+        <item quantity="few">%1$d предоплаченных занятия</item>
+        <item quantity="many">%1$d предоплаченных занятий</item>
+        <item quantity="other">%1$d предоплаченных занятий</item>
+    </plurals>
 
     <!--SNACKBAR-MESSAGES-->
     <string name="client_details_data_updated">Данные успешно обновлены</string>

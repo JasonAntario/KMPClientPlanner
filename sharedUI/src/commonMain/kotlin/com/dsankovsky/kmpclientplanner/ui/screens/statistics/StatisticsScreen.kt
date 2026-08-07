@@ -3,14 +3,18 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.statistics
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DatePickerDialog
@@ -36,6 +40,7 @@ import com.dsankovsky.kmpclientplanner.ui.design.OrganicTheme
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButton
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicCard
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicProgressBar
+import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicScreenHeader
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableCell
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableHeader
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTableHeaderCell
@@ -116,69 +121,87 @@ fun StatisticsScreenContent(
     }
 
     val spacing = OrganicTheme.spacing
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(OrganicTheme.colors.bg)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 40.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp),
+            .background(OrganicTheme.colors.bg),
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalAlignment = Alignment.Bottom,
+        // Три метрики с числами 38 в ряд требуют места; на узком окне они встают колонкой,
+        // иначе суммы переносятся по цифрам.
+        val metricsInRow = maxWidth >= MetricsRowMinWidth
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 40.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            Column(Modifier.weight(1f)) {
-                OrganicText(
-                    text = stringResource(Res.string.statistics_title),
-                    style = OrganicTheme.typography.h2.copy(fontSize = 34.sp, lineHeight = 38.sp),
-                )
-                state.dateInterval?.let { (start, end) ->
-                    OrganicText(
-                        text = "${start.toUIDate()} — ${end.toUIDate()}",
-                        style = OrganicTheme.typography.bodyXs,
-                        color = OrganicTheme.colors.muted,
+            OrganicScreenHeader(
+                title = stringResource(Res.string.statistics_title),
+                subtitle = state.dateInterval?.let { (start, end) ->
+                    "${start.toUIDate()} — ${end.toUIDate()}"
+                },
+                actions = {
+                    SegmentedControl(
+                        options = state.filters,
+                        selected = state.currentFilter,
+                        onSelect = { onAction(StatisticsScreenAction.OnFilterClicked(it)) },
+                        optionLabel = { it.toTabLabel() },
                     )
+                    OrganicButton(
+                        text = stringResource(Res.string.statistics_prepay),
+                        onClick = onOpenPayServices,
+                        icon = OrganicIcons.Wallet,
+                    )
+                },
+            )
+
+            val received: @Composable (Modifier) -> Unit = { cardModifier ->
+                MoneyCard(
+                    title = stringResource(Res.string.statistics_received),
+                    amounts = state.receivedTotalByCurrency,
+                    modifier = cardModifier,
+                )
+            }
+            val awaiting: @Composable (Modifier) -> Unit = { cardModifier ->
+                MoneyCard(
+                    title = stringResource(Res.string.statistics_awaiting),
+                    amounts = state.expectedTotalByCurrency,
+                    footer = stringResource(
+                        Res.string.statistics_debt_summary,
+                        state.servicesUnpaid,
+                        state.clientsWithDebt,
+                    ),
+                    modifier = cardModifier,
+                )
+            }
+
+            if (metricsInRow) {
+                Row(
+                    modifier = Modifier.height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(spacing.space4),
+                ) {
+                    received(Modifier.weight(1.4f).fillMaxHeight())
+                    PaidPercentageCard(state, Modifier.weight(1f).fillMaxHeight())
+                    awaiting(Modifier.weight(1f).fillMaxHeight())
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.space3)) {
+                    received(Modifier.fillMaxWidth())
+                    PaidPercentageCard(state, Modifier.fillMaxWidth())
+                    awaiting(Modifier.fillMaxWidth())
                 }
             }
-            SegmentedControl(
-                options = state.filters,
-                selected = state.currentFilter,
-                onSelect = { onAction(StatisticsScreenAction.OnFilterClicked(it)) },
-                optionLabel = { it.toTabLabel() },
-            )
-            OrganicButton(
-                text = stringResource(Res.string.statistics_prepay),
-                onClick = onOpenPayServices,
-                icon = OrganicIcons.Wallet,
-            )
-        }
 
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Max),
-            horizontalArrangement = Arrangement.spacedBy(spacing.space4),
-        ) {
-            MoneyCard(
-                title = stringResource(Res.string.statistics_received),
-                amounts = state.receivedTotalByCurrency,
-                modifier = Modifier.weight(1.4f).fillMaxHeight(),
-            )
-            PaidPercentageCard(state, Modifier.weight(1f).fillMaxHeight())
-            MoneyCard(
-                title = stringResource(Res.string.statistics_awaiting),
-                amounts = state.expectedTotalByCurrency,
-                footer = stringResource(
-                    Res.string.statistics_debt_summary,
-                    state.servicesUnpaid,
-                    state.clientsWithDebt,
-                ),
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-            )
+            ClientsTableCard(state)
         }
-
-        ClientsTableCard(state)
     }
 }
+
+/** Ниже этой ширины три карточки-метрики в ряд не читаются. */
+private val MetricsRowMinWidth = 820.dp
+
+/** Таблице нужна эта ширина, иначе заголовки колонок рвутся по буквам. */
+private val ClientsTableMinWidth = 620.dp
 
 /** Карточка с суммой: первая валюта крупно, остальные — строкой ниже. */
 @Composable
@@ -263,37 +286,57 @@ private fun ClientsTableCard(state: StatisticsScreenState) {
         kicker = stringResource(Res.string.statistics_by_client),
         verticalGap = OrganicTheme.spacing.space3,
     ) {
-        OrganicTableHeader {
-            OrganicTableHeaderCell(stringResource(Res.string.statistics_table_client), Modifier.weight(1.6f))
-            OrganicTableHeaderCell(stringResource(Res.string.statistics_table_paid_count), Modifier.weight(1f))
-            currencies.forEach { currency ->
-                OrganicTableHeaderCell(currency.code, Modifier.weight(0.8f))
-            }
-        }
-        state.itemsByClients.forEach { item ->
-            OrganicTableRow {
-                OrganicTableCell(item.client.getFullName(), Modifier.weight(1.6f))
-                OrganicTableCell(
-                    text = item.paidServicesCount.toString(),
-                    modifier = Modifier.weight(1f),
-                    numeric = true,
-                )
-                currencies.forEach { currency ->
-                    val money = item.income.firstOrNull { it.currency == currency }?.money ?: 0f
-                    OrganicTableCell(
-                        text = if (money > 0f) money.toUIAmount() else dash,
-                        modifier = Modifier.weight(0.8f),
-                        numeric = true,
+        // Колонок минимум четыре: на узком окне таблица не сжимается, а прокручивается вбок.
+        // Ширина задаётся явно — под `horizontalScroll` она бесконечна, а `weight` колонок
+        // требует ограниченной.
+        BoxWithConstraints {
+            val available = maxWidth
+            Column(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier.width(maxOf(available, ClientsTableMinWidth)),
+                    verticalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space3),
+                ) {
+                    OrganicTableHeader {
+                        OrganicTableHeaderCell(
+                            text = stringResource(Res.string.statistics_table_client),
+                            modifier = Modifier.weight(1.6f),
+                        )
+                        OrganicTableHeaderCell(
+                            text = stringResource(Res.string.statistics_table_paid_count),
+                            modifier = Modifier.weight(1f),
+                        )
+                        currencies.forEach { currency ->
+                            OrganicTableHeaderCell(currency.code, Modifier.weight(0.8f))
+                        }
+                    }
+                    state.itemsByClients.forEach { item ->
+                        OrganicTableRow {
+                            OrganicTableCell(item.client.getFullName(), Modifier.weight(1.6f))
+                            OrganicTableCell(
+                                text = item.paidServicesCount.toString(),
+                                modifier = Modifier.weight(1f),
+                                numeric = true,
+                            )
+                            currencies.forEach { currency ->
+                                val money =
+                                    item.income.firstOrNull { it.currency == currency }?.money ?: 0f
+                                OrganicTableCell(
+                                    text = if (money > 0f) money.toUIAmount() else dash,
+                                    modifier = Modifier.weight(0.8f),
+                                    numeric = true,
+                                )
+                            }
+                        }
+                    }
+                    OrganicText(
+                        text = stringResource(Res.string.statistics_table_note),
+                        style = OrganicTheme.typography.label,
+                        color = OrganicTheme.colors.muted,
+                        textAlign = TextAlign.Start,
                     )
                 }
             }
         }
-        OrganicText(
-            text = stringResource(Res.string.statistics_table_note),
-            style = OrganicTheme.typography.label,
-            color = OrganicTheme.colors.muted,
-            textAlign = TextAlign.Start,
-        )
     }
 }
 

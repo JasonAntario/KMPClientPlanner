@@ -6,18 +6,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
 import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicNavigationRail
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicNavigationRailItem
 import com.dsankovsky.kmpclientplanner.ui.design.icons.OrganicIcons
 import com.dsankovsky.kmpclientplanner.ui.extensions.getCurrentDateTime
+import com.dsankovsky.kmpclientplanner.ui.screens.client_details.ClientAmount
+import com.dsankovsky.kmpclientplanner.ui.screens.client_details.ClientDetailsPaneContent
+import com.dsankovsky.kmpclientplanner.ui.screens.client_details.ClientDetailsScreenState
+import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientListItem
+import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListPane
+import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListPaneWidth
+import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreenState
 import com.dsankovsky.kmpclientplanner.ui.screens.main.empty.NoClientsScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.service_type_selection.ServiceTypeSelectionScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenContent
@@ -28,7 +39,9 @@ import com.dsankovsky.kmpclientplanner.ui.screens.settings.SettingsScreenState
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.StatisticsScreenContent
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.StatisticsScreenState
 import com.dsankovsky.kmpclientplanner.ui.screens.statistics.model.StatisticsClientItem
+import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.EncodedImageFormat
+import org.jetbrains.skia.Image
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -44,12 +57,47 @@ class OrganicScreensRenderTest {
 
     @Test
     fun `renders screen 01 service type selection`() {
-        renderScreen("organic-screen-01.png") {
+        val image = renderScreen("organic-screen-01.png") {
             ServiceTypeSelectionScreen(
                 onServiceTypeClicked = {},
                 initialSelection = ServiceType.EDUCATION,
             )
         }
+        assertHasCards(image)
+    }
+
+    /**
+     * То же самое в широком окне: карточки категорий пропадали именно при растягивании
+     * (`FlowRow` + `height(IntrinsicSize.Max)` давал нулевую высоту), а в кадре 1360
+     * это выглядело как «просто пустой экран».
+     */
+    @Test
+    fun `renders screen 01 in a wide window`() {
+        val image = renderScreen("organic-screen-01-wide.png", frameWidth = 1920) {
+            ServiceTypeSelectionScreen(
+                onServiceTypeClicked = {},
+                initialSelection = ServiceType.EDUCATION,
+            )
+        }
+        assertHasCards(image)
+    }
+
+    /**
+     * Карточки — единственное на экране 01, что залито `surface` и `accent-100`
+     * (выбранная), так что их площадь и есть признак, что сетка не схлопнулась.
+     */
+    private fun assertHasCards(image: Image) {
+        val bitmap = requireNotNull(Bitmap.makeFromImage(image))
+        val colors = OrganicColors()
+        val cardColors = setOf(colors.surface.toArgb(), colors.accentRamp.s100.toArgb())
+        var cardPixels = 0
+        // Шаг 8 px: считаем площадь, точность до пикселя тут не нужна.
+        for (x in 0 until bitmap.width step 8) {
+            for (y in 0 until bitmap.height step 8) {
+                if (bitmap.getColor(x, y) in cardColors) cardPixels++
+            }
+        }
+        assertTrue(cardPixels > 500, "карточки категорий не отрисовались: $cardPixels")
     }
 
     @Test
@@ -87,13 +135,51 @@ class OrganicScreensRenderTest {
         }
     }
 
+    /**
+     * Экран 08 собран из панелей вручную: `ListDetailPaneScaffold` в офскрин-сцене
+     * не поднять (обеим панелям нужен Koin), а проверять надо именно раскладку 404 + детали.
+     */
+    @Test
+    fun `renders screen 08 clients`() {
+        renderScreen("organic-screen-08.png", withRail = true) {
+            Row(Modifier.fillMaxSize()) {
+                Box(Modifier.width(ClientsListPaneWidth).fillMaxHeight()) {
+                    ClientsListPane(state = clientsListState(), onAction = {})
+                }
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                    ClientDetailsPaneContent(state = clientDetailsState(), onAction = {})
+                }
+            }
+        }
+    }
+
+    /**
+     * Те же экраны в узком окне. Заголовки и строки ломались именно при сужении: рядом
+     * с текстом стоят несжимаемые контролы, а текстовая колонка идёт через `weight(1f)`,
+     * поэтому она сжималась в ноль и «Занятия» переносилось по буквам в вертикальную полоску.
+     * Кадр 720 — окно с рейлом, при котором контенту остаётся меньше 500.
+     */
+    @Test
+    fun `renders narrow window layouts`() {
+        renderScreen("organic-narrow-04.png", withRail = true, frameWidth = 720) {
+            HomeScreenContent(state = feedState(), onAction = {})
+        }
+        renderScreen("organic-narrow-09.png", withRail = true, frameWidth = 720) {
+            StatisticsScreenContent(state = statisticsState(), onAction = {})
+        }
+        renderScreen("organic-narrow-10.png", withRail = true, frameWidth = 720) {
+            SettingsScreenContent(screenState = SettingsScreenState(), onAction = {})
+        }
+    }
+
     private fun renderScreen(
         fileName: String,
         withRail: Boolean = false,
+        frameWidth: Int = FrameWidth,
         content: @Composable () -> Unit,
-    ) {
+    ): Image {
         val scene = ImageComposeScene(
-            width = FrameWidth * 2,
+            width = frameWidth * 2,
             height = FrameHeight * 2,
             density = Density(2f),
         ) {
@@ -117,6 +203,7 @@ class OrganicScreensRenderTest {
             checkNotNull(image.encodeToData(EncodedImageFormat.PNG)) { "не удалось закодировать PNG" }.bytes,
         )
         assertTrue(file.length() > 0)
+        return image
     }
 }
 
@@ -211,6 +298,57 @@ private fun statisticsState() = StatisticsScreenState(
         client("Анна", "Ковалёва", 7, 280f, 0f),
         client("Мария", "Сак", 3, 120f, 25f),
     ),
+)
+
+private fun clientsListState(): ClientsListScreenState {
+    val clients = listOf(
+        BaseClient(id = 1, name = "Анна", surname = "Ковалёва"),
+        BaseClient(id = 2, name = "Дмитрий", surname = "Лис"),
+        BaseClient(id = 3, name = "Ирина", surname = "Мороз"),
+        BaseClient(id = 4, name = "Мария", surname = "Сак"),
+        BaseClient(id = 5, name = "Олег", surname = "Тарасов"),
+        BaseClient(id = 6, name = "Полина", surname = "Юркевич"),
+    )
+    return ClientsListScreenState(
+        isLoading = false,
+        clientsCount = clients.size,
+        selectedClientId = 1L,
+        clients = clients.flatMap {
+            listOf(
+                ClientListItem.LetterDivider(it.name.take(1).uppercase()),
+                ClientListItem.Client(it),
+            )
+        },
+    )
+}
+
+private fun clientDetailsState() = ClientDetailsScreenState(
+    isLoading = false,
+    clientName = "Анна Ковалёва",
+    clientShortName = "АК",
+    phone = "+375 29 123-45-67",
+    comment = "Готовится к экзамену в декабре. Домашние задания просит присылать в Telegram.",
+    client = BaseClient(
+        name = "Анна",
+        surname = "Ковалёва",
+        price = 40f,
+        currency = CurrencyItem.BYN,
+        serviceType = ServiceType.EDUCATION,
+        serviceSubtype = "Английский",
+    ),
+    clientSpecificFields = ClientSpecificFields.EducationClientSpecificFields(
+        level = "B1",
+        isOnline = true,
+        lessonDateTimeList = listOf(
+            ServiceDateTime(dayOfWeek = kotlinx.datetime.DayOfWeek.MONDAY),
+            ServiceDateTime(dayOfWeek = kotlinx.datetime.DayOfWeek.WEDNESDAY),
+        ),
+    ),
+    unpaidTotals = listOf(ClientAmount(40f, CurrencyItem.BYN)),
+    prepaidCount = 2,
+    servicesCount = 12,
+    firstServiceDate = kotlinx.datetime.LocalDate(2026, 3, 12),
+    showServicesHistory = true,
 )
 
 private fun client(name: String, surname: String, paid: Int, byn: Float, usd: Float) =
