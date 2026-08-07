@@ -18,6 +18,7 @@ import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceSpecificFields
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicNavigationRail
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicNavigationRailItem
 import com.dsankovsky.kmpclientplanner.ui.design.icons.OrganicIcons
@@ -29,6 +30,11 @@ import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientListItem
 import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListPane
 import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListPaneWidth
 import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsListScreenState
+import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ExerciseRow
+import com.dsankovsky.kmpclientplanner.ui.screens.service_details.KnownExercise
+import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsPaneContent
+import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenState
+import com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListPaneWidth
 import com.dsankovsky.kmpclientplanner.ui.screens.main.empty.NoClientsScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.service_type_selection.ServiceTypeSelectionScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreenContent
@@ -147,7 +153,49 @@ class OrganicScreensRenderTest {
                     ClientsListPane(state = clientsListState(), onAction = {})
                 }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
-                    ClientDetailsPaneContent(state = clientDetailsState(), onAction = {})
+                    ClientDetailsPaneContent(
+                        state = clientDetailsState(),
+                        onAction = {},
+                        onClose = {},
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Экраны 05–07: список занятий 400 плюс детали. Категория меняет только карточку справа,
+     * поэтому кадры отличаются именно ей — домашнее задание, таблица упражнений, фотографии.
+     */
+    @Test
+    fun `renders screens 05 06 07 service details`() {
+        val listState = feedState()
+        val selectedId = listState.items
+            .filterIsInstance<ServicesListScreenItem.ServiceItem>()[2]
+            .id
+
+        listOf(
+            "organic-screen-05.png" to educationDetailsState(),
+            "organic-screen-06.png" to sportDetailsState(),
+            "organic-screen-07.png" to tattooDetailsState(),
+        ).forEach { (fileName, detailsState) ->
+            renderScreen(fileName, withRail = true) {
+                Row(Modifier.fillMaxSize()) {
+                    Box(Modifier.width(ServicesListPaneWidth).fillMaxHeight()) {
+                        HomeScreenContent(
+                            state = listState,
+                            onAction = {},
+                            selectedServiceId = selectedId,
+                            compactList = true,
+                        )
+                    }
+                    Box(Modifier.weight(1f).fillMaxHeight()) {
+                        ServiceDetailsPaneContent(
+                            state = detailsState,
+                            onAction = {},
+                            onClose = {},
+                        )
+                    }
                 }
             }
         }
@@ -232,6 +280,8 @@ private fun DemoRail() {
 
 private fun feedState(): ServicesListScreenState {
     val today = getCurrentDateTime()
+    // Идентификаторы нужны настоящие: по ним строка понимает, что она выбранная.
+    var nextId = 0L
     fun item(
         hour: Int,
         name: String,
@@ -244,6 +294,7 @@ private fun feedState(): ServicesListScreenState {
         done: Boolean = false,
         dayShift: Int = 0,
     ) = ServicesListScreenItem.ServiceItem(
+        id = ++nextId,
         title = title,
         client = BaseClient(name = name, surname = surname),
         startDate = today.date.plusDaysAt(dayShift, hour, 0),
@@ -298,6 +349,72 @@ private fun statisticsState() = StatisticsScreenState(
         client("Анна", "Ковалёва", 7, 280f, 0f),
         client("Мария", "Сак", 3, 120f, 25f),
     ),
+)
+
+private fun educationDetailsState() = ServiceDetailsScreenState(
+    isLoading = false,
+    title = "Английский",
+    clientName = "Анна Ковалёва",
+    time = "15:00 - 16:00",
+    startDateTime = getCurrentDateTime().date.plusDaysAt(0, 15, 0),
+    endDateTime = getCurrentDateTime().date.plusDaysAt(0, 16, 0),
+    isOnline = true,
+    comment = "Прошли Present Perfect, слабое место — вопросительная форма. " +
+            "В следующий раз начать с разговорной практики.",
+    service = BaseService(
+        price = 40f,
+        currency = CurrencyItem.BYN,
+        serviceType = ServiceType.EDUCATION,
+    ),
+    serviceSpecificFields = ServiceSpecificFields.EducationServiceSpecificFields(
+        isOnline = true,
+        homework = "Unit 4, упр. 3–7 письменно. Эссе 180 слов «My summer» — к 5 августа.",
+    ),
+)
+
+private fun sportDetailsState() = ServiceDetailsScreenState(
+    isLoading = false,
+    title = "Силовая",
+    clientName = "Олег Тарасов",
+    time = "11:30 - 12:30",
+    startDateTime = getCurrentDateTime().date.plusDaysAt(0, 11, 30),
+    endDateTime = getCurrentDateTime().date.plusDaysAt(0, 12, 30),
+    address = "Зал на Немиге 12",
+    service = BaseService(
+        price = 60f,
+        currency = CurrencyItem.BYN,
+        serviceType = ServiceType.SPORT,
+        address = "Зал на Немиге 12",
+    ),
+    serviceSpecificFields = ServiceSpecificFields.SportServiceSpecificFields(),
+    exerciseRows = listOf(
+        ExerciseRow("Приседания со штангой", 4, "10", "60", 4, "10", "55", 5f),
+        ExerciseRow("Жим лёжа", 4, "8", "50", 4, "8", "50", null),
+        ExerciseRow("Тяга верхнего блока", 3, "12", "35", 3, "12", "32,5", 2.5f),
+        ExerciseRow("Планка", 3, "60 сек", "", 3, "45 сек", null, null),
+    ),
+    knownExercises = listOf(KnownExercise("Приседания со штангой", 4, "10", "55")),
+)
+
+private fun tattooDetailsState() = ServiceDetailsScreenState(
+    isLoading = false,
+    title = "Сеанс тату",
+    clientName = "Дмитрий Лис",
+    time = "19:30 - 22:30",
+    startDateTime = getCurrentDateTime().date.plusDaysAt(0, 19, 30),
+    endDateTime = getCurrentDateTime().date.plusDaysAt(0, 22, 30),
+    address = "Студия «Игла»",
+    comment = "Осталась проработка теней в верхней части. Третий сеанс — через 3 недели.",
+    service = BaseService(
+        price = 320f,
+        currency = CurrencyItem.BYN,
+        serviceType = ServiceType.TATTOO,
+        address = "Студия «Игла»",
+    ),
+    serviceSpecificFields = ServiceSpecificFields.TattooServiceSpecificFields(
+        images = listOf("session1.jpg", "session2.jpg"),
+    ),
+    referenceImages = listOf("sketch.jpg", "lines.jpg", "shadows.png"),
 )
 
 private fun clientsListState(): ClientsListScreenState {

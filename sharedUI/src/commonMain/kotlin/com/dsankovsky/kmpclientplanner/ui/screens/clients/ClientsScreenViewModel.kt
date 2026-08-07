@@ -24,6 +24,12 @@ class ClientsScreenViewModel(
     /** Весь список: поиск фильтрует его в UI-модель, не перезапрашивая базу. */
     private var allClients: List<BaseClient> = emptyList()
 
+    /**
+     * Карточку закрыли руками — значит, при следующем обновлении списка первый клиент
+     * не должен выбраться сам и вернуть панель обратно.
+     */
+    private var detailsClosedByUser = false
+
     fun handleAction(action: ClientsListScreenAction) {
         when (action) {
             ClientsListScreenAction.LoadClientsList -> loadClients()
@@ -38,8 +44,15 @@ class ClientsScreenViewModel(
             }
 
             is ClientsListScreenAction.OnClientItemClicked -> {
+                detailsClosedByUser = false
                 _state.update { it.copy(selectedClientId = action.client.id) }
                 viewModelScope.launch { event.emit(OpenClientInfo(action.client.id)) }
+            }
+
+            ClientsListScreenAction.CloseClientDetails -> {
+                detailsClosedByUser = true
+                _state.update { it.copy(selectedClientId = null) }
+                viewModelScope.launch { event.emit(ClientsListScreenEvent.CloseClientInfo) }
             }
 
             ClientsListScreenAction.AddClientClicked -> {
@@ -63,10 +76,11 @@ class ClientsScreenViewModel(
                             clients = allClients.toListItems(state.searchQuery),
                             clientsCount = allClients.size,
                             // Панель деталей не должна остаться на удалённом клиенте;
-                            // на широком окне первый в списке выбирается сам.
+                            // на широком окне первый в списке выбирается сам — но только
+                            // пока карточку не закрыли крестиком.
                             selectedClientId = state.selectedClientId
                                 ?.takeIf { id -> allClients.any { it.id == id } }
-                                ?: allClients.firstOrNull()?.id,
+                                ?: allClients.firstOrNull()?.id?.takeIf { !detailsClosedByUser },
                         )
                     }
                 }

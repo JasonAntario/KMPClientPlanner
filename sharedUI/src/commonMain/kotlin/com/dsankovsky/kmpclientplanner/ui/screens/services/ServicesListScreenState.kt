@@ -10,5 +10,10 @@ data class ServicesListScreenState(
     val currentFilter: ServicesFilter = ServicesFilter.TODAY,
     val filtersList: List<ServicesFilter> = getHomeScreenFilters(),
     val items: List<ServicesListScreenItem> = emptyList(),
-    val scrollToIndex: Int = 0
+    val scrollToIndex: Int = 0,
+    /**
+     * Выбранное занятие: пока `null`, экран 04 — лента во всю ширину, иначе справа
+     * открываются детали (05–07).
+     */
+    val selectedServiceId: Long? = null,
 )

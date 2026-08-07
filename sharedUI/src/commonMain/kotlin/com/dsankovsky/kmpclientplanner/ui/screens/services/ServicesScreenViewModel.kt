@@ -36,9 +36,14 @@ class ServicesScreenViewModel(
             is ServicesListScreenAction.OnDeleteService -> deleteService(action.serviceItem)
 
             is ServicesListScreenAction.OnServiceClicked -> {
+                _state.update { it.copy(selectedServiceId = action.serviceItem.id) }
                 viewModelScope.launch {
                     event.emit(OpenServiceInfo(action.serviceItem.id))
                 }
+            }
+
+            ServicesListScreenAction.OnCloseDetailsClicked -> {
+                _state.update { it.copy(selectedServiceId = null) }
             }
 
             is ServicesListScreenAction.OnFilterClicked -> {
@@ -112,11 +117,18 @@ class ServicesScreenViewModel(
                                 || it.startDate > currentDateTime)
                     }
 
-                    _state.update {
-                        it.copy(
+                    _state.update { state ->
+                        state.copy(
                             isLoading = false,
                             items = serviceItems,
-                            scrollToIndex = if (scrollIndex < 0) 0 else scrollIndex
+                            scrollToIndex = if (scrollIndex < 0) 0 else scrollIndex,
+                            // Детали не должны остаться на удалённом занятии или на том,
+                            // что выпало из выбранного периода.
+                            selectedServiceId = state.selectedServiceId?.takeIf { id ->
+                                serviceItems.any {
+                                    it is ServicesListScreenItem.ServiceItem && it.id == id
+                                }
+                            },
                         )
                     }
                 }

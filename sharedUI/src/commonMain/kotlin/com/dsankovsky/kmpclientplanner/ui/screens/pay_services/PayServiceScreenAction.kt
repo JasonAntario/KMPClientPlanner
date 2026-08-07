@@ -1,12 +1,12 @@
 package com.dsankovsky.kmpclientplanner.ui.screens.pay_services
 
-import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
-
 sealed interface PayServiceScreenAction {
     data object LoadData : PayServiceScreenAction
-    data object OnBackClicked : PayServiceScreenAction
-    data class OnChangeClientCLicked(val client: BaseClient) : PayServiceScreenAction
-    data class OnServicesAmountChanged(val amount: String) : PayServiceScreenAction
+    data object OnCloseClicked : PayServiceScreenAction
+    data class OnClientSelected(val clientId: Long) : PayServiceScreenAction
+
+    /** Степпер: сколько самых ранних неоплаченных занятий закрыть. */
+    data class OnAmountChanged(val amount: Int) : PayServiceScreenAction
     data object OnPayClicked : PayServiceScreenAction
 }
 

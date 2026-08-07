@@ -51,6 +51,12 @@ fun ClientsScreen(
                 navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, event.clientId)
             }
 
+            // На широком окне пустую панель показывает сам scaffold, а на узком надо ещё
+            // и вернуться на список — иначе останется пустая панель без выхода.
+            ClientsListScreenEvent.CloseClientInfo -> scope.launch {
+                navigator.navigateTo(ListDetailPaneScaffoldRole.List)
+            }
+
             ClientsListScreenEvent.AddClient -> onAddClient()
         }
     }
@@ -89,10 +95,10 @@ fun ClientsScreen(
                         onClientDeleted = {
                             scope.launch { navigator.navigateBack() }
                         },
-                        onBack = if (navigator.canNavigateBack()) {
-                            { scope.launch { navigator.navigateBack() } }
-                        } else {
-                            null
+                        // Крестик работает на любой ширине: выделение снимается, справа
+                        // остаётся заглушка «выберите клиента».
+                        onClose = {
+                            viewModel.handleAction(ClientsListScreenAction.CloseClientDetails)
                         },
                     )
                 }

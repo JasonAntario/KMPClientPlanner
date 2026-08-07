@@ -15,18 +15,30 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.ui.design.components.ConfirmModal
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButton
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicButtonDefaults
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicField
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModal
+import com.dsankovsky.kmpclientplanner.domain.models.additional.CurrencyItem
+import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
+import com.dsankovsky.kmpclientplanner.domain.models.base.BaseClient
+import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceDateTime
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalActions
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalHeader
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalHost
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalPanel
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalWidth
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicStepper
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicTextField
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceSpecificFields
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientScreenState
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.AddEditServiceScreenState
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.ServiceFormModalContent
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.ClientFormModalContent
+import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServiceScreenState
+import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PrepayClient
+import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PrepayModalContent
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.plus
 import org.jetbrains.skia.EncodedImageFormat
 import java.io.File
 import kotlin.test.Test
@@ -79,67 +91,105 @@ class OrganicModalRenderTest {
     }
 }
 
-private const val SheetWidth = 1200
-private const val SheetHeight = 720
+private const val SheetWidth = 2500
+private const val SheetHeight = 1000
 
 @Composable
 private fun ModalSheet() {
     Row(Modifier.fillMaxSize().background(OrganicTheme.colors.bg)) {
-        Box(Modifier.width(680.dp).fillMaxHeight()) {
+        Box(Modifier.width(700.dp).fillMaxHeight()) {
+            OrganicModalHost(onDismissRequest = {}) { ServiceForm() }
+        }
+        Box(Modifier.width(700.dp).fillMaxHeight()) {
+            OrganicModalHost(onDismissRequest = {}) { ClientForm() }
+        }
+        Box(Modifier.width(620.dp).fillMaxHeight()) {
             OrganicModalHost(onDismissRequest = {}) { PrepayModal() }
         }
-        Box(Modifier.width((SheetWidth - 680).dp).fillMaxHeight()) {
+        Box(Modifier.width((SheetWidth - 700 - 700 - 620).dp).fillMaxHeight()) {
             OrganicModalHost(onDismissRequest = {}) { ResetModal() }
         }
     }
 }
 
-/** М5 — предоплата, 520. */
+/** М1 — форма услуги, 600. */
+@Composable
+private fun ServiceForm() {
+    val client = BaseClient(id = 1, name = "Анна", surname = "Ковалёва")
+    ServiceFormModalContent(
+        state = AddEditServiceScreenState(
+            isLoading = false,
+            isEdit = true,
+            title = "Английский язык",
+            client = client,
+            clientsList = listOf(client),
+            startDateTime = LocalDateTime(2026, 7, 29, 15, 0),
+            endDateTime = LocalDateTime(2026, 7, 29, 16, 0),
+            durationText = "60",
+            address = "Онлайн, Zoom",
+            addressList = listOf("Онлайн, Zoom", "Немига 12"),
+            price = "40",
+            comment = "",
+            serviceType = ServiceType.EDUCATION,
+            serviceSpecificFields = ServiceSpecificFields.EducationServiceSpecificFields(),
+        ),
+        onAction = {},
+    )
+}
+
+/** М3 — форма клиента, 600: реальная форма на заполненном состоянии. */
+@Composable
+private fun ClientForm() {
+    ClientFormModalContent(
+        state = AddEditClientScreenState(
+            isLoading = false,
+            isEdit = true,
+            name = "Анна",
+            surname = "Ковалёва",
+            phone = "+375 29 123-45-67",
+            address = "Онлайн, Zoom",
+            price = "40",
+            comment = "Готовится к экзамену в декабре. Домашние задания просит присылать в Telegram.",
+            serviceType = ServiceType.EDUCATION,
+            clientSpecificFields = ClientSpecificFields.EducationClientSpecificFields(
+                level = "B1",
+                lessonDateTimeList = listOf(
+                    ServiceDateTime(dayOfWeek = DayOfWeek.MONDAY, time = LocalTime(12, 0)),
+                    ServiceDateTime(dayOfWeek = DayOfWeek.WEDNESDAY, time = LocalTime(12, 0)),
+                ),
+            ),
+        ),
+        onAction = {},
+    )
+}
+
+/** М5 — предоплата: реальная модалка на подготовленном состоянии. */
 @Composable
 private fun PrepayModal() {
-    OrganicModal(width = OrganicModalWidth.Medium) {
-        OrganicModalHeader(title = "Предоплата", onClose = {})
-        OrganicField(label = "Клиент") {
-            OrganicTextField(
-                value = "Дмитрий Лис — 4 неоплаченных занятия",
-                onValueChange = {},
-                readOnly = true,
-            )
-        }
-        OrganicField(label = "Количество оплаченных занятий") {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space3),
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            ) {
-                OrganicStepper(value = 3, onValueChange = {}, range = 1..4)
-                OrganicText(
-                    "от 1 до 4 — по числу неоплаченных занятий клиента",
-                    style = OrganicTheme.typography.label,
-                    color = OrganicTheme.colors.muted,
-                )
-            }
-        }
-        OrganicModalPanel(kicker = "Будут отмечены оплаченными") {
-            listOf(
-                "20 июля, 19:30" to "60,00 BYN",
-                "22 июля, 19:30" to "60,00 BYN",
-                "27 июля, 19:30" to "60,00 BYN",
-            ).forEach { (date, sum) ->
-                Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                    OrganicText(date, style = OrganicTheme.typography.bodySm)
-                    OrganicText(sum, style = OrganicTheme.typography.bodySm)
-                }
-            }
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                OrganicText("Итого", style = OrganicTheme.typography.cardTitle)
-                OrganicText("180,00 BYN", style = OrganicTheme.typography.cardTitle)
-            }
-        }
-        OrganicModalActions {
-            OrganicButton("Отмена", {}, colors = OrganicButtonDefaults.secondary())
-            OrganicButton("Оплатить", {})
-        }
+    val client = BaseClient(id = 1, name = "Дмитрий", surname = "Лис")
+    // Даты разные: в кадре должно быть видно, что плашка перечисляет конкретные занятия.
+    val start = LocalDateTime(2026, 7, 20, 19, 30)
+    val unpaid = listOf(0, 2, 7, 9).mapIndexed { index, dayShift ->
+        val date = start.date.plus(dayShift, DateTimeUnit.DAY)
+        BaseService(
+            id = index + 1L,
+            clientId = 1,
+            startDate = LocalDateTime(date, start.time),
+            endDate = LocalDateTime(date, start.time),
+            price = 60f,
+            currency = CurrencyItem.BYN,
+        )
     }
+    PrepayModalContent(
+        state = PayServiceScreenState(
+            isLoading = false,
+            clients = listOf(PrepayClient(client, unpaid.size)),
+            selectedClientId = client.id,
+            amount = 3,
+            unpaidServices = unpaid,
+        ),
+        onAction = {},
+    )
 }
 
 /** М10 — сброс приложения, 460, с контрольным словом. */

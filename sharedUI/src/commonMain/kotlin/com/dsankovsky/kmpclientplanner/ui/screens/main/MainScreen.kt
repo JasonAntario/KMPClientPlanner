@@ -26,8 +26,7 @@ import com.dsankovsky.kmpclientplanner.ui.extensions.toUIName
 import com.dsankovsky.kmpclientplanner.ui.screens.clients.ClientsScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.loading.LoadingScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.main.empty.NoClientsScreen
-import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreen
-import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsScreenEvent
+import com.dsankovsky.kmpclientplanner.ui.screens.service_details.ServiceDetailsPane
 import com.dsankovsky.kmpclientplanner.ui.screens.service_type_selection.ServiceTypeSelectionScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services.HomeScreen
 import com.dsankovsky.kmpclientplanner.ui.screens.services.ServicesListScreenEvent
@@ -123,42 +122,45 @@ fun MainScreen() {
                     )
                 }
 
+                // Детали услуги — панель главного экрана; отдельным destination'ом они
+                // остаются только для перехода из истории занятий клиента.
                 entry<Screen.ServiceDetailsScreen>(
                     metadata = transitionHorizontalSlideAnimation()
                 ) {
                     val serviceId = it.serviceId
-                    ServiceDetailsScreen(
+                    ServiceDetailsPane(
                         serviceId = serviceId,
-                        onEvent = {
-                            when (it) {
-                                ServiceDetailsScreenEvent.OnCloseScreen -> backStack.removeLastOrNull()
-                                ServiceDetailsScreenEvent.OpenEditServiceScreen -> {
-                                    modal = ModalState.ServiceForm(serviceId)
-                                }
-
-                                ServiceDetailsScreenEvent.StatusUpdated -> {
-                                    scope.launch {
-                                        val message =
-                                            getString(Res.string.client_details_status_updated)
-                                        snackbarHostState.showSnackbar(
-                                            message = message,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                }
+                        onEditService = { modal = ModalState.ServiceForm(serviceId) },
+                        onStatusUpdated = {
+                            scope.launch {
+                                val message = getString(Res.string.client_details_status_updated)
+                                snackbarHostState.showSnackbar(
+                                    message = message,
+                                    duration = SnackbarDuration.Short
+                                )
                             }
-                        }
+                        },
+                        onServiceDeleted = {
+                            scope.launch {
+                                val message = getString(Res.string.add_edit_service_deleted)
+                                snackbarHostState.showSnackbar(
+                                    message = message,
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                            backStack.removeLastOrNull()
+                        },
+                        onBack = { backStack.removeLastOrNull() },
                     )
                 }
 
                 entry<Screen.HomeScreen> {
                     HomeScreen(
+                        onEditService = { serviceId ->
+                            modal = ModalState.ServiceForm(serviceId)
+                        },
                         onEvent = { event ->
                             when (event) {
-                                is ServicesListScreenEvent.OpenServiceInfo -> {
-                                    backStack.add(Screen.ServiceDetailsScreen(event.serviceId))
-                                }
-
                                 ServicesListScreenEvent.ServiceDeleted -> {
                                     scope.launch {
                                         val message =
@@ -184,6 +186,9 @@ fun MainScreen() {
                                 ServicesListScreenEvent.AddService -> {
                                     modal = ModalState.ServiceForm(serviceId = null)
                                 }
+
+                                // Выбор занятия обрабатывает сам экран: это переключение панели.
+                                is ServicesListScreenEvent.OpenServiceInfo -> Unit
                             }
                         }
                     )

@@ -13,21 +13,18 @@ sealed interface AddEditClientAction {
     data class OnPhoneChanged(val phone: String) : AddEditClientAction
     data class OnPriceChanged(val price: String) : AddEditClientAction
     data class OnCurrencyChanged(val currency: CurrencyItem) : AddEditClientAction
-    data class OnCurrencyMenuExpandedChange(val isExpanded: Boolean) : AddEditClientAction
     data class OnCommentChanged(val comment: String) : AddEditClientAction
+
+    /** Значения полей уже в состоянии, поэтому сохранению нечего передавать. */
+    data object OnClientSaveClicked : AddEditClientAction
+
     data object OnDeleteClient : AddEditClientAction
     data object OnDeleteClientConfirmed : AddEditClientAction
-    data class OnClientSaveClicked(
-        val name: String,
-        val surname: String,
-        val comment: String,
-        val address: String,
-        val phone: String,
-        val price: String,
-        val level: String = "",
-        val weight: String = ""
-    ) : AddEditClientAction
 
+    /** Крестик, «Отмена», Esc и клик мимо: с правками сначала спросит М9. */
+    data object OnCloseRequested : AddEditClientAction
+
+    /** Закрыть без вопросов — подтверждение М9 или отказ от автозаполнения. */
     data object OnCloseScreenClicked : AddEditClientAction
 
     data object CloseClientDialog : AddEditClientAction
@@ -45,6 +42,7 @@ sealed interface AddEditClientAction {
             val dayOfWeek: DayOfWeek
         ) : AddEditClientAction
 
+        /** Время приходит из пикера, поэтому уже разобранное. */
         data class OnTimeChanged(val itemIndex: Int, val time: LocalTime) : AddEditClientAction
 
         data class OnDurationChanged(val itemIndex: Int, val duration: String) : AddEditClientAction

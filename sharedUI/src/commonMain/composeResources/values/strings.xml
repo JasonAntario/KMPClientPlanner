@@ -25,6 +25,8 @@
     <string name="datetime_sunday_short">Вс</string>
     <string name="datetime_duration">Длительность, ч</string>
     <string name="datetime_error">Ошибка</string>
+    <string name="datetime_pick_date">Выбрать дату в календаре</string>
+    <string name="datetime_pick_time">Выбрать время</string>
 
     <!--MONTHS-->
     <string name="months_january">Январь</string>
@@ -146,7 +148,6 @@
     <string name="service_training_delete_exercise">Удалить упражнение</string>
     <string name="service_training_delete_lesson">Удалить занятие</string>
     <string name="service_training_delete_training">Удалить тренеровку</string>
-    <string name="service_amount">Количество услуг</string>
     <string name="service_status_title">Статус</string>
     <string name="service_paid">Оплачено</string>
     <string name="service_not_paid">Не оплачено</string>
@@ -250,13 +251,69 @@
     <string name="service_confirm_deleting">Вы уверены, что хотите удалить услугу и все данные, связанные с ней?</string>
     <string name="client_shoud_continue_autofill">Все равно заполнить услуги?</string>
 
-    <string name="payment_title">Выберите клиента и количество услуг, которые хотите оплатить</string>
-    <string name="payment_available_services">Доступно услуг для оплаты: %1$s</string>
+    <!--SERVICE FORM (М1)-->
+    <string name="service_form_title">Услуга</string>
+    <string name="service_form_subtitle">Создание и редактирование — одна форма</string>
+    <string name="service_form_client">Клиент</string>
+    <string name="service_form_client_placeholder">Выберите клиента</string>
+    <string name="service_form_date">Дата</string>
+    <string name="service_form_date_placeholder">29.07.2026</string>
+    <string name="service_form_duration">Длительность, мин</string>
+    <string name="service_form_name">Услуга</string>
+    <string name="service_form_new_address">Новый адрес</string>
+    <string name="service_form_delete">Удалить занятие</string>
+    <string name="service_form_discard_title">Закрыть без сохранения?</string>
+    <string name="service_form_discard_text">Введённые данные занятия не сохранятся.</string>
+    <string name="service_form_crossing_title">Это время уже занято</string>
+    <string name="service_form_crossing_text">В это время уже есть занятия. Можно сохранить как есть или вернуться и выбрать другое время.</string>
+    <string name="service_form_crossing_confirm">Сохранить как есть</string>
+    <string name="service_form_crossing_dismiss">Изменить время</string>
+
+    <!--CLIENT FORM (М3)-->
+    <string name="client_form_title">Клиент</string>
+    <string name="client_form_subtitle">Создание и редактирование — одна форма</string>
+    <string name="client_form_category">Поля категории — %1$s</string>
+    <string name="client_form_category_hint">Эти поля подставляются в новые занятия клиента.</string>
+    <string name="client_form_schedule">Регулярное расписание</string>
+    <string name="client_form_schedule_hint">По расписанию занятия можно создать сразу на месяц вперёд.</string>
+    <string name="client_form_time">Время</string>
+    <string name="client_form_time_placeholder">15:00</string>
+    <string name="client_form_duration">Длительность, ч</string>
+    <string name="client_form_delete">Удалить клиента</string>
+    <string name="client_form_save">Сохранить</string>
+    <string name="client_form_discard_title">Закрыть без сохранения?</string>
+    <string name="client_form_discard_text">Введённые данные клиента не сохранятся.</string>
+    <string name="client_form_discard_confirm">Закрыть</string>
+    <string name="client_form_discard_dismiss">Вернуться</string>
+    <string name="client_form_autofill_title">Заполнить расписание на месяц?</string>
+    <string name="client_form_autofill_text">Клиент сохранён. Можно сразу создать занятия по расписанию на 4 недели вперёд.</string>
+    <string name="client_form_autofill_confirm">Создать занятия</string>
+    <string name="client_form_autofill_dismiss">Не сейчас</string>
+    <string name="client_form_crossing_title">Это время уже занято</string>
+    <string name="client_form_crossing_text">На часть занятий по расписанию уже есть записи. Их можно оставить как есть или вернуться и изменить время.</string>
+    <string name="client_form_crossing_confirm">Создать всё равно</string>
+    <string name="client_form_crossing_dismiss">Изменить время</string>
+
+    <string name="prepay_title">Предоплата</string>
+    <string name="prepay_client">Клиент</string>
+    <string name="prepay_client_placeholder">Выберите клиента</string>
+    <string name="prepay_amount">Количество оплаченных занятий</string>
+    <string name="prepay_amount_hint">от 1 до %1$d — по числу неоплаченных занятий клиента</string>
+    <string name="prepay_will_be_paid">Будут отмечены оплаченными</string>
+    <string name="prepay_total">Итого</string>
+    <string name="prepay_note">Выбираются самые ранние занятия со статусом «Не оплачено».</string>
+    <string name="prepay_pay">Оплатить</string>
+    <string name="prepay_empty">Все занятия оплачены — платить нечего</string>
+    <plurals name="prepay_client_unpaid">
+        <item quantity="one">%1$d неоплаченное занятие</item>
+        <item quantity="few">%1$d неоплаченных занятия</item>
+        <item quantity="many">%1$d неоплаченных занятий</item>
+        <item quantity="other">%1$d неоплаченных занятия</item>
+    </plurals>
     <string name="welcome_message">Добро пожаловать в Блокнот!</string>
     <string name="welcome_desctription">Приложение позволяет вести учет клиентов, услуг и оплат за оказываемые услуги</string>
     <string name="start">Начать</string>
     <string name="client_address_placeholder">Улица, Дом</string>
-    <string name="pay_services_title">Предоплата</string>
     <string name="service_details">Детали</string>
     <string name="service_date">Дата</string>
     <string name="service_time">Время</string>
@@ -267,6 +324,40 @@
     <string name="client_details_training">Тренировки</string>
     <string name="client_details_fill_trainings">Заполнить тренировки</string>
     <string name="client_details_services">Услуги клиента</string>
+
+    <!--SERVICE DETAILS (05-07)-->
+    <string name="service_details_duration">%1$d минут</string>
+    <string name="service_details_note">Заметка о занятии</string>
+    <string name="service_details_edit">Редактировать услугу</string>
+    <string name="service_details_delete">Удалить услугу</string>
+    <string name="service_details_delete_title">Удалить занятие?</string>
+    <string name="service_details_delete_confirm">Удалить</string>
+    <string name="service_details_back">Назад к списку</string>
+    <string name="service_details_close">Закрыть детали занятия</string>
+    <string name="service_homework_placeholder">Что сделать к следующему занятию</string>
+    <string name="service_workout">Тренировка</string>
+    <string name="service_workout_pick">Выбрать из созданных</string>
+    <string name="service_workout_new">Новое упражнение</string>
+    <string name="service_workout_empty">Упражнений пока нет — добавьте первое</string>
+    <string name="service_workout_note">Веса и повторы подставлены из последнего выполнения упражнения по временной метке.</string>
+    <string name="service_exercise">Упражнение</string>
+    <string name="service_exercise_sets">Подходы</string>
+    <string name="service_exercise_repeats">Повторы</string>
+    <string name="service_exercise_weight">Вес</string>
+    <string name="service_exercise_last_time">Прошлый раз</string>
+    <string name="service_exercise_last_value">%1$d × %2$s · %3$s</string>
+    <string name="service_exercise_delete">Удалить упражнение</string>
+    <string name="service_exercise_new_hint">Подходы, повторы и вес подставляются из прошлого выполнения — поправьте, если изменились.</string>
+    <string name="service_exercise_add">Добавить</string>
+    <string name="service_exercise_pick_title">Выбрать упражнение</string>
+    <string name="service_exercise_pick_empty">У клиента ещё нет созданных упражнений</string>
+    <string name="service_references">Референсы и эскизы</string>
+    <string name="service_references_note">Клик по фото — просмотр на весь экран. Изображения активного проекта клиента подставляются автоматически.</string>
+    <string name="service_references_empty">Референсов пока нет</string>
+    <string name="service_results">Результат работы · %1$d</string>
+    <string name="service_photo_add">Добавить фото</string>
+    <string name="service_photo_delete">Удалить фото</string>
+    <string name="service_note_short">Заметка</string>
 
     <!--CLIENT DETAILS (08)-->
     <string name="client_details_unpaid">Не оплачено</string>
@@ -285,7 +376,7 @@
     <string name="client_details_autofill_title">Продлить занятия?</string>
     <string name="client_details_crossing_title">Пересечение по времени</string>
     <string name="client_details_empty_selection">Выберите клиента в списке слева</string>
-    <string name="client_details_back">Назад к списку</string>
+    <string name="client_details_close">Закрыть карточку клиента</string>
     <plurals name="client_details_prepaid">
         <item quantity="one">%1$d предоплаченное занятие</item>
         <item quantity="few">%1$d предоплаченных занятия</item>

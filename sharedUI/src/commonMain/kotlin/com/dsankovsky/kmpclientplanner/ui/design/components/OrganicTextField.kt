@@ -35,21 +35,26 @@ import androidx.compose.runtime.setValue
 
 /**
  * `.field` — подпись 12px над контролом, отступ 5.
+ *
+ * @param required у обязательного поля к подписи добавляется звёздочка акцентом — по ней
+ *   видно, из-за чего заблокировано «Сохранить», не нажимая кнопку
  */
 @Composable
 fun OrganicField(
     label: String?,
     modifier: Modifier = Modifier,
+    required: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     Column(modifier) {
         if (label != null) {
-            OrganicText(
-                text = label,
-                style = OrganicTheme.typography.label,
-                color = OrganicTheme.colors.label,
-                modifier = Modifier.padding(bottom = 5.dp),
-            )
+            val labelStyle = OrganicTheme.typography.label
+            Row(modifier = Modifier.padding(bottom = 5.dp)) {
+                OrganicText(text = label, style = labelStyle, color = OrganicTheme.colors.label)
+                if (required) {
+                    OrganicText(text = " *", style = labelStyle, color = OrganicTheme.colors.accent)
+                }
+            }
         }
         content()
     }

@@ -69,12 +69,6 @@ class AddEditClientViewModel(
                 }
             }
 
-            is AddEditClientAction.OnCurrencyMenuExpandedChange -> {
-                _state.update {
-                    it.copy(isCurrencyMenuExpanded = action.isExpanded)
-                }
-            }
-
             is AddEditClientAction.OnNameChanged -> {
                 _state.update {
                     it.copy(name = action.name)
@@ -110,6 +104,15 @@ class AddEditClientViewModel(
                 val specificFields = getSportSpecificFields() ?: return
                 _state.update {
                     it.copy(clientSpecificFields = specificFields.copy(weight = action.weight))
+                }
+            }
+
+            // Правки есть — сначала М9, иначе закрываем сразу.
+            AddEditClientAction.OnCloseRequested -> {
+                if (state.value.isDirty) {
+                    _state.update { it.copy(showDialog = ClientScreenDialog.ConfirmDiscard) }
+                } else {
+                    handleActions(AddEditClientAction.OnCloseScreenClicked)
                 }
             }
 
@@ -218,16 +221,7 @@ class AddEditClientViewModel(
                 }
             }
 
-            is AddEditClientAction.OnClientSaveClicked -> saveClient(
-                name = action.name,
-                surname = action.surname,
-                comment = action.comment,
-                address = action.address,
-                phone = action.phone,
-                price = action.price,
-                level = action.level,
-                weight = action.weight
-            )
+            AddEditClientAction.OnClientSaveClicked -> saveClient()
 
             AddEditClientAction.OnDeleteClient -> {
                 _state.update {
@@ -329,8 +323,6 @@ class AddEditClientViewModel(
             val specificFields =
                 getClientSpecificFieldsUseCase.getSpecificField(client?.id, serviceType)
 
-            println("load client ST - $serviceType")
-
             _state.update {
                 it.copy(
                     id = id,
@@ -345,37 +337,27 @@ class AddEditClientViewModel(
                     phone = phone,
                     comment = comment,
                     serviceType = serviceType,
-                    initialServiceFields = specificFields,
-                    clientSpecificFields = specificFields
-                )
+                    clientSpecificFields = specificFields,
+                ).let { loaded -> loaded.copy(initialSnapshot = loaded.snapshot) }
             }
         }
     }
 
-    private fun saveClient(
-        name: String,
-        surname: String = "",
-        comment: String = "",
-        address: String = "",
-        phone: String = "",
-        price: String = "",
-        level: String = "",
-        weight: String = ""
-    ) {
+    private fun saveClient() {
         viewModelScope.launch {
             val currentState = state.value
-            val price = price.toFloatOrNull()
+            val price = currentState.price.replace(',', '.').toFloatOrNull()
             val serviceType = currentState.serviceType
 
             val client = BaseClient(
                 id = currentState.id,
-                name = name.trim(),
-                surname = surname.trim().ifBlank { null },
-                address = address.trim().ifBlank { null },
-                phone = phone.trim().ifBlank { null },
+                name = currentState.name.trim(),
+                surname = currentState.surname.trim().ifBlank { null },
+                address = currentState.address.trim().ifBlank { null },
+                phone = currentState.phone.trim().ifBlank { null },
                 price = if (price == null || price == 0f) null else price,
                 currency = currentState.currency,
-                comment = comment.trim().ifBlank { null },
+                comment = currentState.comment.trim().ifBlank { null },
                 serviceType = serviceType
             )
 
@@ -386,7 +368,7 @@ class AddEditClientViewModel(
                 addEditDeleteClientUseCase.addClient(client)
             }
 
-            val specificFields = checkSpecificFieldsBeforeSaving(clientId, level, weight)
+            val specificFields = checkSpecificFieldsBeforeSaving(clientId)
             specificFields?.let {
                 if (currentState.isEdit) {
                     addEditClientSpecificFields.updateSpecificField(specificFields)
@@ -415,17 +397,13 @@ class AddEditClientViewModel(
         }
     }
 
-    private fun checkSpecificFieldsBeforeSaving(
-        clientId: Long,
-        level: String = "",
-        weight: String = ""
-    ): ClientSpecificFields? {
+    private fun checkSpecificFieldsBeforeSaving(clientId: Long): ClientSpecificFields? {
         return when (val fields = state.value.clientSpecificFields) {
             is ClientSpecificFields.EducationClientSpecificFields -> {
                 ClientSpecificFields.EducationClientSpecificFields(
                     id = fields.id,
                     clientId = clientId,
-                    level = level.ifBlank { null },
+                    level = fields.level?.ifBlank { null },
                     isOnline = fields.isOnline,
                     lessonDateTimeList = fields.lessonDateTimeList
                 )
@@ -444,7 +422,7 @@ class AddEditClientViewModel(
                 ClientSpecificFields.SportClientSpecificFields(
                     id = fields.id,
                     clientId = clientId,
-                    weight = weight.ifBlank { null },
+                    weight = fields.weight?.ifBlank { null },
                     isOnline = fields.isOnline,
                     lessonDateTimeList = fields.lessonDateTimeList
                 )
@@ -464,8 +442,6 @@ class AddEditClientViewModel(
                 ServiceType.BEAUTY -> Res.string.service_prefix_beauty
                 ServiceType.TATTOO -> Res.string.service_prefix_tattoo
             }
-
-            println("autofill services ST - ${state.serviceType}")
 
             val titlePrefix = getString(titlePrefixRes)
             autofillServiceUseCase.autofillServices(

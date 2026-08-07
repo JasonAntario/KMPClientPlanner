@@ -59,23 +59,27 @@ class AddEditServiceViewModel(
                 _state.update { it.copy(comment = action.comment) }
             }
 
+            // Правки есть — сначала М9, иначе закрываем сразу.
+            AddEditServiceAction.OnCloseRequested -> {
+                if (state.value.isDirty) {
+                    _state.update {
+                        it.copy(
+                            showDialog = AddEditServiceScreenState.ServiceScreenDialog.ConfirmDiscard,
+                        )
+                    }
+                } else {
+                    handleActions(AddEditServiceAction.OnCloseScreenClicked)
+                }
+            }
+
             AddEditServiceAction.OnCloseScreenClicked -> {
                 viewModelScope.launch {
+                    closeDialog()
                     event.emit(AddEditServiceEvent.OnDismissClicked)
                 }
             }
 
-            is AddEditServiceAction.OnSaveServiceClicked -> {
-                _state.update {
-                    it.copy(
-                        title = action.title,
-                        address = action.address,
-                        price = action.price,
-                        comment = action.comment
-                    )
-                }
-                checkServiceBeforeSaving()
-            }
+            AddEditServiceAction.OnSaveServiceClicked -> checkServiceBeforeSaving()
 
             AddEditServiceAction.OnSaveServiceConfirmed -> {
                 closeDialog()
@@ -86,44 +90,26 @@ class AddEditServiceViewModel(
                 _state.update { it.copy(title = action.title) }
             }
 
-            is AddEditServiceAction.OnTimeChanged -> {
-                _state.update {
-                    when (action.source) {
-                        TimeSource.BASE_START_TIME -> {
-                            val dateTime = LocalDateTime(it.startDateTime.date, action.time)
-                            it.copy(
-                                startDateTime = dateTime
-                            )
-                        }
-
-                        TimeSource.BASE_END_TIME -> {
-                            val dateTime = LocalDateTime(it.endDateTime.date, action.time)
-                            it.copy(
-                                endDateTime = dateTime
-                            )
-                        }
-                    }
-                }
+            is AddEditServiceAction.OnTimeChanged -> _state.update { state ->
+                // Длительность держим прежней: время начала сдвигает и конец.
+                val minutes = state.durationMinutes
+                val start = LocalDateTime(state.startDateTime.date, action.time)
+                state.copy(startDateTime = start, endDateTime = start.addMinutes(minutes))
             }
 
-            is AddEditServiceAction.OnDateChanged -> {
-                _state.update {
-                    when (action.source) {
-                        DateSource.BASE_START_DATE -> {
-                            val dateTime = LocalDateTime(action.date, it.startDateTime.time)
-                            it.copy(
-                                startDateTime = dateTime
-                            )
-                        }
+            is AddEditServiceAction.OnDateChanged -> _state.update { state ->
+                val minutes = state.durationMinutes
+                val start = LocalDateTime(action.date, state.startDateTime.time)
+                state.copy(startDateTime = start, endDateTime = start.addMinutes(minutes))
+            }
 
-                        DateSource.BASE_END_DATE -> {
-                            val dateTime = LocalDateTime(action.date, it.endDateTime.time)
-                            it.copy(
-                                endDateTime = dateTime
-                            )
-                        }
-                    }
-                }
+            is AddEditServiceAction.OnDurationChanged -> _state.update { state ->
+                val minutes = action.minutes.trim().toIntOrNull()?.takeIf { it > 0 }
+                    ?: return@update state.copy(durationText = action.minutes)
+                state.copy(
+                    durationText = action.minutes,
+                    endDateTime = state.startDateTime.addMinutes(minutes),
+                )
             }
 
             is AddEditServiceAction.OnCurrencyChanged -> {
@@ -156,6 +142,13 @@ class AddEditServiceViewModel(
 
             AddEditServiceAction.OnDialogDismissed -> {
                 closeDialog()
+            }
+
+            is AddEditServiceAction.EducationServiceAction.OnHomeworkChanged -> {
+                val specificFields = getEducationSpecificFields() ?: return
+                _state.update {
+                    it.copy(serviceSpecificFields = specificFields.copy(homework = action.homework))
+                }
             }
 
             is AddEditServiceAction.EducationServiceAction.OnFormatChanged -> {
@@ -223,7 +216,7 @@ class AddEditServiceViewModel(
             }.distinct()
 
             _state.update {
-                AddEditServiceScreenState(
+                val loaded = AddEditServiceScreenState(
                     isLoading = false,
                     isEdit = service != null,
                     id = service?.id ?: UNDEFINED_ID,
@@ -242,9 +235,17 @@ class AddEditServiceViewModel(
                     serviceType = serviceType,
                     serviceSpecificFields = specificFields
                 )
+                loaded.copy(
+                    durationText = loaded.durationMinutes.toString(),
+                    initialSnapshot = loaded.snapshot,
+                )
             }
         }
     }
+
+    /** Минуты — единица длительности в форме; в модели живут две даты. */
+    private fun LocalDateTime.addMinutes(minutes: Int): LocalDateTime =
+        addHours(minutes / 60f)
 
     private fun changeClient(client: BaseClient) {
         viewModelScope.launch {

@@ -5,15 +5,16 @@ sealed interface ServiceDetailsScreenAction {
 
     data class LoadData(val serviceId: Long) : ServiceDetailsScreenAction
 
-    data object OnCloseScreenClicked : ServiceDetailsScreenAction
     data object OnEditServiceClicked : ServiceDetailsScreenAction
-
-    data object OnUpdateDataClicked : ServiceDetailsScreenAction
+    data object OnDeleteServiceClicked : ServiceDetailsScreenAction
+    data object OnDeleteServiceConfirmed : ServiceDetailsScreenAction
+    data object CloseDialog : ServiceDetailsScreenAction
 
     data object OnPaidStatusChanged : ServiceDetailsScreenAction
     data object OnFinishStatusChanged : ServiceDetailsScreenAction
 
     data object EducationServiceAction {
+        /** Домашнее задание сохраняется само: кнопки «Обновить данные» в новом дизайне нет. */
         data class OnHomeworkChanged(val homework: String) : ServiceDetailsScreenAction
     }
 
@@ -28,31 +29,19 @@ sealed interface ServiceDetailsScreenAction {
     }
 
     data object SportServiceAction {
-        data object OnAddExerciseClicked : ServiceDetailsScreenAction
-        data class OnDeleteExerciseClicked(val exerciseIndex: Int) : ServiceDetailsScreenAction
-        data class OnExerciseTitleChanged(
-            val exerciseIndex: Int,
+        /** «Новое упражнение» (М11): подходы одинаковые, значения из формы. */
+        data class OnExerciseAdded(
             val title: String,
-            val isSelectable: Boolean
+            val setsCount: Int,
+            val repeats: String,
+            val weight: String,
         ) : ServiceDetailsScreenAction
 
-        data class OnAddSetClicked(val exerciseIndex: Int) : ServiceDetailsScreenAction
-        data class OnDeleteSetClicked(
-            val exerciseIndex: Int,
-            val setIndex: Int
-        ) : ServiceDetailsScreenAction
+        data class OnDeleteExerciseClicked(val exerciseIndex: Int) : ServiceDetailsScreenAction
 
-        data class OnSetRepeatsChanged(
-            val exerciseIndex: Int,
-            val setIndex: Int,
-            val repeats: String
-        ) : ServiceDetailsScreenAction
-
-        data class OnSetWeightChanged(
-            val exerciseIndex: Int,
-            val setIndex: Int,
-            val weight: String
-        ) : ServiceDetailsScreenAction
+        data object OnNewExerciseClicked : ServiceDetailsScreenAction
+        data object OnPickExerciseClicked : ServiceDetailsScreenAction
+        data class OnKnownExercisePicked(val exercise: KnownExercise) : ServiceDetailsScreenAction
     }
 }
 
@@ -61,4 +50,5 @@ sealed interface ServiceDetailsScreenEvent {
     data object OnCloseScreen : ServiceDetailsScreenEvent
     data object OpenEditServiceScreen : ServiceDetailsScreenEvent
     data object StatusUpdated : ServiceDetailsScreenEvent
+    data object ServiceDeleted : ServiceDetailsScreenEvent
 }

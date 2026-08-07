@@ -57,7 +57,7 @@ import kmpclientplanner.sharedui.generated.resources.client_comment
 import kmpclientplanner.sharedui.generated.resources.client_currency
 import kmpclientplanner.sharedui.generated.resources.client_details_all_services
 import kmpclientplanner.sharedui.generated.resources.client_details_autofill_title
-import kmpclientplanner.sharedui.generated.resources.client_details_back
+import kmpclientplanner.sharedui.generated.resources.client_details_close
 import kmpclientplanner.sharedui.generated.resources.client_details_contacts
 import kmpclientplanner.sharedui.generated.resources.client_details_crossing_title
 import kmpclientplanner.sharedui.generated.resources.client_details_delete
@@ -89,8 +89,9 @@ import org.koin.compose.viewmodel.koinViewModel
 /**
  * Правая панель экрана 08 — карточка клиента.
  *
- * Раньше это был отдельный destination со своим тулбаром; теперь панель master-detail,
- * поэтому «назад» появляется только на узком окне, где панели показываются по одной.
+ * Раньше это был отдельный destination со своим тулбаром; теперь панель master-detail.
+ * Крестик [onClose] снимает выделение: на широком окне справа остаётся заглушка,
+ * на узком возвращается список.
  */
 @Composable
 fun ClientDetailsPane(
@@ -100,7 +101,7 @@ fun ClientDetailsPane(
     onAutofillCompleted: () -> Unit,
     onClientDeleted: () -> Unit,
     modifier: Modifier = Modifier,
-    onBack: (() -> Unit)? = null,
+    onClose: (() -> Unit)? = null,
 ) {
     val viewModel: ClientDetailsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -111,7 +112,7 @@ fun ClientDetailsPane(
             ClientDetailsEvents.OpenServicesHistory -> onOpenServicesHistory()
             ClientDetailsEvents.AutofillCompleted -> onAutofillCompleted()
             ClientDetailsEvents.ClientDeleted -> onClientDeleted()
-            ClientDetailsEvents.OnCloseScreen -> onBack?.invoke()
+            ClientDetailsEvents.OnCloseScreen -> onClose?.invoke()
         }
     }
 
@@ -125,7 +126,7 @@ fun ClientDetailsPane(
             else -> ClientDetailsPaneContent(
                 state = state,
                 onAction = viewModel::handleActions,
-                onBack = onBack,
+                onClose = onClose,
             )
         }
         ClientDetailsDialogs(state = state, onAction = viewModel::handleActions)
@@ -137,7 +138,7 @@ fun ClientDetailsPaneContent(
     state: ClientDetailsScreenState,
     onAction: (ClientDetailsActions) -> Unit,
     modifier: Modifier = Modifier,
-    onBack: (() -> Unit)? = null,
+    onClose: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -147,7 +148,7 @@ fun ClientDetailsPaneContent(
             .padding(horizontal = 36.dp, vertical = 30.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        ClientHeader(state = state, onAction = onAction, onBack = onBack)
+        ClientHeader(state = state, onAction = onAction, onClose = onClose)
         MetricsRow(state)
         ContactsBlock(state = state, onAction = onAction)
     }
@@ -157,19 +158,12 @@ fun ClientDetailsPaneContent(
 private fun ClientHeader(
     state: ClientDetailsScreenState,
     onAction: (ClientDetailsActions) -> Unit,
-    onBack: (() -> Unit)?,
+    onClose: (() -> Unit)?,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        if (onBack != null) {
-            OrganicIconButton(
-                icon = OrganicIcons.ChevronLeft,
-                onClick = onBack,
-                contentDescription = stringResource(Res.string.client_details_back),
-            )
-        }
         Avatar(
             initials = state.clientShortName,
             size = 76.dp,
@@ -204,6 +198,13 @@ private fun ClientHeader(
                 onClick = { onAction(ClientDetailsActions.OnDeleteClientClicked) },
                 contentDescription = stringResource(Res.string.client_details_delete),
             )
+            if (onClose != null) {
+                OrganicIconButton(
+                    icon = OrganicIcons.X,
+                    onClick = onClose,
+                    contentDescription = stringResource(Res.string.client_details_close),
+                )
+            }
         }
     }
 }
@@ -451,6 +452,9 @@ private fun ClientDetailsDialogs(
                     }
                 },
             )
+
+            // М9 принадлежит форме: в карточке нечего терять несохранённым.
+            ClientScreenDialog.ConfirmDiscard -> Unit
         }
     }
 }

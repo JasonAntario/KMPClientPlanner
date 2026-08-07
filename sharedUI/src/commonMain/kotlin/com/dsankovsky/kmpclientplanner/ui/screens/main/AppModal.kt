@@ -4,18 +4,14 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.dsankovsky.kmpclientplanner.navigation.Screen
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModal
 import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalHost
-import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicModalWidth
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.AddEditClientScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_client.ClientFormModal
 import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.AddEditServiceEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.AddEditServiceScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.add_edit_service.ServiceFormModal
 import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServiceScreenEvent
-import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PayServicesScreen
+import com.dsankovsky.kmpclientplanner.ui.screens.pay_services.PrepayModal
 import com.dsankovsky.kmpclientplanner.ui.screens.settings.ResetAppModal
 import kmpclientplanner.sharedui.generated.resources.Res
 import kmpclientplanner.sharedui.generated.resources.add_edit_client_created
@@ -33,9 +29,9 @@ import org.jetbrains.compose.resources.getString
 /**
  * Раскрывает [ModalState] в конкретное окно.
  *
- * Формы (М1, М3, М5) пока показывают ещё не переписанные экраны — они приходят со своим
- * `Scaffold` и тулбаром, поэтому кладутся в панель без паддинга и без шапки DS. На этапе 6
- * содержимое меняется на форму по макету, а сам этот слой остаётся как есть.
+ * Скрим и панель — забота самого окна: формы (М1, М3) перехватывают Esc и клик мимо, чтобы
+ * с несохранёнными правками сначала спросить М9, а не закрыться молча. Остальные окна отдают
+ * закрытие наружу как есть.
  */
 @Composable
 fun AppModal(
@@ -53,95 +49,94 @@ fun AppModal(
         }
     }
 
-    OrganicModalHost(onDismissRequest = onDismiss) {
-        when (state) {
-            is ModalState.ClientForm -> LegacyFormModal(fullScreen) {
-                AddEditClientScreen(
-                    clientId = state.clientId,
-                    onEvent = { event ->
-                        when (event) {
-                            AddEditClientEvent.OnDismissClicked -> onDismiss()
+    when (state) {
+        is ModalState.ClientForm -> ClientFormModal(
+            clientId = state.clientId,
+            fullScreen = fullScreen,
+            onEvent = { event ->
+                when (event) {
+                    AddEditClientEvent.OnDismissClicked -> onDismiss()
 
-                            AddEditClientEvent.OnClientSaved -> {
-                                toast(
-                                    if (state.clientId != null) {
-                                        Res.string.add_edit_client_updated
-                                    } else {
-                                        Res.string.add_edit_client_created
-                                    },
-                                )
-                                onDismiss()
-                                // Первый клиент добавлен с экрана «нет клиентов» — на нём
-                                // больше нечего показывать, стартовый экран пересчитывается.
-                                if (backStack.lastOrNull() == Screen.NoClientsScreen) onRestart()
-                            }
+                    AddEditClientEvent.OnClientSaved -> {
+                        toast(
+                            if (state.clientId != null) {
+                                Res.string.add_edit_client_updated
+                            } else {
+                                Res.string.add_edit_client_created
+                            },
+                        )
+                        onDismiss()
+                        // Первый клиент добавлен с экрана «нет клиентов» — на нём
+                        // больше нечего показывать, стартовый экран пересчитывается.
+                        if (backStack.lastOrNull() == Screen.NoClientsScreen) onRestart()
+                    }
 
-                            is AddEditClientEvent.OnClientDeleted -> {
-                                toast(Res.string.add_edit_client_deleted)
-                                onDismiss()
-                                if (event.noClients) {
-                                    onRestart()
-                                } else {
-                                    // Карточка удалённого клиента под модалкой больше не нужна.
-                                    backStack.clear()
-                                    backStack.add(Screen.ClientsScreen)
-                                }
-                            }
-
-                            AddEditClientEvent.AutofillCompleted -> {
-                                toast(Res.string.client_details_autofill_completed)
-                            }
+                    is AddEditClientEvent.OnClientDeleted -> {
+                        toast(Res.string.add_edit_client_deleted)
+                        onDismiss()
+                        if (event.noClients) {
+                            onRestart()
+                        } else {
+                            // Карточка удалённого клиента под модалкой больше не нужна.
+                            backStack.clear()
+                            backStack.add(Screen.ClientsScreen)
                         }
-                    },
-                )
-            }
+                    }
 
-            is ModalState.ServiceForm -> LegacyFormModal(fullScreen) {
-                AddEditServiceScreen(
-                    serviceId = state.serviceId,
-                    onEvent = { event ->
-                        when (event) {
-                            AddEditServiceEvent.OnDismissClicked -> onDismiss()
+                    AddEditClientEvent.AutofillCompleted -> {
+                        toast(Res.string.client_details_autofill_completed)
+                    }
+                }
+            },
+        )
 
-                            AddEditServiceEvent.OnServiceSaved -> {
-                                toast(
-                                    if (state.serviceId != null) {
-                                        Res.string.add_edit_service_updated
-                                    } else {
-                                        Res.string.add_edit_service_created
-                                    },
-                                )
-                                onDismiss()
-                            }
+        is ModalState.ServiceForm -> ServiceFormModal(
+            serviceId = state.serviceId,
+            fullScreen = fullScreen,
+            onEvent = { event ->
+                when (event) {
+                    AddEditServiceEvent.OnDismissClicked -> onDismiss()
 
-                            AddEditServiceEvent.OnServiceDeleted -> {
-                                toast(Res.string.add_edit_service_deleted)
-                                onDismiss()
-                                // Детали удалённой услуги под модалкой закрываем.
-                                if (backStack.lastOrNull() is Screen.ServiceDetailsScreen) {
-                                    backStack.removeLastOrNull()
-                                }
-                            }
+                    AddEditServiceEvent.OnServiceSaved -> {
+                        toast(
+                            if (state.serviceId != null) {
+                                Res.string.add_edit_service_updated
+                            } else {
+                                Res.string.add_edit_service_created
+                            },
+                        )
+                        onDismiss()
+                    }
+
+                    AddEditServiceEvent.OnServiceDeleted -> {
+                        toast(Res.string.add_edit_service_deleted)
+                        onDismiss()
+                        // Детали удалённой услуги под модалкой закрываем.
+                        if (backStack.lastOrNull() is Screen.ServiceDetailsScreen) {
+                            backStack.removeLastOrNull()
                         }
-                    },
-                )
-            }
+                    }
+                }
+            },
+        )
 
-            ModalState.Prepay -> LegacyFormModal(fullScreen, width = OrganicModalWidth.Medium) {
-                PayServicesScreen(
-                    onEvent = { event ->
-                        when (event) {
-                            PayServiceScreenEvent.OnDismissClicked -> onDismiss()
-                            PayServiceScreenEvent.OnSuccess -> {
-                                toast(Res.string.services_paid)
-                                onDismiss()
-                            }
+        ModalState.Prepay -> OrganicModalHost(onDismissRequest = onDismiss) {
+            PrepayModal(
+                fullScreen = fullScreen,
+                onEvent = { event ->
+                    when (event) {
+                        PayServiceScreenEvent.OnDismissClicked -> onDismiss()
+                        PayServiceScreenEvent.OnSuccess -> {
+                            toast(Res.string.services_paid)
+                            onDismiss()
                         }
-                    },
-                )
-            }
+                    }
+                },
+            )
+        }
 
-            ModalState.ResetApp -> ResetAppModal(
+        ModalState.ResetApp -> OrganicModalHost(onDismissRequest = onDismiss) {
+            ResetAppModal(
                 onDismiss = onDismiss,
                 onCleared = {
                     onDismiss()
@@ -151,24 +146,5 @@ fun AppModal(
                 fullScreen = fullScreen,
             )
         }
-    }
-}
-
-/**
- * Панель под ещё не переписанный экран: без внутренних отступов и без шапки — они у экрана свои.
- */
-@Composable
-private fun LegacyFormModal(
-    fullScreen: Boolean,
-    width: Dp = OrganicModalWidth.Form,
-    content: @Composable () -> Unit,
-) {
-    OrganicModal(
-        width = width,
-        fullScreen = fullScreen,
-        contentPadding = 0.dp,
-        verticalGap = 0.dp,
-    ) {
-        content()
     }
 }

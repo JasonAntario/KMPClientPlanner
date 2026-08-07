@@ -25,9 +25,9 @@ import com.dsankovsky.kmpclientplanner.ui.design.components.OrganicText
 import com.dsankovsky.kmpclientplanner.ui.design.components.PaymentStatusButton
 import com.dsankovsky.kmpclientplanner.ui.design.components.PreviewSurface
 import com.dsankovsky.kmpclientplanner.ui.design.components.SessionStatusButton
+import com.dsankovsky.kmpclientplanner.ui.extensions.minutesUntil
 import com.dsankovsky.kmpclientplanner.ui.extensions.toUIMoney
 import com.dsankovsky.kmpclientplanner.ui.extensions.toTime
-import kotlinx.datetime.LocalDateTime
 
 /**
  * Строка занятия из ленты (экран 04): сетка «время · клиент · сумма · статусы»,
@@ -55,7 +55,9 @@ fun ServiceItemView(
     val container = modifier
         .fillMaxWidth()
         .alpha(if (dimmed) DimmedAlpha else 1f)
-        .then(if (selected) Modifier.dropShadow(shape, OrganicTheme.elevation.md) else Modifier)
+        // Пара surface-на-bg сама по себе почти не читается, поэтому строка всегда чуть
+        // приподнята; выбранная поднимается заметно выше и получает обводку.
+        .dropShadow(shape, if (selected) OrganicTheme.elevation.md else OrganicTheme.elevation.sm)
         .background(colors.surface, shape)
         .then(if (selected) Modifier.border(2.dp, colors.accent, shape) else Modifier)
         .clickable(
@@ -169,13 +171,6 @@ private fun ServicesListScreenItem.ServiceItem.subtitle(): String = buildList {
     service.address?.takeIf { it.isNotBlank() }?.let(::add)
 }.joinToString(" · ")
 
-private fun LocalDateTime.minutesUntil(other: LocalDateTime): Int {
-    val start = date.toEpochDays() * MinutesInDay + hour * 60 + minute
-    val end = other.date.toEpochDays() * MinutesInDay + other.hour * 60 + other.minute
-    return (end - start).toInt()
-}
-
-private const val MinutesInDay = 24 * 60
 private const val DimmedAlpha = 0.75f
 private val TimeColumn = 124.dp
 private val PriceColumn = 176.dp

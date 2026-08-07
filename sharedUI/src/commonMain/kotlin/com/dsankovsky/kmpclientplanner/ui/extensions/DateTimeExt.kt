@@ -109,6 +109,15 @@ fun Int.toTwoNumberString(): String {
     return if (this < 10) "0$this" else this.toString()
 }
 
+/** Длительность занятия в минутах — «60 минут» в киккере деталей и в подписи строки ленты. */
+fun LocalDateTime.minutesUntil(other: LocalDateTime): Int {
+    val start = date.toEpochDays() * MinutesInDay + hour * 60 + minute
+    val end = other.date.toEpochDays() * MinutesInDay + other.hour * 60 + other.minute
+    return (end - start).toInt()
+}
+
+private const val MinutesInDay = 24 * 60
+
 fun LocalDate.toUIDate(): String {
     val day = day.toTwoNumberString()
     val month = month.number.toTwoNumberString()

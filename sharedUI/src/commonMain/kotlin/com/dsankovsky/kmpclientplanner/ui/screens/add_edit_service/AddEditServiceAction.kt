@@ -11,46 +11,41 @@ sealed interface AddEditServiceAction {
     data class OnTitleChanged(val title: String) : AddEditServiceAction
     data class OnClientChanged(val client: BaseClient) : AddEditServiceAction
     data class OnCommentChanged(val comment: String) : AddEditServiceAction
-    data class OnTimeChanged(val time: LocalTime, val source: TimeSource) : AddEditServiceAction
-    data class OnDateChanged(val date: LocalDate, val source: DateSource) : AddEditServiceAction
     data class OnAddressChanged(val address: String) : AddEditServiceAction
-    data class OnSaveServiceClicked(
-        val title: String,
-        val address: String,
-        val price: String,
-        val comment: String
-    ) : AddEditServiceAction
-
-    data object OnCloseScreenClicked : AddEditServiceAction
-    data class OnPaidStatusChanged(val isPaid: Boolean) : AddEditServiceAction
-    data class OnFinishedStatusChanged(val isFinished: Boolean) : AddEditServiceAction
     data class OnPriceChanged(val price: String) : AddEditServiceAction
     data class OnCurrencyChanged(val currency: CurrencyItem) : AddEditServiceAction
 
+    /** Дата и время приходят из пикеров, поэтому уже разобранные. */
+    data class OnDateChanged(val date: LocalDate) : AddEditServiceAction
+    data class OnTimeChanged(val time: LocalTime) : AddEditServiceAction
+
+    /** Длительность в минутах — обычное числовое поле, поэтому текстом. */
+    data class OnDurationChanged(val minutes: String) : AddEditServiceAction
+
+    /** Значения полей уже в состоянии, поэтому сохранению нечего передавать. */
+    data object OnSaveServiceClicked : AddEditServiceAction
     data object OnSaveServiceConfirmed : AddEditServiceAction
+
+    data class OnPaidStatusChanged(val isPaid: Boolean) : AddEditServiceAction
+    data class OnFinishedStatusChanged(val isFinished: Boolean) : AddEditServiceAction
 
     data object OnDeleteService : AddEditServiceAction
     data object OnDeleteServiceConfirmed : AddEditServiceAction
+
+    /** Крестик, «Отмена», Esc и клик мимо: с правками сначала спросит М9. */
+    data object OnCloseRequested : AddEditServiceAction
+    data object OnCloseScreenClicked : AddEditServiceAction
 
     data object OnDialogDismissed : AddEditServiceAction
 
     data object EducationServiceAction {
         data class OnFormatChanged(val isOnline: Boolean) : AddEditServiceAction
+        data class OnHomeworkChanged(val homework: String) : AddEditServiceAction
     }
 
     data object SportServiceAction {
         data class OnFormatChanged(val isOnline: Boolean) : AddEditServiceAction
     }
-}
-
-enum class DateSource {
-    BASE_START_DATE,
-    BASE_END_DATE
-}
-
-enum class TimeSource {
-    BASE_START_TIME,
-    BASE_END_TIME
 }
 
 sealed interface AddEditServiceEvent {
