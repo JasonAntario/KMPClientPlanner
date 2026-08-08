@@ -19,3 +19,6 @@ captures
 node_modules/
 mockups/
 desktopApp/prefs.preferences_pb
+desktopApp/*.db
+desktopApp/*.db-wal
+desktopApp/*.db-shm
