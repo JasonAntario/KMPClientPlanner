@@ -4,9 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dsankovsky.kmpclientplanner.data.datastore.AppSettings
 import com.dsankovsky.kmpclientplanner.domain.models.additional.ServiceType
-import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
-import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditClientSpecificFieldsUseCase
+import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpecificFields
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.AddEditDeleteClientUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientSpecificFieldsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.client.GetClientsUseCase
@@ -31,7 +30,6 @@ import org.jetbrains.compose.resources.getString
 class ClientDetailsViewModel(
     private val getClientsUseCase: GetClientsUseCase,
     private val getClientSpecificFieldsUseCase: GetClientSpecificFieldsUseCase,
-    private val addEditClientSpecificFields: AddEditClientSpecificFieldsUseCase,
     private val addEditDeleteClientUseCase: AddEditDeleteClientUseCase,
     private val getServicesUseCase: GetServicesUseCase,
     private val autofillServiceUseCase: AutofillServiceUseCase
@@ -190,6 +188,12 @@ class ClientDetailsViewModel(
                 }
             }
 
+            ClientDetailsActions.OnPrepayClicked -> {
+                viewModelScope.launch {
+                    event.emit(ClientDetailsEvents.OpenPrepay)
+                }
+            }
+
             ClientDetailsActions.OnDeleteClientClicked -> {
                 _state.update { it.copy(showDialog = ClientScreenDialog.ConfirmClientDeleting) }
             }
@@ -294,11 +298,17 @@ class ClientDetailsViewModel(
             getServicesUseCase.getServicesForClientFlow(clientId).collect { services ->
                 _state.update {
                     it.copy(
-                        unpaidTotals = services.filterNot { service -> service.isPaid }.sumByCurrency(),
+                        // Долг — только по проведённым занятиям: будущие ещё не долг,
+                        // на них есть предоплата. Так же считает статистика.
+                        unpaidTotals = services
+                            .filter { service -> service.isFinished && !service.isPaid }
+                            .sumByCurrency(),
                         prepaidCount = services.count { service -> service.isPaid && !service.isFinished },
                         servicesCount = services.size,
                         firstServiceDate = services.minOfOrNull { service -> service.startDate.date },
                         showServicesHistory = services.isNotEmpty(),
+                        // Предоплатить можно любое неоплаченное занятие, в том числе будущее.
+                        showPrepay = services.any { service -> !service.isPaid },
                     )
                 }
             }

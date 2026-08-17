@@ -15,6 +15,7 @@ import com.dsankovsky.kmpclientplanner.domain.models.base.BaseService
  *
  * @param clients клиенты со счётчиком долга — в селекте нужен «Имя — N неоплаченных занятий»
  * @param unpaidServices неоплаченные занятия выбранного клиента, от самого раннего
+ * @param lockedClientId клиент, заданный извне (открытие из карточки клиента): его нельзя сменить
  */
 @Immutable
 data class PayServiceScreenState(
@@ -23,9 +24,17 @@ data class PayServiceScreenState(
     val selectedClientId: Long? = null,
     val amount: Int = DefaultAmount,
     val unpaidServices: List<BaseService> = emptyList(),
+    val lockedClientId: Long? = null,
 ) {
 
     val maxAmount: Int get() = unpaidServices.size
+
+    /** Кого можно выбрать: при предвыбранном клиенте — только его. */
+    val selectableClients: List<PrepayClient>
+        get() = clients.filter { lockedClientId == null || it.client.id == lockedClientId }
+
+    /** Клиент пришёл извне — селект показывает его, но не даёт сменить. */
+    val isClientLocked: Boolean get() = lockedClientId != null
 
     /** Занятия, которые уйдут в оплату: степпер отсекает хвост списка. */
     val servicesToPay: List<BaseService> get() = unpaidServices.take(amount)
@@ -40,8 +49,8 @@ data class PayServiceScreenState(
 
     val isPaymentReady: Boolean get() = selectedClientId != null && amount in 1..maxAmount
 
-    /** Платить нечего: ни у одного клиента нет долга. */
-    val isEmpty: Boolean get() = !isLoading && clients.none { it.unpaidCount > 0 }
+    /** Платить нечего: долга нет ни у одного доступного клиента. */
+    val isEmpty: Boolean get() = !isLoading && selectableClients.none { it.unpaidCount > 0 }
 
     companion object {
         /**

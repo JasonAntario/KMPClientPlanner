@@ -27,7 +27,9 @@ data class ClientDetailsScreenState(
     val clientSpecificFields: ClientSpecificFields? = null,
     val initialClientSpecificFields: ClientSpecificFields? = null,
     val showServicesHistory: Boolean = false,
-    /** «Не оплачено» — суммы неоплаченных занятий по валютам. */
+    /** Кнопка «Предоплата»: есть что оплачивать — хотя бы одно неоплаченное занятие. */
+    val showPrepay: Boolean = false,
+    /** «Не оплачено» — долг по проведённым, но неоплаченным занятиям, по валютам. */
     val unpaidTotals: List<ClientAmount> = emptyList(),
     /** Тег «N предоплаченных занятий»: оплачено, но ещё не проведено. */
     val prepaidCount: Int = 0,

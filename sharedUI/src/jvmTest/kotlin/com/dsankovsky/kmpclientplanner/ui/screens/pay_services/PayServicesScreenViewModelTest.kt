@@ -59,7 +59,7 @@ class PayServicesScreenViewModelTest {
             getServicesUseCase = GetServicesUseCase(repository),
             addEditDeleteServiceUseCase = AddEditDeleteServiceUseCase(repository),
         )
-        viewModel.handleActions(PayServiceScreenAction.LoadData)
+        viewModel.handleActions(PayServiceScreenAction.LoadData())
 
         assertEquals(4, viewModel.state.value.clients.single().unpaidCount, "оплаченное не считаем")
         assertFalse(viewModel.state.value.isPaymentReady, "без клиента платить нечего")
@@ -94,11 +94,61 @@ class PayServicesScreenViewModelTest {
         assertEquals(1, after.amount, "счётчик поджался под остаток долга")
     }
 
-    private fun service(id: Long, day: Int, isPaid: Boolean = false): BaseService {
+    /**
+     * Из карточки клиента модалка открывается с уже выбранным клиентом: сменить его нельзя,
+     * и «нечего оплачивать» считается по нему, а не по всем клиентам разом.
+     */
+    @Test
+    fun `preselects the client it was opened for`() = runTest(dispatcher) {
+        val services = MutableStateFlow(
+            listOf(
+                service(id = 1, day = 20),
+                service(id = 2, day = 21, clientId = 2),
+            ),
+        )
+        val clients = MutableStateFlow(
+            listOf(
+                BaseClient(id = 1, name = "Дмитрий", surname = "Лис"),
+                BaseClient(id = 2, name = "Анна", surname = "Ковалёва"),
+            ),
+        )
+        val repository = FakeServicesRepository(services)
+
+        val viewModel = PayServicesScreenViewModel(
+            getClientsUseCase = GetClientsUseCase(FakeClientsRepository(clients)),
+            getServicesUseCase = GetServicesUseCase(repository),
+            addEditDeleteServiceUseCase = AddEditDeleteServiceUseCase(repository),
+        )
+        viewModel.handleActions(PayServiceScreenAction.LoadData(clientId = 1))
+
+        val state = viewModel.state.value
+        assertEquals(1L, state.selectedClientId, "клиент из карточки уже выбран")
+        assertTrue(state.isClientLocked)
+        assertEquals(listOf(1L), state.selectableClients.map { it.client.id }, "чужих в выборе нет")
+        assertEquals(listOf(1L), state.unpaidServices.map { it.id })
+        assertTrue(state.isPaymentReady)
+
+        // У самого клиента долга нет, хотя у другого он остался.
+        services.value = listOf(service(id = 2, day = 21, clientId = 2))
+        assertTrue(viewModel.state.value.isEmpty, "долг считаем по выбранному клиенту")
+
+        // Переоткрытие со статистики не должно донашивать прошлого клиента.
+        viewModel.handleActions(PayServiceScreenAction.LoadData())
+        assertEquals(null, viewModel.state.value.selectedClientId)
+        assertFalse(viewModel.state.value.isClientLocked)
+        assertFalse(viewModel.state.value.isEmpty, "у второго клиента долг остался")
+    }
+
+    private fun service(
+        id: Long,
+        day: Int,
+        isPaid: Boolean = false,
+        clientId: Long = 1,
+    ): BaseService {
         val dateTime = LocalDateTime(2026, 7, day, 19, 30)
         return BaseService(
             id = id,
-            clientId = 1,
+            clientId = clientId,
             startDate = dateTime,
             endDate = dateTime,
             price = 60f,

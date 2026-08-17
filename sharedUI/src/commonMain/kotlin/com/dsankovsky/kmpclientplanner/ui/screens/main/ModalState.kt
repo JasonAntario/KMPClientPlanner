@@ -18,8 +18,13 @@ sealed interface ModalState {
     /** М3 — форма клиента, 600 dp. */
     data class ClientForm(val clientId: Long?) : ModalState
 
-    /** М5 — предоплата, 520 dp. */
-    data object Prepay : ModalState
+    /**
+     * М5 — предоплата, 520 dp.
+     *
+     * @param clientId задан, когда модалку открыли из карточки клиента: тогда клиент
+     *   предвыбран и сменить его нельзя. Со статистики приходит `null` — выбор свободный.
+     */
+    data class Prepay(val clientId: Long? = null) : ModalState
 
     /** М10 — сброс приложения, 460 dp. */
     data object ResetApp : ModalState

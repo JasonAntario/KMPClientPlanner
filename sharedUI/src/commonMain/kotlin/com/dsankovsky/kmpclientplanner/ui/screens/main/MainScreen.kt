@@ -247,6 +247,7 @@ fun MainScreen() {
                     ClientsScreen(
                         onAddClient = { modal = ModalState.ClientForm(clientId = null) },
                         onEditClient = { clientId -> modal = ModalState.ClientForm(clientId) },
+                        onPrepayClient = { clientId -> modal = ModalState.Prepay(clientId) },
                         onOpenServicesHistory = { clientId ->
                             backStack.add(Screen.ServicesHistory(clientId))
                         },
@@ -266,7 +267,7 @@ fun MainScreen() {
                 entry<Screen.StatisticsScreen> {
                     StatisticsScreen(
                         onOpenPayServices = {
-                            modal = ModalState.Prepay
+                            modal = ModalState.Prepay()
                         }
                     )
                 }

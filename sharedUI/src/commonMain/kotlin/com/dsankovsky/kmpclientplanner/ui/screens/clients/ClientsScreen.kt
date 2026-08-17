@@ -34,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ClientsScreen(
     onAddClient: () -> Unit,
     onEditClient: (clientId: Long) -> Unit,
+    onPrepayClient: (clientId: Long) -> Unit,
     onOpenServicesHistory: (clientId: Long) -> Unit,
     onAutofillCompleted: () -> Unit,
     modifier: Modifier = Modifier,
@@ -89,6 +90,7 @@ fun ClientsScreen(
                     ClientDetailsPane(
                         clientId = selectedClientId,
                         onEditClient = { onEditClient(selectedClientId) },
+                        onPrepayClient = { onPrepayClient(selectedClientId) },
                         onOpenServicesHistory = { onOpenServicesHistory(selectedClientId) },
                         onAutofillCompleted = onAutofillCompleted,
                         // Список сам подтянет удаление клиента: он на flow из базы.

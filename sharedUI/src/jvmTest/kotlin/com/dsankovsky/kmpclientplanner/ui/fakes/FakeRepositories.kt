@@ -28,7 +28,9 @@ class FakeServicesRepository(
     override fun getAllServicesForHomeScreen(): Flow<List<BaseService>> = services
     override fun getServiceByServiceId(serviceId: Long): Flow<BaseService> = notNeeded()
     override suspend fun getServiceByClientId(clientId: Long): List<BaseService> = notNeeded()
-    override fun getServiceByClientIdFlow(clientId: Long): Flow<List<BaseService>> = notNeeded()
+
+    override fun getServiceByClientIdFlow(clientId: Long): Flow<List<BaseService>> =
+        services.map { list -> list.filter { it.clientId == clientId } }
     override suspend fun getLastServiceByClientId(clientId: Long): BaseService = notNeeded()
     override suspend fun addService(service: BaseService): Long = notNeeded()
 
@@ -105,7 +107,9 @@ class FakeClientsRepository(
 
     override fun getAllClients(): Flow<List<BaseClient>> = clients
 
-    override fun getClientByClientId(clientId: Long): Flow<BaseClient> = notNeeded()
+    override fun getClientByClientId(clientId: Long): Flow<BaseClient> =
+        clients.map { list -> list.first { it.id == clientId } }
+
     override suspend fun addClient(client: BaseClient): Long = notNeeded()
     override suspend fun updateClient(client: BaseClient) = notNeeded()
     override suspend fun deleteClient(clientId: Long) = notNeeded()

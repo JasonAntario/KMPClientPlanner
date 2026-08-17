@@ -198,6 +198,9 @@ class AddEditServiceViewModel(
     }
 
     private fun loadData(serviceId: Long?) {
+        // Как и у формы клиента: ViewModel переживает закрытие модалки, поэтому поля
+        // прошлой услуги надо сбросить, а не показывать до конца загрузки.
+        _state.value = AddEditServiceScreenState()
         viewModelScope.launch(Dispatchers.IO) {
             val startTime = getStartDateTime()
             val service = getServicesUseCase.getServiceById(serviceId).first()

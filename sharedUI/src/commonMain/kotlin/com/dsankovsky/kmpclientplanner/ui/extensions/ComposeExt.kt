@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -44,10 +41,14 @@ fun <T> SharedFlow<T>.collectWithLifecycle(
 ) {
     val flow = this
     val lifecycle = lifecycleOwner.lifecycle
+    // Подписка живёт дольше одной композиции, а обработчик — нет: он замыкает параметры
+    // экрана (например id выбранного клиента). Без rememberUpdatedState коллектор навсегда
+    // остался бы с лямбдой первой композиции и работал бы со устаревшими данными.
+    val currentCollect by rememberUpdatedState(collect)
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(state = state) {
             flow.collect {
-                collect(it)
+                currentCollect(it)
             }
         }
     }
@@ -64,12 +65,6 @@ fun PaddingValues.withNavBarPadding(): PaddingValues {
         bottom = bottomPadding + this.calculateBottomPadding()
     )
 }
-
-fun Modifier.edgeToEdgeBottomPadding(additionalBottomPadding: Dp = 16.dp) =
-    this
-        .navigationBarsPadding()
-        .padding(bottom = additionalBottomPadding)
-
 
 @Composable
 fun ServiceType.toUIName(): String {

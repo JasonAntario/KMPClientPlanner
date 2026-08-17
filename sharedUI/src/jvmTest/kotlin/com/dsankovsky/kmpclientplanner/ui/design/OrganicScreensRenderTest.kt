@@ -466,6 +466,7 @@ private fun clientDetailsState() = ClientDetailsScreenState(
     servicesCount = 12,
     firstServiceDate = kotlinx.datetime.LocalDate(2026, 3, 12),
     showServicesHistory = true,
+    showPrepay = true,
 )
 
 private fun client(name: String, surname: String, paid: Int, byn: Float, usd: Float) =

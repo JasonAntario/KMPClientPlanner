@@ -120,8 +120,9 @@ fun AppModal(
             },
         )
 
-        ModalState.Prepay -> OrganicModalHost(onDismissRequest = onDismiss) {
+        is ModalState.Prepay -> OrganicModalHost(onDismissRequest = onDismiss) {
             PrepayModal(
+                clientId = state.clientId,
                 fullScreen = fullScreen,
                 onEvent = { event ->
                     when (event) {

@@ -57,6 +57,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun PrepayModal(
     onEvent: (PayServiceScreenEvent) -> Unit,
+    clientId: Long? = null,
     fullScreen: Boolean = false,
 ) {
     val viewModel: PayServicesScreenViewModel = koinViewModel()
@@ -64,8 +65,8 @@ fun PrepayModal(
 
     viewModel.event.collectWithLifecycle { onEvent(it) }
 
-    LaunchedEffect(Unit) {
-        viewModel.handleActions(PayServiceScreenAction.LoadData)
+    LaunchedEffect(clientId) {
+        viewModel.handleActions(PayServiceScreenAction.LoadData(clientId))
     }
 
     PrepayModalContent(
@@ -92,7 +93,7 @@ fun PrepayModalContent(
 
         // Подписи считаем заранее: `itemLabel` — обычная лямбда, из неё @Composable
         // (а множественное число клиентов — это plural-ресурс) вызвать нельзя.
-        val options = state.clients
+        val options = state.selectableClients
             .filter { it.unpaidCount > 0 }
             .map { client -> client to client.label() }
 
@@ -103,7 +104,8 @@ fun PrepayModalContent(
                 onSelect = { onAction(PayServiceScreenAction.OnClientSelected(it.first.client.id)) },
                 itemLabel = { it.second },
                 placeholder = stringResource(Res.string.prepay_client_placeholder),
-                enabled = !state.isEmpty,
+                // Клиент из карточки менять нельзя — селект остаётся как подпись, кого платим.
+                enabled = !state.isEmpty && !state.isClientLocked,
             )
         }
 

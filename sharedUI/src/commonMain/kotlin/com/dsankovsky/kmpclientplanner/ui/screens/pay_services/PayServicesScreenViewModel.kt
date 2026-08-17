@@ -31,7 +31,15 @@ class PayServicesScreenViewModel(
 
     fun handleActions(action: PayServiceScreenAction) {
         when (action) {
-            PayServiceScreenAction.LoadData -> observeData()
+            is PayServiceScreenAction.LoadData -> {
+                // ViewModel живёт на сторе уровня приложения — модалка не destination,
+                // поэтому предыдущее открытие надо стереть, а не донашивать.
+                _state.value = PayServiceScreenState(
+                    lockedClientId = action.clientId,
+                    selectedClientId = action.clientId,
+                )
+                observeData()
+            }
 
             is PayServiceScreenAction.OnClientSelected -> _state.update { state ->
                 // Другой клиент — другой долг, поэтому счётчик начинается заново.

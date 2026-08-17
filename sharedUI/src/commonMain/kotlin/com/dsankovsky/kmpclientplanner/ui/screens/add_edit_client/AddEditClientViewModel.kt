@@ -300,6 +300,10 @@ class AddEditClientViewModel(
     }
 
     private fun loadData(clientId: Long?) {
+        // ViewModel формы живёт на сторе уровня приложения — модалка не destination.
+        // Значит при повторном открытии в состоянии лежат поля прошлого клиента:
+        // сбрасываем их, иначе они видны до конца загрузки.
+        _state.value = AddEditClientScreenState()
         viewModelScope.launch {
             val client = getClientsUseCase.getClientById(clientId).firstOrNull()
             val id = client?.id ?: UNDEFINED_ID

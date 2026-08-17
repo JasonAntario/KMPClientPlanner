@@ -13,6 +13,9 @@ sealed interface ClientDetailsActions {
 
     data object ShowServicesHistory : ClientDetailsActions
 
+    /** Кнопка «Предоплата»: та же М5, но клиент уже выбран. */
+    data object OnPrepayClicked : ClientDetailsActions
+
     /** Корзина в шапке карточки: сначала подтверждение (М8), потом удаление. */
     data object OnDeleteClientClicked : ClientDetailsActions
     data object OnDeleteClientConfirmed : ClientDetailsActions
@@ -44,5 +47,6 @@ sealed interface ClientDetailsEvents {
     data object OpenEditClientScreen : ClientDetailsEvents
     data object AutofillCompleted : ClientDetailsEvents
     data object OpenServicesHistory : ClientDetailsEvents
+    data object OpenPrepay : ClientDetailsEvents
     data object ClientDeleted : ClientDetailsEvents
 }

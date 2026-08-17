@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -82,6 +84,7 @@ import kmpclientplanner.sharedui.generated.resources.client_shoud_continue_autof
 import kmpclientplanner.sharedui.generated.resources.confirm
 import kmpclientplanner.sharedui.generated.resources.service_crossing
 import kmpclientplanner.sharedui.generated.resources.statistics_empty_value
+import kmpclientplanner.sharedui.generated.resources.statistics_prepay
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -97,6 +100,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ClientDetailsPane(
     clientId: Long,
     onEditClient: () -> Unit,
+    onPrepayClient: () -> Unit,
     onOpenServicesHistory: () -> Unit,
     onAutofillCompleted: () -> Unit,
     onClientDeleted: () -> Unit,
@@ -109,6 +113,7 @@ fun ClientDetailsPane(
     viewModel.event.collectWithLifecycle { event ->
         when (event) {
             ClientDetailsEvents.OpenEditClientScreen -> onEditClient()
+            ClientDetailsEvents.OpenPrepay -> onPrepayClient()
             ClientDetailsEvents.OpenServicesHistory -> onOpenServicesHistory()
             ClientDetailsEvents.AutofillCompleted -> onAutofillCompleted()
             ClientDetailsEvents.ClientDeleted -> onClientDeleted()
@@ -321,6 +326,7 @@ private fun MetricStyle() =
     OrganicTheme.typography.numeric.copy(fontSize = 24.sp, lineHeight = 28.sp)
 
 /** Карточка «Контакты» с комментарием и кнопки под ней. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ContactsBlock(
     state: ClientDetailsScreenState,
@@ -360,7 +366,19 @@ private fun ContactsBlock(
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2)) {
+        // Кнопок бывает три, и в 520 dp они рядом не встают — лишние переносим на строку ниже.
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2),
+            verticalArrangement = Arrangement.spacedBy(OrganicTheme.spacing.space2),
+        ) {
+            // Та же М5, что и со статистики, только клиент уже выбран и не меняется.
+            if (state.showPrepay) {
+                OrganicButton(
+                    text = stringResource(Res.string.statistics_prepay),
+                    onClick = { onAction(ClientDetailsActions.OnPrepayClicked) },
+                    icon = OrganicIcons.Wallet,
+                )
+            }
             if (state.showServicesHistory) {
                 OrganicButton(
                     text = stringResource(Res.string.client_details_all_services),
@@ -583,6 +601,7 @@ private fun ClientDetailsPaneContentPreview() {
                 prepaidCount = 2,
                 servicesCount = 12,
                 showServicesHistory = true,
+                showPrepay = true,
             ),
             onAction = {},
         )
