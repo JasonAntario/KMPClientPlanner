@@ -26,6 +26,12 @@ sealed interface AddEditServiceAction {
     data object OnSaveServiceClicked : AddEditServiceAction
     data object OnSaveServiceConfirmed : AddEditServiceAction
 
+    /** «Перенести все» в вопросе про остальные занятия клиента. */
+    data object OnShiftFutureServicesConfirmed : AddEditServiceAction
+
+    /** «Только это занятие»: сохраняем правку, остальные занятия не трогаем. */
+    data object OnShiftFutureServicesDeclined : AddEditServiceAction
+
     data class OnPaidStatusChanged(val isPaid: Boolean) : AddEditServiceAction
     data class OnFinishedStatusChanged(val isFinished: Boolean) : AddEditServiceAction
 
@@ -52,4 +58,10 @@ sealed interface AddEditServiceEvent {
     data object OnDismissClicked : AddEditServiceEvent
     data object OnServiceDeleted : AddEditServiceEvent
     data object OnServiceSaved : AddEditServiceEvent
+
+    /** Занятие сохранено, и вместе с ним перенесены остальные занятия слота. */
+    data class OnFutureServicesShifted(val count: Int) : AddEditServiceEvent
+
+    /** Занятие сохранено, а перенести остальные не удалось. */
+    data object OnFutureServicesShiftFailed : AddEditServiceEvent
 }

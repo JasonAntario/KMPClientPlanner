@@ -19,11 +19,14 @@ import kmpclientplanner.sharedui.generated.resources.add_edit_client_deleted
 import kmpclientplanner.sharedui.generated.resources.add_edit_client_updated
 import kmpclientplanner.sharedui.generated.resources.add_edit_service_created
 import kmpclientplanner.sharedui.generated.resources.add_edit_service_deleted
+import kmpclientplanner.sharedui.generated.resources.add_edit_service_shift_failed
+import kmpclientplanner.sharedui.generated.resources.add_edit_service_shifted
 import kmpclientplanner.sharedui.generated.resources.add_edit_service_updated
 import kmpclientplanner.sharedui.generated.resources.client_details_autofill_completed
 import kmpclientplanner.sharedui.generated.resources.services_paid
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
 /**
@@ -105,6 +108,27 @@ fun AppModal(
                                 Res.string.add_edit_service_created
                             },
                         )
+                        onDismiss()
+                    }
+
+                    // Занятие сохранено в обоих случаях, поэтому окно закрывается так же —
+                    // сообщение говорит только про судьбу остальных занятий серии.
+                    is AddEditServiceEvent.OnFutureServicesShifted -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = getPluralString(
+                                    Res.plurals.add_edit_service_shifted,
+                                    event.count,
+                                    event.count,
+                                ),
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+                        onDismiss()
+                    }
+
+                    AddEditServiceEvent.OnFutureServicesShiftFailed -> {
+                        toast(Res.string.add_edit_service_shift_failed)
                         onDismiss()
                     }
 

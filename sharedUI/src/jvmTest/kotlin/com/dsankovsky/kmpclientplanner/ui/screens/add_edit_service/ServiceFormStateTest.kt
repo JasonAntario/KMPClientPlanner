@@ -54,6 +54,38 @@ class ServiceFormStateTest {
         assertFalse(loaded().copy(durationText = "6").isDirty)
     }
 
+    /**
+     * Вопрос «перенести остальные занятия?» задаётся, когда занятие уехало в другой слот
+     * недели: серию из расписания опознают именно по дню недели и времени начала.
+     */
+    @Test
+    fun `week slot changes only with another weekday or time`() {
+        val state = loaded() // среда, 29 июля 2026, 15:00
+        assertFalse(state.movedToAnotherWeekSlot, "нетронутая форма никуда не переезжала")
+
+        val movedByWeek = state.copy(startDateTime = LocalDateTime(2026, 8, 5, 15, 0))
+        assertFalse(movedByWeek.movedToAnotherWeekSlot, "та же среда, то же время — слот тот же")
+
+        val movedToThursday = state.copy(startDateTime = LocalDateTime(2026, 7, 30, 15, 0))
+        assertTrue(movedToThursday.movedToAnotherWeekSlot, "другой день недели")
+
+        val movedToEvening = state.copy(startDateTime = LocalDateTime(2026, 7, 29, 19, 30))
+        assertTrue(movedToEvening.movedToAnotherWeekSlot, "другое время")
+
+        // У новой услуги сравнивать не с чем: серии за ней не стоит.
+        assertFalse(
+            state.copy(initialSnapshot = null, startDateTime = LocalDateTime(2026, 7, 30, 19, 0))
+                .movedToAnotherWeekSlot,
+        )
+    }
+
+    @Test
+    fun `reassigning the service to another client is visible in state`() {
+        val state = loaded()
+        assertFalse(state.clientChanged)
+        assertTrue(state.copy(client = BaseClient(id = 2, name = "Олег")).clientChanged)
+    }
+
     private fun loaded(): AddEditServiceScreenState {
         val state = AddEditServiceScreenState(
             isLoading = false,

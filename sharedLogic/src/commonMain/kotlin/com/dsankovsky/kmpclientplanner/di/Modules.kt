@@ -18,6 +18,7 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.service.AutofillServiceUs
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.CheckServiceCrossingUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServiceSpecificFieldsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCase
+import com.dsankovsky.kmpclientplanner.domain.usecases.service.ShiftFutureServicesUseCase
 import org.koin.core.module.Module
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -37,6 +38,7 @@ val useCasesModule = module {
     factory<CheckServiceCrossingUseCase>()
     factory<GetServiceSpecificFieldsUseCase>()
     factory<GetServicesUseCase>()
+    factory<ShiftFutureServicesUseCase>()
     factory<ClearDatabaseUseCase>()
 }
 

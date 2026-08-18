@@ -17,6 +17,7 @@ import com.dsankovsky.kmpclientplanner.domain.usecases.service.AddEditServiceSpe
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.CheckServiceCrossingUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServiceSpecificFieldsUseCase
 import com.dsankovsky.kmpclientplanner.domain.usecases.service.GetServicesUseCase
+import com.dsankovsky.kmpclientplanner.domain.usecases.service.ShiftFutureServicesUseCase
 import com.dsankovsky.kmpclientplanner.ui.extensions.addHours
 import com.dsankovsky.kmpclientplanner.ui.extensions.getStartDateTime
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,7 @@ class AddEditServiceViewModel(
     private val getClientSpecificFieldsUseCase: GetClientSpecificFieldsUseCase,
     private val addEditServiceSpecificFieldsUseCase: AddEditServiceSpecificFieldsUseCase,
     private val checkServiceCrossingUseCase: CheckServiceCrossingUseCase,
+    private val shiftFutureServicesUseCase: ShiftFutureServicesUseCase,
     private val getClientsUseCase: GetClientsUseCase,
     private val appSettings: AppSettings
 ) : ViewModel() {
@@ -81,7 +83,18 @@ class AddEditServiceViewModel(
 
             AddEditServiceAction.OnSaveServiceClicked -> checkServiceBeforeSaving()
 
+            // М6: время занято, но пользователь настоял — остаётся вопрос про серию занятий.
             AddEditServiceAction.OnSaveServiceConfirmed -> {
+                closeDialog()
+                askAboutFutureServices()
+            }
+
+            AddEditServiceAction.OnShiftFutureServicesConfirmed -> {
+                closeDialog()
+                saveService(shiftSlot = true)
+            }
+
+            AddEditServiceAction.OnShiftFutureServicesDeclined -> {
                 closeDialog()
                 saveService()
             }
@@ -350,6 +363,8 @@ class AddEditServiceViewModel(
                     currentState.endDateTime
                 )
             )
+                // При правке занятие уже лежит в базе в этом же интервале и находит само себя.
+                .filterNot { it.id == currentState.id }
 
             if (crossingServices.isNotEmpty()) {
                 _state.update {
@@ -360,12 +375,73 @@ class AddEditServiceViewModel(
                     )
                 }
             } else {
-                saveService()
+                askAboutFutureServices()
             }
         }
     }
 
-    private fun saveService() {
+    /**
+     * Занятия ставятся расписанием серией, поэтому переезд одного из них — обычно переезд
+     * всей серии и самой строки расписания в карточке клиента. Спрашиваем только когда
+     * переносить правда есть что: вопрос без последствий лишний.
+     */
+    private fun askAboutFutureServices() {
+        viewModelScope.launch {
+            val services = findServicesToShift()
+            val updatesSchedule = hasClientScheduleSlot()
+            if (services.isEmpty() && !updatesSchedule) {
+                saveService()
+            } else {
+                _state.update {
+                    it.copy(
+                        showDialog = AddEditServiceScreenState.ServiceScreenDialog
+                            .ConfirmShiftFutureServices(
+                                services = services,
+                                updatesClientSchedule = updatesSchedule,
+                            )
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun findServicesToShift(): List<BaseService> {
+        val state = state.value
+        val client = state.client ?: return emptyList()
+        val initialStart = shiftableSlotStart() ?: return emptyList()
+
+        return shiftFutureServicesUseCase.findServicesToShift(
+            clientId = client.id,
+            serviceId = state.id,
+            oldStart = initialStart,
+        )
+    }
+
+    private suspend fun hasClientScheduleSlot(): Boolean {
+        val client = state.value.client ?: return false
+        val initialStart = shiftableSlotStart() ?: return false
+
+        return shiftFutureServicesUseCase.hasScheduleSlot(
+            clientId = client.id,
+            serviceType = client.serviceType,
+            oldStart = initialStart,
+        )
+    }
+
+    /** Начало занятия до правки — если правка вообще сдвинула его в другой слот недели. */
+    private fun shiftableSlotStart(): LocalDateTime? {
+        val state = state.value
+        if (!state.isEdit || !state.movedToAnotherWeekSlot) return null
+        // Занятие переписали на другого клиента: серия и расписание остались у прошлого.
+        if (state.clientChanged) return null
+        return state.initialStartDateTime
+    }
+
+    /**
+     * @param shiftSlot переносить ли вслед за занятием весь его слот недели: остальные
+     *   занятия серии и строку расписания в карточке клиента
+     */
+    private fun saveService(shiftSlot: Boolean = false) {
         viewModelScope.launch {
             val state = state.value
             if (state.client == null) throw RuntimeException("Client must not be null")
@@ -402,7 +478,28 @@ class AddEditServiceViewModel(
                 }
             }
 
-            event.emit(AddEditServiceEvent.OnServiceSaved)
+            val initialStart = state.initialStartDateTime
+            if (!shiftSlot || initialStart == null) {
+                event.emit(AddEditServiceEvent.OnServiceSaved)
+                return@launch
+            }
+
+            // Само занятие уже сохранено: перенос слота — отдельный итог со своим сообщением.
+            // Серию ищем заново: между вопросом и ответом занятия могли измениться.
+            shiftFutureServicesUseCase.shift(
+                services = findServicesToShift(),
+                oldStart = initialStart,
+                newStart = state.startDateTime,
+                clientId = state.client.id,
+                serviceType = state.client.serviceType,
+            ).fold(
+                onSuccess = { count ->
+                    event.emit(AddEditServiceEvent.OnFutureServicesShifted(count))
+                },
+                onFailure = {
+                    event.emit(AddEditServiceEvent.OnFutureServicesShiftFailed)
+                },
+            )
         }
     }
 

@@ -294,6 +294,14 @@
     <string name="client_form_crossing_confirm">Создать всё равно</string>
     <string name="client_form_crossing_dismiss">Изменить время</string>
 
+    <string name="service_form_shift_title">Перенести остальные занятия?</string>
+    <string name="service_form_shift_text">Хотите изменить дату проведения для всех остальных занятий? Будущие занятия клиента, которые стоят в это же время, переедут вслед за этим.</string>
+    <string name="service_form_shift_text_with_schedule">Хотите изменить дату проведения для всех остальных занятий? Будущие занятия клиента в это же время переедут вслед за этим, а в карточке клиента обновится расписание.</string>
+    <string name="service_form_shift_schedule">Расписание клиента тоже переедет на новый день и время</string>
+    <string name="service_form_shift_confirm">Перенести все</string>
+    <string name="service_form_shift_dismiss">Только это занятие</string>
+    <string name="service_form_shift_list">Будут перенесены</string>
+
     <string name="prepay_title">Предоплата</string>
     <string name="prepay_client">Клиент</string>
     <string name="prepay_client_placeholder">Выберите клиента</string>
@@ -394,6 +402,13 @@
     <string name="add_edit_service_deleted">Услуга успешно удалена</string>
     <string name="add_edit_service_created">Услуга успешно создана</string>
     <string name="add_edit_service_updated">Данные услуги успешно обновлены</string>
+    <plurals name="add_edit_service_shifted">
+        <item quantity="one">Перенесено ещё %1$d занятие</item>
+        <item quantity="few">Перенесено ещё %1$d занятия</item>
+        <item quantity="many">Перенесено ещё %1$d занятий</item>
+        <item quantity="other">Перенесено ещё %1$d занятия</item>
+    </plurals>
+    <string name="add_edit_service_shift_failed">Не удалось перенести остальные занятия</string>
 
     <string name="feedback_url">https://forms.gle/sh8ateS5wgdT4x4W6</string>
     <string name="statistics_income_in_period">Заработано за период</string>

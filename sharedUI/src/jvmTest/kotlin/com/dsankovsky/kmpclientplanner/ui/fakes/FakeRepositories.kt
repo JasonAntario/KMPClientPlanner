@@ -8,6 +8,8 @@ import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ClientSpeci
 import com.dsankovsky.kmpclientplanner.domain.models.specific_fields.ServiceSpecificFields
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDateTime
@@ -27,7 +29,9 @@ class FakeServicesRepository(
 
     override fun getAllServicesForHomeScreen(): Flow<List<BaseService>> = services
     override fun getServiceByServiceId(serviceId: Long): Flow<BaseService> = notNeeded()
-    override suspend fun getServiceByClientId(clientId: Long): List<BaseService> = notNeeded()
+
+    override suspend fun getServiceByClientId(clientId: Long): List<BaseService> =
+        services.value.filter { it.clientId == clientId }
 
     override fun getServiceByClientIdFlow(clientId: Long): Flow<List<BaseService>> =
         services.map { list -> list.filter { it.clientId == clientId } }
@@ -101,8 +105,14 @@ class FakeServicesRepository(
     ) = notNeeded()
 }
 
+/**
+ * @param educationFields расписание клиента: нужно только тем тестам, которые его правят,
+ *   поэтому по умолчанию репозиторий отвечает «строки нет»
+ */
 class FakeClientsRepository(
     private val clients: MutableStateFlow<List<BaseClient>>,
+    private val educationFields: MutableStateFlow<ClientSpecificFields.EducationClientSpecificFields?> =
+        MutableStateFlow(null),
 ) : ClientsListRepository {
 
     override fun getAllClients(): Flow<List<BaseClient>> = clients
@@ -114,17 +124,26 @@ class FakeClientsRepository(
     override suspend fun updateClient(client: BaseClient) = notNeeded()
     override suspend fun deleteClient(clientId: Long) = notNeeded()
 
+    // Пустой поток, а не поток из null: use case берёт `firstOrNull`, и на бесконечном
+    // потоке без эмиссий он бы просто завис.
     override fun getEducationSpecificFieldByClientId(
         clientId: Long,
-    ): Flow<ClientSpecificFields.EducationClientSpecificFields> = notNeeded()
+    ): Flow<ClientSpecificFields.EducationClientSpecificFields> =
+        educationFields.value
+            ?.takeIf { it.clientId == clientId }
+            ?.let { flowOf(it) }
+            ?: emptyFlow()
 
     override suspend fun addEducationSpecificField(
         field: ClientSpecificFields.EducationClientSpecificFields,
     ): Long = notNeeded()
 
+    /** Запись правда меняется: иначе не проверить, что расписание переехало. */
     override suspend fun updateEducationSpecificField(
         field: ClientSpecificFields.EducationClientSpecificFields,
-    ) = notNeeded()
+    ) {
+        educationFields.value = field
+    }
 
     override fun getSportSpecificFieldByClientId(
         clientId: Long,

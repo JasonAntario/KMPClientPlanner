@@ -54,6 +54,18 @@ data class AddEditServiceScreenState(
 
         /** М9 — закрытие формы с несохранёнными правками. */
         data object ConfirmDiscard : ServiceScreenDialog
+
+        /**
+         * Занятие переехало в другой слот недели — переносить ли остальные занятия клиента.
+         *
+         * @param services занятия, которые переедут при положительном ответе
+         * @param updatesClientSchedule в карточке клиента есть строка этого же слота, и она
+         *   переедет вместе с занятиями: об этом в вопросе стоит сказать отдельно
+         */
+        data class ConfirmShiftFutureServices(
+            val services: List<BaseService>,
+            val updatesClientSchedule: Boolean,
+        ) : ServiceScreenDialog
     }
 
     /** Длительность в минутах — она же значение поля, когда его ещё не трогали. */
@@ -75,6 +87,26 @@ data class AddEditServiceScreenState(
         )
 
     val isDirty: Boolean get() = initialSnapshot != null && initialSnapshot != snapshot
+
+    /** Начало занятия до правки: по нему опознаются остальные занятия того же слота недели. */
+    val initialStartDateTime: LocalDateTime? get() = initialSnapshot?.startDateTime
+
+    /** Занятие отдали другому клиенту: прошлая серия и его расписание уже не про это занятие. */
+    val clientChanged: Boolean
+        get() = initialSnapshot != null && initialSnapshot.clientId != client?.id
+
+    /**
+     * Занятие переехало в другой слот недели — другой день недели или другое время начала.
+     *
+     * Переезд на другую дату того же дня недели (занятие сдвинули на неделю вперёд) слот
+     * не меняет: остальным занятиям серии от этого ничего не грозит.
+     */
+    val movedToAnotherWeekSlot: Boolean
+        get() {
+            val initial = initialStartDateTime ?: return false
+            return initial.time != startDateTime.time ||
+                initial.dayOfWeek != startDateTime.dayOfWeek
+        }
 
     fun isFinishButtonEnabled(): Boolean {
         return title.isNotBlank() && client != null

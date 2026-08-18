@@ -84,6 +84,13 @@ import kmpclientplanner.sharedui.generated.resources.service_form_discard_title
 import kmpclientplanner.sharedui.generated.resources.service_form_duration
 import kmpclientplanner.sharedui.generated.resources.service_form_name
 import kmpclientplanner.sharedui.generated.resources.service_form_new_address
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_confirm
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_dismiss
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_list
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_schedule
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_text
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_text_with_schedule
+import kmpclientplanner.sharedui.generated.resources.service_form_shift_title
 import kmpclientplanner.sharedui.generated.resources.service_form_subtitle
 import kmpclientplanner.sharedui.generated.resources.service_form_title
 import kmpclientplanner.sharedui.generated.resources.service_homework
@@ -406,6 +413,49 @@ private fun ServiceFormDialog(
             fullScreen = fullScreen,
         )
 
+        is AddEditServiceScreenState.ServiceScreenDialog.ConfirmShiftFutureServices -> ConfirmModal(
+            title = stringResource(Res.string.service_form_shift_title),
+            text = stringResource(
+                if (dialog.updatesClientSchedule) {
+                    Res.string.service_form_shift_text_with_schedule
+                } else {
+                    Res.string.service_form_shift_text
+                },
+            ),
+            confirmText = stringResource(Res.string.service_form_shift_confirm),
+            // Отказ — не отмена: занятие сохраняется, остальные остаются на своих местах.
+            dismissText = stringResource(Res.string.service_form_shift_dismiss),
+            onConfirm = { onAction(AddEditServiceAction.OnShiftFutureServicesConfirmed) },
+            onDismiss = { onAction(AddEditServiceAction.OnShiftFutureServicesDeclined) },
+            fullScreen = fullScreen,
+            extraContent = {
+                if (dialog.services.isNotEmpty()) {
+                    OrganicModalPanel(kicker = stringResource(Res.string.service_form_shift_list)) {
+                        dialog.services.take(ShiftServicesLimit).forEach { service ->
+                            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                                OrganicText(
+                                    text = service.getServiceDate(),
+                                    style = OrganicTheme.typography.bodySm,
+                                )
+                                OrganicText(
+                                    text = service.getServiceTime(),
+                                    style = OrganicTheme.typography.bodySm,
+                                    color = OrganicTheme.colors.muted,
+                                )
+                            }
+                        }
+                    }
+                }
+                if (dialog.updatesClientSchedule) {
+                    OrganicText(
+                        text = stringResource(Res.string.service_form_shift_schedule),
+                        style = OrganicTheme.typography.label,
+                        color = OrganicTheme.colors.muted,
+                    )
+                }
+            },
+        )
+
         is AddEditServiceScreenState.ServiceScreenDialog.ServicesCrossing -> ConfirmModal(
             title = stringResource(Res.string.service_form_crossing_title),
             text = stringResource(Res.string.service_form_crossing_text),
@@ -476,6 +526,7 @@ private fun FormDivider() {
 private val FormGap = 14.dp
 private val FormMinHeight = 160.dp
 private const val CrossingServicesLimit = 6
+private const val ShiftServicesLimit = 6
 
 @Preview
 @Composable
